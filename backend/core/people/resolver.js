@@ -1,9 +1,9 @@
 class PeopleResolver {
-  constructor(objectType, resolve, denormalize, priority = 0) {
+  constructor(objectType, resolve, denormalize, defaultPriority = 0) {
     this.objectType = objectType;
     this.resolve = resolve;
     this.denormalize = denormalize;
-    this.priority = priority;
+    this.defaultPriority = defaultPriority;
   }
 }
 

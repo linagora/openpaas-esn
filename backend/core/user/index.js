@@ -1,11 +1,9 @@
-const util = require('util');
 const _ = require('lodash');
 const esnConfig = require('../../core')['esn-config'];
 const pubsub = require('../../core/pubsub').local;
 const logger = require('../logger');
 const authToken = require('../auth/token');
 const mongoose = require('mongoose');
-const trim = require('trim');
 const User = mongoose.model('User');
 const emailAddresses = require('email-addresses');
 const CONSTANTS = require('./constants');
@@ -81,34 +79,49 @@ function provisionUser(data, callback) {
   });
 }
 
-function findByEmail(email, callback) {
-  User.findOne(buildFindByEmailQuery(email), callback);
+function findByEmail(email, options, callback) {
+  if (!callback) {
+    callback = options;
+    options = {};
+  }
+
+  User.findOne(buildFindByEmailQuery({ ...options, email }), callback);
 }
 
 function findUsersByEmail(email, callback) {
-  User.find(buildFindByEmailQuery(email), callback);
+  User.find(buildFindByEmailQuery({ email }), callback);
 }
 
-function buildFindByEmailQuery(email) {
-  if (util.isArray(email)) {
-    return {
-      $or: email.map(item => ({
-        accounts: {
-          $elemMatch: {
-            emails: trim(item).toLowerCase()
+function buildFindByEmailQuery(options) {
+  const query = { $and: [] };
+
+  if (options.email) {
+    const emails = Array.isArray(options.email) ?
+      options.email.map(item => item.trim().toLowerCase()) :
+      [options.email.trim().toLowerCase()];
+
+    query.$and.push({
+      accounts: {
+        $elemMatch: {
+          emails: {
+            $in: emails
           }
         }
-      }))
-    };
+      }
+    });
   }
 
-  return {
-    accounts: {
-      $elemMatch: {
-        emails: trim(email).toLowerCase()
+  if (options.domainId) {
+    query.$and.push({
+      domains: {
+        $elemMatch: {
+          domain_id: options.domainId
+        }
       }
-    }
-  };
+    });
+  }
+
+  return query;
 }
 
 function get(uuid, callback) {

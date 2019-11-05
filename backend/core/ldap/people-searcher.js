@@ -1,12 +1,12 @@
 const OBJECT_TYPE = 'ldap';
-const PeopleResolver = require('../people/resolver');
+const PeopleSearcher = require('../people/searcher');
 const Model = require('../people/model');
 const { search } = require('./index');
 const { getDisplayName } = require('../user');
 
-module.exports = new PeopleResolver(OBJECT_TYPE, resolver, denormalizer);
+module.exports = new PeopleSearcher(OBJECT_TYPE, searcher, denormalizer);
 
-function resolver({ term, context, pagination }) {
+function searcher({ term, context, pagination }) {
   return search(context.user, { search: term, limit: pagination.limit }).then(result => result.list);
 }
 

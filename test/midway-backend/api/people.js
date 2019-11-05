@@ -151,4 +151,43 @@ describe('The people API', function() {
       });
     });
   });
+
+  describe('GET /api/people/resolve/{fieldType}/{value}', () => {
+    it('should HTTP 401 when not logged in', function(done) {
+      helpers.api.requireLogin(app, 'get', `${API_PATH}/resolve/emailaddress/foo@bar`, done);
+    });
+
+    it('should HTTP 400 when the field type is invalid', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, (err, requestAsMember) => {
+        if (err) return done(err);
+
+        requestAsMember(request(app).get(`${API_PATH}/resolve/invalid/foo@bar`))
+          .send()
+          .expect(400)
+          .end((err, res) => {
+            if (err) return done(err);
+
+            expect(res.body.details).to.equal('Invalid field type');
+            done();
+        });
+      });
+    });
+
+    it('should send back user with matching value of a field type', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, (err, requestAsMember) => {
+        if (err) return done(err);
+
+        requestAsMember(request(app).get(`${API_PATH}/resolve/emailaddress/${user2Domain1Member.emails[0]}`))
+          .send()
+          .expect(200)
+          .end((err, res) => {
+            if (err) return done(err);
+
+            expect(res.body).to.not.be.empty;
+            expect(res.body.id).to.equal(user2Domain1Member.id);
+            done();
+        });
+      });
+    });
+  });
 });

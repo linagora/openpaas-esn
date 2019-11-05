@@ -3,7 +3,7 @@ const mockery = require('mockery');
 const sinon = require('sinon');
 
 describe('The people service module', function() {
-  let logger, Service, PeopleResolver;
+  let logger, Service, PeopleSearcher, PeopleResolver;
 
   beforeEach(function() {
     logger = {
@@ -13,7 +13,226 @@ describe('The people service module', function() {
     };
     mockery.registerMock('../logger', logger);
     Service = this.helpers.requireBackend('core/people/service');
+    PeopleSearcher = this.helpers.requireBackend('core/people/searcher');
     PeopleResolver = this.helpers.requireBackend('core/people/resolver');
+  });
+
+  describe('The addSearcher function', function() {
+    it('should throw Error when searcher is undefined', function() {
+      const service = new Service();
+
+      expect(service.addSearcher).to.throw(/Wrong searcher definition/);
+    });
+
+    it('should add the searcher to the searchers', function() {
+      const objectType = 'user';
+      const service = new Service();
+      const searcher = new PeopleSearcher(objectType, () => {}, () => {});
+
+      service.addSearcher(searcher);
+
+      expect(service.searchers.get(objectType)).to.deep.equal(searcher);
+    });
+  });
+
+  describe('The search function', function() {
+    let user1, user2, contact1, ldap1, ldap2, term, context, pagination, excludes;
+
+    beforeEach(function() {
+      user1 = { _id: 1 };
+      user2 = { _id: 2 };
+      contact1 = { uid: 1 };
+      ldap1 = { ldap: 1 };
+      ldap2 = { ldap: 2 };
+      term = 'searchme';
+      context = { user: 1, domain: 2 };
+      pagination = { limit: 10, offset: 0 };
+      excludes = [];
+    });
+
+    describe('When no searchers', function() {
+      it('should return empty array', function(done) {
+        const service = new Service();
+
+        service.search().then(result => {
+          expect(result).to.be.an('Array').and.to.be.empty;
+          done();
+        }).catch(done);
+      });
+    });
+
+    describe('When some searchers are registered', function() {
+      it('should call all the searchers and send back denormalized data as array', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
+        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
+        const denormalizeUser = sinon.stub();
+        const denormalizeContact = sinon.stub();
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact);
+
+        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
+        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
+        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
+
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
+
+        service.search({ term, context, pagination, excludes }).then(result => {
+          expect(result).to.have.lengthOf(3);
+          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
+          expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
+          expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
+          done();
+        }).catch(done);
+      });
+
+      it('should call the defined searchers and send back denormalized data', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
+        const denormalizeUser = sinon.stub();
+        const resolveContact = sinon.stub();
+        const denormalizeContact = sinon.stub();
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact);
+
+        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
+        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
+        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
+
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
+
+        service.search({ objectTypes: ['user'], term, context, pagination, excludes }).then(result => {
+          expect(result).to.have.lengthOf(2);
+          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
+          expect(resolveContact).to.not.have.been.called;
+          expect(denormalizeContact).to.not.have.been.called;
+          done();
+        }).catch(done);
+      });
+
+      it('should call the searchers with the excludes list of each searcher objectType', function(done) {
+        const excludes = [
+          { id: 'user1', objectType: 'user'},
+          { id: 'user2', objectType: 'user'},
+          { id: 'contact1', objectType: 'contact'}
+        ];
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
+        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
+        const denormalizeUser = sinon.stub();
+        const denormalizeContact = sinon.stub();
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact);
+
+        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
+        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
+        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
+
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
+
+        service.search({ term, context, pagination, excludes }).then(result => {
+          expect(result).to.have.lengthOf(3);
+          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes: excludes.filter(e => e.objectType === 'user') });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
+          expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes: excludes.filter(e => e.objectType === 'contact') });
+          expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
+          done();
+        }).catch(done);
+      });
+
+      it('should order the results from the searchers order', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
+        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
+        const resolveLdap = sinon.stub().returns(Promise.resolve([ldap1, ldap2]));
+        const denormalizeUser = sinon.stub();
+        const denormalizeLdap = sinon.stub();
+        const denormalizeContact = sinon.stub();
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact, 100);
+        const ldapsearcher = new PeopleSearcher('ldap', resolveLdap, denormalizeLdap, 50);
+
+        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
+        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
+        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
+        denormalizeLdap.withArgs({ context, source: ldap1 }).returns(Promise.resolve(ldap1));
+        denormalizeLdap.withArgs({ context, source: ldap2 }).returns(Promise.resolve(ldap2));
+        service.addSearcher(ldapsearcher);
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
+
+        service.search({ objectTypes: ['user', 'contact', 'ldap'], term, context, pagination, excludes }).then(result => {
+          expect(result).to.have.lengthOf(5);
+          expect(result).to.deep.equals([contact1, ldap1, ldap2, user1, user2]);
+          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
+          expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
+          expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
+          done();
+        }).catch(done);
+      });
+    });
+
+    describe('When a searcher function rejects', function() {
+      it('should resolve with only resolved searchers', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.reject(new Error()));
+        const denormalizeUser = sinon.stub().returns((user => Promise.resolve(user)));
+        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
+        const denormalizeContact = sinon.stub().returns(contact => Promise.resolve(contact));
+
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact);
+
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
+
+        service.search({ term, context, pagination, excludes })
+          .then(result => {
+            expect(result).to.has.lengthOf(1);
+            expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
+            expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
+            expect(denormalizeUser).to.not.have.been.called;
+            expect(denormalizeContact).to.have.been.called;
+            done();
+          })
+          .catch(done);
+      });
+
+      it('should resolve with resolve people when a denormalize function rejects', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
+        const denormalizeUser = sinon.stub().returns((user => Promise.resolve(user)));
+        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
+        const denormalizeContact = sinon.stub().returns(Promise.reject(new Error()));
+
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact);
+
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
+
+        service.search({ term, context, pagination, excludes })
+          .then(result => {
+            expect(result).to.have.lengthOf(2);
+            expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
+            expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
+            expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
+            expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
+            done();
+          })
+          .catch(done);
+        });
+    });
   });
 
   describe('The addResolver function', function() {
@@ -40,203 +259,136 @@ describe('The people service module', function() {
     });
   });
 
-  describe('The search function', function() {
-    let user1, user2, contact1, ldap1, ldap2, term, context, pagination, excludes;
+  describe('The resolve function', function() {
+    let user, contact, fieldType, value, context;
 
     beforeEach(function() {
-      user1 = { _id: 1 };
-      user2 = { _id: 2 };
-      contact1 = { uid: 1 };
-      ldap1 = { ldap: 1 };
-      ldap2 = { ldap: 2 };
-      term = 'searchme';
+      user = { _id: 1 };
+      contact = { uid: 1 };
+      value = 'resolveme';
+      fieldType = 'field';
       context = { user: 1, domain: 2 };
-      pagination = { limit: 10, offset: 0 };
-      excludes = [];
     });
 
     describe('When no resolvers', function() {
-      it('should return empty array', function(done) {
+      it('should return empty', function(done) {
         const service = new Service();
 
-        service.search().then(result => {
-          expect(result).to.be.an('Array').and.to.be.empty;
+        service.resolve().then(result => {
+          expect(result).to.be.empty;
           done();
         }).catch(done);
       });
     });
 
     describe('When some resolvers are registered', function() {
-      it('should call all the resolvers and send back denormalized data as array', function(done) {
+      it('should return the result of the resolver that has succesfully found resolved object', function(done) {
         const service = new Service();
-        const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
-        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
+        const resolveUser = sinon.stub().returns(Promise.resolve(user));
+        const denormalizeUser = sinon.stub();
+        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
+
+        denormalizeUser.withArgs({ context, source: user }).returns(Promise.resolve(user));
+
+        service.addResolver(userResolver);
+
+        service.resolve({ fieldType, value, objectTypes: ['user'], context }).then(result => {
+          expect(result).to.equal(user);
+          expect(resolveUser).to.have.been.calledWith({ fieldType, value, context });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user });
+          done();
+        }).catch(done);
+      });
+
+      it('should ignore later resolvers if one resolver has returned a result', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.resolve(user));
+        const resolveContact = sinon.stub().returns(Promise.resolve());
         const denormalizeUser = sinon.stub();
         const denormalizeContact = sinon.stub();
         const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
         const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
 
-        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
-        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
-        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
+        denormalizeUser.withArgs({ context, source: user }).returns(Promise.resolve(user));
+        denormalizeContact.withArgs({ context, source: contact }).returns(Promise.resolve(contact));
 
         service.addResolver(userResolver);
         service.addResolver(contactResolver);
 
-        service.search({ term, context, pagination, excludes }).then(result => {
-          expect(result).to.have.lengthOf(3);
-          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
-          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
-          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
-          expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
-          expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
+        service.resolve({ fieldType, value, objectTypes: ['user', 'contact'], context }).then(result => {
+          expect(result).to.equal(user);
+          expect(resolveUser).to.have.been.calledWith({ fieldType, value, context });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user });
+          expect(resolveContact).to.have.not.been.called;
+          expect(denormalizeContact).to.have.not.been.called;
           done();
         }).catch(done);
       });
 
-      it('should call the defined resolvers and send back denormalized data', function(done) {
+      it('should run the resolvers subsequently in order of object types', function(done) {
         const service = new Service();
-        const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
-        const denormalizeUser = sinon.stub();
-        const resolveContact = sinon.stub();
-        const denormalizeContact = sinon.stub();
+        const resolveUser = sinon.stub().returns(Promise.resolve());
+        const resolveContact = sinon.stub().returns(Promise.resolve());
+        const denormalizeUser = () => Promise.resolve();
+        const denormalizeContact = () => Promise.resolve();
         const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
         const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
 
-        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
-        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
-        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
-
         service.addResolver(userResolver);
         service.addResolver(contactResolver);
 
-        service.search({ objectTypes: ['user'], term, context, pagination, excludes }).then(result => {
-          expect(result).to.have.lengthOf(2);
-          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
-          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
-          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
-          expect(resolveContact).to.not.have.been.called;
-          expect(denormalizeContact).to.not.have.been.called;
+        service.resolve({ fieldType, value, objectTypes: ['user', 'contact'], context }).then(result => {
+          expect(result).to.be.empty;
+          expect(resolveUser).to.have.been.calledWith({ fieldType, value, context });
+          expect(resolveContact).to.have.been.calledWith({ fieldType, value, context });
+          expect(resolveUser).to.have.been.calledBefore(resolveContact);
           done();
         }).catch(done);
       });
 
-      it('should call the resolvers with the excludes list of each resolver objectType', function(done) {
-        const excludes = [
-          { id: 'user1', objectType: 'user'},
-          { id: 'user2', objectType: 'user'},
-          { id: 'contact1', objectType: 'contact'}
-        ];
+      it('should call the resolvers in default priority order if no object types is defined', function(done) {
         const service = new Service();
-        const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
-        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
-        const denormalizeUser = sinon.stub();
-        const denormalizeContact = sinon.stub();
-        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
-        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
-
-        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
-        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
-        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
+        const resolveUser = sinon.stub().returns(Promise.resolve());
+        const resolveContact = sinon.stub().returns(Promise.resolve());
+        const denormalizeUser = () => Promise.resolve();
+        const denormalizeContact = () => Promise.resolve();
+        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser, 10);
+        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact, 20);
 
         service.addResolver(userResolver);
         service.addResolver(contactResolver);
 
-        service.search({ term, context, pagination, excludes }).then(result => {
-          expect(result).to.have.lengthOf(3);
-          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes: excludes.filter(e => e.objectType === 'user') });
-          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
-          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
-          expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes: excludes.filter(e => e.objectType === 'contact') });
-          expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
-          done();
-        }).catch(done);
-      });
-
-      it('should order the results from the resolvers order', function(done) {
-        const service = new Service();
-        const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
-        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
-        const resolveLdap = sinon.stub().returns(Promise.resolve([ldap1, ldap2]));
-        const denormalizeUser = sinon.stub();
-        const denormalizeLdap = sinon.stub();
-        const denormalizeContact = sinon.stub();
-        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
-        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact, 100);
-        const ldapResolver = new PeopleResolver('ldap', resolveLdap, denormalizeLdap, 50);
-
-        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
-        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
-        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
-        denormalizeLdap.withArgs({ context, source: ldap1 }).returns(Promise.resolve(ldap1));
-        denormalizeLdap.withArgs({ context, source: ldap2 }).returns(Promise.resolve(ldap2));
-        service.addResolver(ldapResolver);
-        service.addResolver(userResolver);
-        service.addResolver(contactResolver);
-
-        service.search({ objectTypes: ['user', 'contact', 'ldap'], term, context, pagination, excludes }).then(result => {
-          expect(result).to.have.lengthOf(5);
-          expect(result).to.deep.equals([contact1, ldap1, ldap2, user1, user2]);
-          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
-          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
-          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
-          expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
-          expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
+        service.resolve({ fieldType, value, objectTypes: [], context }).then(result => {
+          expect(result).to.be.empty;
+          expect(resolveUser).to.have.been.calledWith({ fieldType, value, context });
+          expect(resolveContact).to.have.been.calledWith({ fieldType, value, context });
+          expect(resolveContact).to.have.been.calledBefore(resolveUser);
           done();
         }).catch(done);
       });
     });
 
     describe('When a resolver function rejects', function() {
-      it('should resolve with only resolved resolvers', function(done) {
+      it('should continue calling the next resolver', function(done) {
         const service = new Service();
-        const resolveUser = sinon.stub().returns(Promise.reject(new Error()));
-        const denormalizeUser = sinon.stub().returns((user => Promise.resolve(user)));
-        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
-        const denormalizeContact = sinon.stub().returns(contact => Promise.resolve(contact));
-
+        const resolveUser = sinon.stub().returns(Promise.reject());
+        const resolveContact = sinon.stub().returns(Promise.resolve());
+        const denormalizeUser = () => Promise.resolve();
+        const denormalizeContact = () => Promise.resolve();
         const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
         const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
 
         service.addResolver(userResolver);
         service.addResolver(contactResolver);
 
-        service.search({ term, context, pagination, excludes })
-          .then(result => {
-            expect(result).to.has.lengthOf(1);
-            expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
-            expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
-            expect(denormalizeUser).to.not.have.been.called;
-            expect(denormalizeContact).to.have.been.called;
-            done();
-          })
-          .catch(done);
+        service.resolve({ fieldType, value, objectTypes: ['user', 'contact'], context }).then(result => {
+          expect(result).to.be.empty;
+          expect(resolveUser).to.have.been.calledWith({ fieldType, value, context });
+          expect(resolveContact).to.have.been.calledWith({ fieldType, value, context });
+          expect(resolveUser).to.have.been.calledBefore(resolveContact);
+          done();
+        }).catch(done);
       });
-
-      it('should resolve with resolve people when a denormalize function rejects', function(done) {
-        const service = new Service();
-        const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
-        const denormalizeUser = sinon.stub().returns((user => Promise.resolve(user)));
-        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
-        const denormalizeContact = sinon.stub().returns(Promise.reject(new Error()));
-
-        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
-        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
-
-        service.addResolver(userResolver);
-        service.addResolver(contactResolver);
-
-        service.search({ term, context, pagination, excludes })
-          .then(result => {
-            expect(result).to.have.lengthOf(2);
-            expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
-            expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
-            expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
-            expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
-            done();
-          })
-          .catch(done);
-        });
     });
   });
 });

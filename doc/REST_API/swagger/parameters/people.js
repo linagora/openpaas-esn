@@ -43,4 +43,24 @@
  *       type: array
  *       items:
  *         $ref: "#/definitions/Tuple"
+ *   ppl_resolve_field_type:
+ *     name: fieldType
+ *     description: The name of the field to resolve people
+ *     in: path
+ *     required: true
+ *     type: string
+ *     enum:
+ *       - emailaddress
+ *   ppl_resolve_value:
+ *     name: value
+ *     description: The value to be resolved in a field
+ *     in: path
+ *     required: true
+ *     type: tring
+ *   ppl_object_types_query:
+ *     name: objectTypes
+ *     description: The list of object types to find resolved person. The types must be separated by a comma (e.g user,contact,group)
+ *     in: query
+ *     required: false
+ *     type: string
  */
