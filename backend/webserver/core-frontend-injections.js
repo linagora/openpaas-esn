@@ -139,7 +139,6 @@ const injections = [
     'collaboration/collaboration.module.js',
     'collaboration/collaboration.run.js',
     'collaboration/collaboration.constants.js',
-    'collaboration/create/collaboration-create-button.component.js',
     'collaboration/invite/collaboration-invite-users.directive.js',
     'collaboration/member/collaboration-member-avatar.component.js',
     'collaboration/member/collaboration-member-avatar.controller.js',
