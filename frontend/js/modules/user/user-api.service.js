@@ -8,7 +8,6 @@
     return {
       currentUser: currentUser,
       user: user,
-      getCommunities: getCommunities,
       getActivityStreams: getActivityStreams,
       getUsersByEmail: getUsersByEmail,
       setUserEmails: setUserEmails,
@@ -26,10 +25,6 @@
 
     function getUsersByEmail(email) {
       return esnRestangular.all('users').getList({ email: email });
-    }
-
-    function getCommunities() {
-      return esnRestangular.one('user').all('communities').getList();
     }
 
     function getActivityStreams(options) {
