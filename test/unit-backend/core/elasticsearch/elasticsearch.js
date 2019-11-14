@@ -56,6 +56,11 @@ describe('The elasticsearch module', function() {
     });
 
     afterEach(function() {
+      delete process.env.ESN_ELASTIC_HOST;
+      delete process.env.ESN_ELASTIC_PORT;
+      delete process.env.ESN_ELASTIC_URLS;
+      delete process.env.ESN_ELASTIC_USERNAME;
+      delete process.env.ESN_ELASTIC_PASSWORD;
       delete process.env.ES_HOST;
       delete process.env.ES_PORT;
     });
@@ -63,7 +68,7 @@ describe('The elasticsearch module', function() {
     it('should initialize the client with a default configuration', function(done) {
       mockery.registerMock('elasticsearch', {
         Client: function(data) {
-          expect(data).to.deep.equal({ host: 'localhost:9200' });
+          expect(data).to.deep.equal({ hosts: ['localhost:9200'] });
 
           this.ping = (options, callback) => callback();
         }
@@ -72,13 +77,13 @@ describe('The elasticsearch module', function() {
       this.helpers.requireBackend('core/elasticsearch/elasticsearch').updateClient(() => done());
     });
 
-    it('should support environment variables', function(done) {
+    it('should support legacy environment variables', function(done) {
       process.env.ES_HOST = 'es';
       process.env.ES_PORT = 1234;
 
       mockery.registerMock('elasticsearch', {
         Client: function(data) {
-          expect(data).to.deep.equal({ host: 'es:1234' });
+          expect(data).to.deep.equal({ hosts: [`${process.env.ES_HOST}:${process.env.ES_PORT}`] });
 
           this.ping = (options, callback) => callback();
         }
@@ -87,6 +92,68 @@ describe('The elasticsearch module', function() {
       this.helpers.requireBackend('core/elasticsearch/elasticsearch').updateClient(() => done());
     });
 
+    it('should support ESN_ELASTIC_* environment variables', function(done) {
+      process.env.ESN_ELASTIC_HOST = 'es';
+      process.env.ESN_ELASTIC_PORT = 1234;
+
+      mockery.registerMock('elasticsearch', {
+        Client: function(data) {
+          expect(data).to.deep.equal({ hosts: [`${process.env.ESN_ELASTIC_HOST}:${process.env.ESN_ELASTIC_PORT}`] });
+
+          this.ping = (options, callback) => callback();
+        }
+      });
+
+      this.helpers.requireBackend('core/elasticsearch/elasticsearch').updateClient(() => done());
+    });
+
+    it('should support array of hosts from ESN_ELASTIC_URLS CSV environment variable', function(done) {
+      process.env.ESN_ELASTIC_URLS = 'es1:9200,es2:9201,es3:9202';
+
+      mockery.registerMock('elasticsearch', {
+        Client: function(data) {
+          expect(data).to.deep.equal({ hosts: ['es1:9200', 'es2:9201', 'es3:9202'] });
+
+          this.ping = (options, callback) => callback();
+        }
+      });
+
+      this.helpers.requireBackend('core/elasticsearch/elasticsearch').updateClient(() => done());
+    });
+
+    it('should use ESN_ELASTIC_URLS first when ESN_ELASTIC_HOST and ESN_ELASTIC_PORT environment variables are defined', function(done) {
+      process.env.ESN_ELASTIC_HOST = 'es';
+      process.env.ESN_ELASTIC_PORT = 1234;
+      process.env.ESN_ELASTIC_URLS = 'es1:9200,es2:9201,es3:9202';
+
+      mockery.registerMock('elasticsearch', {
+        Client: function(data) {
+          expect(data).to.deep.equal({ hosts: ['es1:9200', 'es2:9201', 'es3:9202'] });
+
+          this.ping = (options, callback) => callback();
+        }
+      });
+
+      this.helpers.requireBackend('core/elasticsearch/elasticsearch').updateClient(() => done());
+    });
+
+    it('should add httpAuth from environment variables', function(done) {
+      process.env.ESN_ELASTIC_USERNAME = 'bruce';
+      process.env.ESN_ELASTIC_PASSWORD = 'secret';
+
+      mockery.registerMock('elasticsearch', {
+        Client: function(data) {
+          expect(data).to.deep.equal({
+            hosts: ['localhost:9200'],
+            httpAuth: `${process.env.ESN_ELASTIC_USERNAME}:${process.env.ESN_ELASTIC_PASSWORD}`
+          });
+
+          this.ping = (options, callback) => callback();
+        }
+      });
+
+      this.helpers.requireBackend('core/elasticsearch/elasticsearch').updateClient(() => done());
+    });
   });
 
   describe('with correct config and can not connect', function() {

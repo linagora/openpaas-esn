@@ -1,3 +1,5 @@
+// eslint-disable no-process-env
+
 const q = require('q');
 const elasticsearch = require('elasticsearch');
 const ESConfiguration = require('esn-elasticsearch-configuration');
@@ -5,8 +7,13 @@ const EsnConfig = require('../esn-config').EsnConfig;
 const logger = require('../logger');
 
 const TIMEOUT = 1000;
-const DEFAULT_CONFIG = {
-  host: `${(process.env.ES_HOST || 'localhost')}:${process.env.ES_PORT || 9200}` // eslint-disable-line no-process-env
+const DEFAULT_HOST = process.env.ESN_ELASTIC_HOST || process.env.ES_HOST || 'localhost';
+const DEFAULT_PORT = process.env.ESN_ELASTIC_PORT || process.env.ES_PORT || 9200;
+const DEFAULT_HOSTS = [`${DEFAULT_HOST}:${DEFAULT_PORT}`];
+const ENV_URLS = split(process.env.ESN_ELASTIC_URLS);
+const ENV_AUTH = {
+  username: process.env.ESN_ELASTIC_USERNAME,
+  password: process.env.ESN_ELASTIC_PASSWORD
 };
 const DEFAULT_SCROLL_TIME = '10s';
 const DEFAULT_LIMIT = 20;
@@ -41,16 +48,30 @@ function getConfigurationHash(config) {
   return md5sum.digest('hex');
 }
 
-/**
- * Get default Elasticsearch configuration. We clone the default config because
- * the ES client modifies the config object.
- * See more at https://github.com/elastic/elasticsearch-js/issues/33
- *
- * @return {Object} a copy of default Elasticsearch configuration
- */
+function isAuthConfigured() {
+  return ENV_AUTH.username && ENV_AUTH.password;
+}
 
-function getDefaultConfig() {
-  return Object.assign({}, DEFAULT_CONFIG);
+function getHttpAuth() {
+  return isAuthConfigured() ? { httpAuth: `${ENV_AUTH.username}:${ENV_AUTH.password}` } : {};
+}
+
+function split(csv = '') {
+  return csv.split(',').filter(Boolean);
+}
+
+function getHosts(url) {
+  const hosts = split(url);
+
+  if (hosts.length) {
+    return { hosts };
+  }
+
+  if (ENV_URLS.length) {
+    return { hosts: ENV_URLS };
+  }
+
+  return { hosts: DEFAULT_HOSTS };
 }
 
 /**
@@ -60,7 +81,9 @@ function getDefaultConfig() {
  */
 function getConfig() {
   return new EsnConfig().get('elasticsearch')
-    .then(config => config || getDefaultConfig());
+    .then(config => (config || {}))
+    .then(config => getHosts(config.host))
+    .then(config => ({ ...config, ...getHttpAuth() }));
 }
 
 /**
@@ -69,8 +92,7 @@ function getConfig() {
   * @return {Promise} resolve on success
   */
 function getESConfigurationInstance() {
-  return getConfig()
-    .then(config => new ESConfiguration({ url: config.host }));
+  return getConfig().then(config => new ESConfiguration(config));
 }
 
 /**
