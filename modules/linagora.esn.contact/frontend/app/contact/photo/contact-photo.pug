@@ -1,4 +1,4 @@
-div(ng-if="listView" profile-popover-card='{ source: "contact", property: "id" }' profile-popover-card-placement="right" profile-popover-card-show-mobile)
+div(ng-if="listView")
   ng-include(src="'/contact/app/contact/photo/contact-photo-child.html'")
 div(ng-if="!listView")
   ng-include(src="'/contact/app/contact/photo/contact-photo-child.html'")

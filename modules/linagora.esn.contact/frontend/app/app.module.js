@@ -30,7 +30,6 @@
     'esn.i18n',
     'esn.user',
     'linagora.esn.dav.import',
-    'esn.user-configuration',
-    'esn.profile-popover-card'
+    'esn.user-configuration'
   ]);
 })(angular);
