@@ -324,18 +324,27 @@ GruntfileUtils.prototype.setupElasticsearchIndexes = function() {
   const servers = this.servers;
 
   return function() {
+    grunt.log.write('Elasticsearch settings to be applied', JSON.stringify(servers.elasticsearch));
+
     const done = this.async();
     const esnConf = new EsnConfig({host: servers.elasticsearch.host, port: servers.elasticsearch.port});
+
+    grunt.log.write('ESNConfig', esnConf);
 
     Promise.all([
       esnConf.setup('users.idx', 'users'),
       esnConf.setup('events.idx', 'events'),
       esnConf.setup('contacts.idx', 'contacts'),
       esnConf.setup('resources.idx', 'resources')
-    ]).then(function() {
+    ])
+    .then(function() {
       grunt.log.write('Elasticsearch settings are successfully added');
       done(true);
-    }, done);
+    })
+    .catch(function(err) {
+      grunt.log.write('Error with Elasticsearch configuration', err);
+      done(err);
+    });
   };
 };
 
