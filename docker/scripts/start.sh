@@ -4,10 +4,14 @@ export GENERATE_DB_CONFIG_FROM_ENV=${GENERATE_DB_CONFIG_FROM_ENV:-true}
 
 if [ "${GENERATE_DB_CONFIG_FROM_ENV}" = true ] ; then
   # Generate config/db.json using connection string or separate variables
-  if [ -z $MONGO_CONNECTION_STRING ] ; then
+  if [ -z "$ESN_MONGO_URI" ] ; then
     node bin/cli db --host $MONGO_HOST --port $MONGO_PORT --database $MONGO_DBNAME
   else
-    node bin/cli db --connection-string $MONGO_CONNECTION_STRING
+    if [ -z "$ESN_MONGO_USER" ] ; then
+      node bin/cli db --connection-string "mongodb://${ESN_MONGO_USER}:${ESN_MONGO_PASSWORD}${ESN_MONGO_URI}"
+    else
+      node bin/cli db --connection-string "mongodb://${ESN_MONGO_URI}"
+    fi
   fi
 fi
 
