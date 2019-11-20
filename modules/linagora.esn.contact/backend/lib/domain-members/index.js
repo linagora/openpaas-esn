@@ -1,24 +1,24 @@
 const _ = require('lodash');
 
 module.exports = dependencies => {
-  const {
-    createDomainMembersAddressbook,
-    removeDomainMembersAddressbook
-  } = require('./addressbook')(dependencies);
-
   const { constants } = dependencies('esn-config');
   const pubsub = dependencies('pubsub').global;
   const logger = dependencies('logger');
-  const { submitSynchronizationJob } = require('./utils')(dependencies);
+  const {
+    submitSynchronizationJob,
+    submitSynchronizationJobForAllDomains
+  } = require('./utils')(dependencies);
   const jobQueue = dependencies('jobqueue').lib;
-  const synchronizeDomainMemberContactsWorker = require('./workers/synchronize')(dependencies);
+  const synchronizeWorker = require('./workers/synchronize')(dependencies);
+  const synchronizeAllDomainsWorker = require('./workers/synchronizeAllDomains')(dependencies);
 
   return {
     init
   };
 
   function init() {
-    jobQueue.addWorker(synchronizeDomainMemberContactsWorker);
+    jobQueue.addWorker(synchronizeWorker);
+    jobQueue.addWorker(synchronizeAllDomainsWorker);
 
     logger.debug('Registering listener on domain members address book configuration update');
     pubsub.topic(constants.EVENTS.CONFIG_UPDATED).subscribe(_onESNConfigUpdate);
@@ -30,15 +30,9 @@ module.exports = dependencies => {
 
     if (
       updatedConfig &&
-      moduleName === 'linagora.esn.contact' &&
-      domainId
+      moduleName === 'linagora.esn.contact'
     ) {
-      if (updatedConfig.value && updatedConfig.value.isDomainMembersAddressbookEnabled) {
-        return createDomainMembersAddressbook(domainId)
-          .then(() => submitSynchronizationJob(domainId));
-      }
-
-      removeDomainMembersAddressbook(domainId);
+      return domainId ? submitSynchronizationJob(domainId, false) : submitSynchronizationJobForAllDomains(false);
     }
   }
 };

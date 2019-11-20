@@ -6,46 +6,44 @@ module.exports = dependencies => {
 
   return {
     createDomainMembersAddressbook,
+    getDomainMembersAddressbook,
+    getClientOptionsForDomain,
     removeDomainMembersAddressbook
   };
 
-  function createDomainMembersAddressbook(domainId) {
-    return getClientOptions(domainId)
-      .then(options => _getDomainMembersAddressbook(domainId, options)
-          .then(domainMembersAddressbook => {
-            if (domainMembersAddressbook) return Promise.resolve();
+  function createDomainMembersAddressbook(domainId, options) {
+    const addressbook = {
+      id: DOMAIN_MEMBERS_ADDRESS_BOOK_NAME,
+      'dav:name': 'Domain members',
+      'carddav:description': 'Address book contains all domain members',
+      'dav:acl': ['{DAV:}read'],
+      type: 'group'
+    };
 
-            const addressbook = {
-              id: DOMAIN_MEMBERS_ADDRESS_BOOK_NAME,
-              'dav:name': 'Domain members',
-              'carddav:description': 'Address book of all domain members',
-              'dav:acl': ['{DAV:}read'],
-              type: 'group'
-            };
+    return contactClient(options)
+      .addressbookHome(domainId)
+      .addressbook(DOMAIN_MEMBERS_ADDRESS_BOOK_NAME)
+      .create(addressbook)
+      .catch(err => {
+        logger.error(`Error while creating domain members addressbook of domain ${domainId}`, err);
 
-            return contactClient(options)
-              .addressbookHome(domainId)
-              .addressbook(DOMAIN_MEMBERS_ADDRESS_BOOK_NAME)
-              .create(addressbook)
-              .catch(err => logger.error(`Error while creating domain members addressbook of domain ${domainId}`, err));
-          }));
+        return Promise.reject(err);
+      });
   }
 
-  function removeDomainMembersAddressbook(domainId) {
-    return getClientOptions(domainId)
-      .then(options => _getDomainMembersAddressbook(domainId, options)
-        .then(domainMembersAddressbook => {
-          if (!domainMembersAddressbook) return Promise.resolve();
+  function removeDomainMembersAddressbook(domainId, options) {
+    return contactClient(options)
+      .addressbookHome(domainId)
+      .addressbook(DOMAIN_MEMBERS_ADDRESS_BOOK_NAME)
+      .remove()
+      .catch(err => {
+        logger.error(`Error while removing domain members addressbook of domain ${domainId}`, err);
 
-          return contactClient(options)
-            .addressbookHome(domainId)
-            .addressbook(DOMAIN_MEMBERS_ADDRESS_BOOK_NAME)
-            .remove()
-            .catch(err => logger.error(`Error while removing domain members addressbook of domain ${domainId}`, err));
-      }));
+        return Promise.reject(err);
+      });
   }
 
-  function _getDomainMembersAddressbook(domainId, options) {
+  function getDomainMembersAddressbook(domainId, options) {
     return contactClient(options)
       .addressbookHome(domainId)
       .addressbook(DOMAIN_MEMBERS_ADDRESS_BOOK_NAME)
@@ -59,7 +57,7 @@ module.exports = dependencies => {
       });
   }
 
-  function getClientOptions(domainId) {
+  function getClientOptionsForDomain(domainId) {
     const options = {};
 
     return getTechnicalUser(domainId)

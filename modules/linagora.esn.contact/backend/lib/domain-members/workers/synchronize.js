@@ -3,10 +3,15 @@ const { DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME } = require('../contants');
 module.exports = dependencies => {
   const { isFeatureEnabled } = require('../utils')(dependencies);
   const synchronize = require('../synchronize')(dependencies);
-  const { createDomainMembersAddressbook } = require('../addressbook')(dependencies);
+  const {
+    createDomainMembersAddressbook,
+    getDomainMembersAddressbook,
+    getClientOptionsForDomain,
+    removeDomainMembersAddressbook
+  } = require('../addressbook')(dependencies);
 
   return {
-    name: DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME,
+    name: DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME.SINGLE_DOMAIN,
     handler: {
       handle,
       getTitle
@@ -14,17 +19,30 @@ module.exports = dependencies => {
   };
 
   function handle(job) {
-    const { domainId } = job.data;
+    const { domainId, force } = job.data;
 
-    return isFeatureEnabled(domainId)
-      .then(isEnabled => {
-        if (!isEnabled) {
-          return Promise.reject(new Error(`Can not synchronize domain member address book for domain ${domainId} due to the feature is disabled`));
-        }
+    return getClientOptionsForDomain(domainId)
+      .then(options => Promise.all([
+        getDomainMembersAddressbook(domainId, options),
+        isFeatureEnabled(domainId)
+      ])
+        .then(result => {
+          const domainMemberAddressBook = result[0];
+          const isEnabled = result[1];
 
-        return createDomainMembersAddressbook(domainId)
-          .then(() => synchronize(domainId));
-      });
+          if (!isEnabled && domainMemberAddressBook) {
+            return removeDomainMembersAddressbook(domainId, options);
+          }
+
+          if (isEnabled && !domainMemberAddressBook) {
+            return createDomainMembersAddressbook(domainId, options)
+              .then(() => synchronize(domainId));
+          }
+
+          if (isEnabled && domainMemberAddressBook && force) {
+            return synchronize(domainId);
+          }
+        }));
   }
 
   function getTitle(jobData) {

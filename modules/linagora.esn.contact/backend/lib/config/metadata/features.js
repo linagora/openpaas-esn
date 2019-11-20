@@ -15,6 +15,7 @@ module.exports = dependencies => {
 
   return {
     rights: {
+      padmin: 'rw',
       admin: 'rw',
       user: 'r'
     },
