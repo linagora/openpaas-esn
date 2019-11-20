@@ -4,13 +4,17 @@ const { expect } = require('chai');
 const { DOMAIN_MEMBERS_ADDRESS_BOOK_NAME } = require('../../../../backend/lib/domain-members/contants');
 
 describe('The domain members address book, address book module', () => {
-  let getModule, contactClientMock, utilsMock, technicalUser;
+  let getModule, contactClientMock, utilsMock, technicalUser, options;
 
   const domainId = '123';
   const token = 'token';
 
   beforeEach(function() {
     technicalUser = { name: 'Sabre DAV' };
+    options = {
+      user: technicalUser,
+      ESNToken: token
+    };
     contactClientMock = {
       addressbookHome: bookHome => {
         expect(bookHome).to.equal(domainId);
@@ -55,59 +59,32 @@ describe('The domain members address book, address book module', () => {
   });
 
   describe('The createDomainMembersAddressbook function', () => {
-    it('should reject if failed to get technical user', function(done) {
-      utilsMock.getTechnicalUser = () => Promise.reject(new Error('Failed to get technical user'));
+    const addressbook = {
+      id: DOMAIN_MEMBERS_ADDRESS_BOOK_NAME,
+      'dav:name': 'Domain members',
+      'carddav:description': 'Address book contains all domain members',
+      'dav:acl': ['{DAV:}read'],
+      type: 'group'
+    };
 
-      getModule().createDomainMembersAddressbook(domainId)
+    it('should reject if failed to create domain members addressbook', function(done) {
+      contactClientMock.create = sinon.stub().returns(Promise.reject(new Error('Failed to create domain members addressbook')));
+
+      getModule().createDomainMembersAddressbook(domainId, options)
         .then(() => done(new Error('should not resolve')))
         .catch(err => {
-          expect(err.message).to.equal('Failed to get technical user');
+          expect(contactClientMock.create).to.have.been.calledWith(addressbook);
+          expect(err.message).to.equal('Failed to create domain members addressbook');
           done();
         });
     });
 
-    it('should reject if failed to get technical user token', function(done) {
-      utilsMock.getTechnicalUser = () => Promise.reject(new Error('Failed to get token'));
-      getModule().createDomainMembersAddressbook(domainId)
-        .then(() => done(new Error('should not resolve')))
-        .catch(err => {
-          expect(err.message).to.equal('Failed to get token');
-          done();
-        });
-    });
-
-    it('should reject if failed to get domain members addressbook', function(done) {
-      contactClientMock.get = () => Promise.reject(new Error('Failed to get domain members addressbook'));
-      contactClientMock.create = sinon.spy(() => Promise.resolve());
-
-      getModule().createDomainMembersAddressbook(domainId)
-        .then(() => done(new Error('should not resolve')))
-        .catch(err => {
-          expect(contactClientMock.create).to.not.have.been.called;
-          expect(err.message).to.equal('Failed to get domain members addressbook');
-          done();
-        });
-    });
-
-    it('should resolve without creating domain members addressbook if it already existed', function(done) {
-      contactClientMock.get = () => Promise.resolve({ links: 'href/something'});
-      contactClientMock.create = sinon.spy(() => Promise.reject(new Error('asdasd')));
-
-      getModule().createDomainMembersAddressbook(domainId)
-        .then(() => {
-          expect(contactClientMock.create).to.not.have.been.called;
-          done();
-        })
-        .catch(done);
-    });
-
-    it('should resolve after creating domain members addressbook if it does not exist', function(done) {
-      contactClientMock.get = () => Promise.reject({ statusCode: 404 });
+    it('should resolve if success to creat domain members addressbook', function(done) {
       contactClientMock.create = sinon.stub().returns(Promise.resolve());
 
-      getModule().createDomainMembersAddressbook(domainId)
+      getModule().createDomainMembersAddressbook(domainId, options)
         .then(() => {
-          expect(contactClientMock.create).to.have.been.called;
+          expect(contactClientMock.create).to.have.been.calledWith(addressbook);
           done();
         })
         .catch(done);
@@ -115,10 +92,73 @@ describe('The domain members address book, address book module', () => {
   });
 
   describe('The removeDomainMembersAddressbook function', () => {
+    it('should reject if failed to remove domain members addressbook', function(done) {
+      contactClientMock.remove = sinon.stub().returns(Promise.reject(new Error('Failed to remove domain members addressbook')));
+
+      getModule().removeDomainMembersAddressbook(domainId, options)
+        .then(() => done(new Error('should not resolve')))
+        .catch(err => {
+          expect(contactClientMock.remove).to.have.been.called;
+          expect(err.message).to.equal('Failed to remove domain members addressbook');
+          done();
+        });
+    });
+
+    it('should resolve if success to remove domain members addressbook', function(done) {
+      contactClientMock.remove = sinon.stub().returns(Promise.resolve());
+
+      getModule().removeDomainMembersAddressbook(domainId, options)
+        .then(() => {
+          expect(contactClientMock.remove).to.have.been.called;
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  describe('The getDomainMembersAddressbook funtion', function() {
+    it('should reject if failed to get domain members addressbook', function(done) {
+      contactClientMock.get = sinon.stub().returns(Promise.reject(new Error('Failed to get domain members addressbook')));
+
+      getModule().getDomainMembersAddressbook(domainId, options)
+        .then(() => done(new Error('should not resolve')))
+        .catch(err => {
+          expect(contactClientMock.get).to.have.been.calledOnce;
+          expect(err.message).to.equal('Failed to get domain members addressbook');
+          done();
+        });
+    });
+
+    it('should resolve if the domain members addressbook does not exist', function(done) {
+      contactClientMock.get = sinon.stub().returns(Promise.reject({ statusCode: 404 }));
+
+      getModule().getDomainMembersAddressbook(domainId, options)
+        .then(_addressbook => {
+          expect(_addressbook).to.be.undefined;
+          done();
+        })
+        .catch(err => done(err || new Error('should resolve')));
+    });
+
+    it('should resolve if success to get domain members addressbook', function(done) {
+      const addressbook = { foo: 'bar' };
+
+      contactClientMock.get = sinon.stub().returns(Promise.resolve(addressbook));
+
+      getModule().getDomainMembersAddressbook(domainId, options)
+        .then(_addressbook => {
+          expect(_addressbook).to.deep.equal(addressbook);
+          done();
+        })
+        .catch(err => done(err || new Error('should resolve')));
+    });
+  });
+
+  describe('The getClientOptionsForDomain function', function() {
     it('should reject if failed to get technical user', function(done) {
       utilsMock.getTechnicalUser = () => Promise.reject(new Error('Failed to get technical user'));
 
-      getModule().removeDomainMembersAddressbook(domainId)
+      getModule().getClientOptionsForDomain(domainId)
         .then(() => done(new Error('should not resolve')))
         .catch(err => {
           expect(err.message).to.equal('Failed to get technical user');
@@ -128,7 +168,7 @@ describe('The domain members address book, address book module', () => {
 
     it('should reject if failed to get technical user token', function(done) {
       utilsMock.getTechnicalUser = () => Promise.reject(new Error('Failed to get token'));
-      getModule().removeDomainMembersAddressbook(domainId)
+      getModule().getClientOptionsForDomain(domainId)
         .then(() => done(new Error('should not resolve')))
         .catch(err => {
           expect(err.message).to.equal('Failed to get token');
@@ -136,41 +176,13 @@ describe('The domain members address book, address book module', () => {
         });
     });
 
-    it('should reject if failed to get domain members addressbook', function(done) {
-      contactClientMock.get = () => Promise.reject(new Error('Failed to get domain members addressbook'));
-      contactClientMock.remove = sinon.spy(() => Promise.resolve());
-
-      getModule().removeDomainMembersAddressbook(domainId)
-        .then(() => done(new Error('should not resolve')))
-        .catch(err => {
-          expect(contactClientMock.remove).to.not.have.been.called;
-          expect(err.message).to.equal('Failed to get domain members addressbook');
-          done();
-        });
-    });
-
-    it('should resolve without removing domain members addressbook if it does not exist', function(done) {
-      contactClientMock.get = () => Promise.reject({ statusCode: 404 });
-      contactClientMock.remove = sinon.spy(() => Promise.reject(new Error('asdasd')));
-
-      getModule().removeDomainMembersAddressbook(domainId)
-        .then(() => {
-          expect(contactClientMock.remove).to.not.have.been.called;
+    it('should resolve if success to get technical user token', function(done) {
+      getModule().getClientOptionsForDomain(domainId)
+        .then(_options => {
+          expect(_options).to.deep.equal(options);
           done();
         })
-        .catch(done);
-    });
-
-    it('should resolve after removing domain members addressbook if it exists', function(done) {
-      contactClientMock.get = () => Promise.resolve({ links: 'href/something' });
-      contactClientMock.remove = sinon.stub().returns(Promise.resolve());
-
-      getModule().removeDomainMembersAddressbook(domainId)
-        .then(() => {
-          expect(contactClientMock.remove).to.have.been.called;
-          done();
-        })
-        .catch(done);
+        .catch(err => done(err || new Error('should resolve')));
     });
   });
 });

@@ -48,7 +48,13 @@ module.exports = dependencies => {
       .then(config => config && config.isDomainMembersAddressbookEnabled);
   }
 
-  function submitSynchronizationJob(domainId) {
-    return submitJob(DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME, { domainId });
+  /**
+   * Submit sunchronization job
+   * @param {String} domainId Target domain to synchronize domain members address book
+   * @param {Boolean} force force synchronize even if the domain member address book is created.
+   *                        Use to update contacts in the address book. Default set to true
+   */
+  function submitSynchronizationJob(domainId, force = true) {
+    return submitJob(DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME, { domainId, force });
   }
 };

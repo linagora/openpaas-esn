@@ -1,11 +1,6 @@
 const _ = require('lodash');
 
 module.exports = dependencies => {
-  const {
-    createDomainMembersAddressbook,
-    removeDomainMembersAddressbook
-  } = require('./addressbook')(dependencies);
-
   const { constants } = dependencies('esn-config');
   const pubsub = dependencies('pubsub').global;
   const logger = dependencies('logger');
@@ -33,12 +28,7 @@ module.exports = dependencies => {
       moduleName === 'linagora.esn.contact' &&
       domainId
     ) {
-      if (updatedConfig.value && updatedConfig.value.isDomainMembersAddressbookEnabled) {
-        return createDomainMembersAddressbook(domainId)
-          .then(() => submitSynchronizationJob(domainId));
-      }
-
-      removeDomainMembersAddressbook(domainId);
+      return submitSynchronizationJob(domainId, false);
     }
   }
 };
