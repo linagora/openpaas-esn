@@ -5,8 +5,7 @@ module.exports = dependencies => {
   const { requiresAPILogin } = dependencies('authorizationMW');
   const {
     checkQueryFormat,
-    checkAuthorization,
-    requireFeatureEnabledForDomain
+    checkAuthorization
   } = require('./middlewares')(dependencies);
   const router = express.Router();
 
@@ -45,7 +44,6 @@ module.exports = dependencies => {
     requiresAPILogin,
     checkQueryFormat,
     checkAuthorization,
-    requireFeatureEnabledForDomain,
     submitJob
   );
 
