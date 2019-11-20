@@ -2,12 +2,11 @@ const request = require('supertest');
 const { expect } = require('chai');
 
 describe('POST contact/api/addressbook/domainMembers/synchronize', function() {
-  let helpers, domain, app, user, normalUser, EsnConfig;
+  let helpers, domain, app, user, normalUser;
   const password = 'secret';
 
   beforeEach(function(done) {
     helpers = this.helpers;
-    EsnConfig = helpers.requireBackend('core/esn-config').EsnConfig;
 
     helpers.modules.initMidway('linagora.esn.contact', helpers.callbacks.noErrorAnd(() => {
       helpers.api.applyDomainDeployment('linagora_test_domain', helpers.callbacks.noErrorAnd(models => {
@@ -26,16 +25,6 @@ describe('POST contact/api/addressbook/domainMembers/synchronize', function() {
   afterEach(function(done) {
     helpers.mongo.dropDatabase(done);
   });
-
-  function enableFeatureForDomain(domainId) {
-    return new EsnConfig('linagora.esn.contact', domainId)
-      .set({
-        name: 'features',
-        value: {
-          isDomainMembersAddressbookEnabled: true
-        }
-      });
-  }
 
   describe('For single domain', function() {
     it('should response 401 if the user is not authenticated', function(done) {
@@ -122,60 +111,24 @@ describe('POST contact/api/addressbook/domainMembers/synchronize', function() {
       });
     });
 
-    it('should response 403 if the feature is disabled', function(done) {
+    it('should response 201 if with the number of submited job', function(done) {
       helpers.api.loginAsUser(app, user.preferredEmail, password, (err, requestAsMember) => {
         if (err) return done(err);
 
         requestAsMember(request(app).post(`/api/addressbooks/domainMembers/synchronize?domain_id=${domain._id}`))
           .send()
-          .expect(403)
+          .expect(201)
           .end((err, res) => {
             if (err) return done(err);
 
-            expect(res.body.error).to.deep.equal({
-              code: 403,
-              message: 'Forbidden',
-              details: 'The domain members address book feature is currently disabled.'
-            });
+            expect(res.body.jobId).to.exist;
             done();
           });
       });
     });
-
-    it('should response 201 if with the number of submited job', function(done) {
-      enableFeatureForDomain(domain._id)
-        .then(() => {
-          helpers.api.loginAsUser(app, user.preferredEmail, password, (err, requestAsMember) => {
-            if (err) return done(err);
-
-            requestAsMember(request(app).post(`/api/addressbooks/domainMembers/synchronize?domain_id=${domain._id}`))
-              .send()
-              .expect(201)
-              .end((err, res) => {
-                if (err) return done(err);
-
-                expect(res.body.length).to.equal(1);
-                expect(res.body[0].domainId).to.equal(domain._id.toString());
-                done();
-              });
-          });
-        })
-        .catch(done);
-    });
   });
 
   describe('For all domains in platform', function() {
-    let domain2;
-
-    beforeEach(function(done) {
-      helpers.api.applyDomainDeployment('linagora_test_domain2', (err, models) => {
-        if (err) return done(err);
-
-        domain2 = models.domain;
-        done();
-      });
-    });
-
     it('should response 401 if the user is not authenticated', function(done) {
       helpers.api.requireLogin(app, 'post', '/api/addressbooks/domainMembers/synchronize', done);
     });
@@ -203,7 +156,6 @@ describe('POST contact/api/addressbook/domainMembers/synchronize', function() {
     it('should response 201 with the number of submited jobs', function(done) {
       helpers.requireBackend('core/platformadmin')
         .addPlatformAdmin(user)
-        .then(() => enableFeatureForDomain(domain2._id)
         .then(() => {
           helpers.api.loginAsUser(app, user.preferredEmail, password, (err, requestAsMember) => {
             if (err) return done(err);
@@ -214,12 +166,11 @@ describe('POST contact/api/addressbook/domainMembers/synchronize', function() {
               .end((err, res) => {
                 if (err) return done(err);
 
-                expect(res.body.length).to.equal(1);
-                expect(res.body[0].domainId).to.equal(domain2._id.toString());
+                expect(res.body.jobId).to.exist;
                 done();
               });
           });
-        }))
+        })
         .catch(done);
     });
   });

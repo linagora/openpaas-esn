@@ -12,7 +12,8 @@ module.exports = dependencies => {
     isFeatureEnabled,
     getTechnicalUser,
     getTechnicalToken,
-    submitSynchronizationJob
+    submitSynchronizationJob,
+    submitSynchronizationJobForAllDomains
   };
 
   function getTechnicalUser(domainId) {
@@ -55,6 +56,10 @@ module.exports = dependencies => {
    *                        Use to update contacts in the address book. Default set to true
    */
   function submitSynchronizationJob(domainId, force = true) {
-    return submitJob(DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME, { domainId, force });
+    return submitJob(DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME.SINGLE_DOMAIN, { domainId, force });
+  }
+
+  function submitSynchronizationJobForAllDomains() {
+    return submitJob(DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME.ALL_DOMAINS, {});
   }
 };

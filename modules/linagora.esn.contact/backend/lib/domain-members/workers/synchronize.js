@@ -11,7 +11,7 @@ module.exports = dependencies => {
   } = require('../addressbook')(dependencies);
 
   return {
-    name: DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME,
+    name: DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME.SINGLE_DOMAIN,
     handler: {
       handle,
       getTitle

@@ -6,14 +6,16 @@ module.exports = dependencies => {
   const logger = dependencies('logger');
   const { submitSynchronizationJob } = require('./utils')(dependencies);
   const jobQueue = dependencies('jobqueue').lib;
-  const synchronizeDomainMemberContactsWorker = require('./workers/synchronize')(dependencies);
+  const synchronizeWorker = require('./workers/synchronize')(dependencies);
+  const synchronizeAllDomainsWorker = require('./workers/synchronizeAllDomains')(dependencies);
 
   return {
     init
   };
 
   function init() {
-    jobQueue.addWorker(synchronizeDomainMemberContactsWorker);
+    jobQueue.addWorker(synchronizeWorker);
+    jobQueue.addWorker(synchronizeAllDomainsWorker);
 
     logger.debug('Registering listener on domain members address book configuration update');
     pubsub.topic(constants.EVENTS.CONFIG_UPDATED).subscribe(_onESNConfigUpdate);

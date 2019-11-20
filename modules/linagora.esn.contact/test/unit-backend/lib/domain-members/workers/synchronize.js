@@ -40,7 +40,7 @@ describe('The synchronize worker', function() {
   });
 
   it('should return correct worker name', function() {
-    expect(getModule().name).to.equal(DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME);
+    expect(getModule().name).to.equal(DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME.SINGLE_DOMAIN);
   });
 
   describe('The handle method', function() {
