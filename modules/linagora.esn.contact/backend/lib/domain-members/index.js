@@ -4,7 +4,10 @@ module.exports = dependencies => {
   const { constants } = dependencies('esn-config');
   const pubsub = dependencies('pubsub').global;
   const logger = dependencies('logger');
-  const { submitSynchronizationJob } = require('./utils')(dependencies);
+  const {
+    submitSynchronizationJob,
+    submitSynchronizationJobForAllDomains
+  } = require('./utils')(dependencies);
   const jobQueue = dependencies('jobqueue').lib;
   const synchronizeWorker = require('./workers/synchronize')(dependencies);
   const synchronizeAllDomainsWorker = require('./workers/synchronizeAllDomains')(dependencies);
@@ -27,10 +30,9 @@ module.exports = dependencies => {
 
     if (
       updatedConfig &&
-      moduleName === 'linagora.esn.contact' &&
-      domainId
+      moduleName === 'linagora.esn.contact'
     ) {
-      return submitSynchronizationJob(domainId, false);
+      return domainId ? submitSynchronizationJob(domainId, false) : submitSynchronizationJobForAllDomains(false);
     }
   }
 };

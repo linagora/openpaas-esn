@@ -13,25 +13,25 @@ module.exports = dependencies => {
     }
   };
 
-  function handle() {
-    return _submitJobsOfAllDomains();
+  function handle({ force }) {
+    return _submitJobsOfAllDomains(force);
   }
 
   function getTitle() {
     return 'Synchronize domain members addressbook for all domains';
   }
 
-  function _submitJobsOfAllDomains() {
+  function _submitJobsOfAllDomains(force) {
     const cursor = listByCursor();
 
-    return _submitJobsOverDomains(cursor);
+    return _submitJobsOverDomains(cursor, force);
   }
 
-  function _submitJobsOverDomains(cursor) {
+  function _submitJobsOverDomains(cursor, force) {
     return cursor.next().then(domain => {
       if (!domain) return;
 
-      return submitSynchronizationJob(domain._id)
+      return submitSynchronizationJob(domain._id, force)
         .then(_submitJobsOverDomains(cursor)
         .catch(err => {
           const details = `Failed to submit domain members address book synchronization job for domain: ${domain._id}`;

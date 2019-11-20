@@ -52,14 +52,19 @@ module.exports = dependencies => {
   /**
    * Submit sunchronization job
    * @param {String} domainId Target domain to synchronize domain members address book
-   * @param {Boolean} force force synchronize even if the domain member address book is created.
+   * @param {Boolean} force force synchronize even if the domain member address book exists.
    *                        Use to update contacts in the address book. Default set to true
    */
   function submitSynchronizationJob(domainId, force = true) {
     return submitJob(DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME.SINGLE_DOMAIN, { domainId, force });
   }
 
-  function submitSynchronizationJobForAllDomains() {
-    return submitJob(DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME.ALL_DOMAINS, {});
+  /**
+   * Submit sunchronization job for all domains
+   * @param {Boolean} force force synchronize even if the domain member address book already exists.
+   *                        Use to update contacts in the address book. Default set to true
+   */
+  function submitSynchronizationJobForAllDomains(force = true) {
+    return submitJob(DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME.ALL_DOMAINS, { force });
   }
 };
