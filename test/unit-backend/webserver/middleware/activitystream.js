@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var sinon = require('sinon');
 
 describe('The activitystream middleware', function() {
 
@@ -195,6 +196,68 @@ describe('The activitystream middleware', function() {
       middleware(req, res, function() {
         return done(new Error());
       });
+    });
+  });
+
+  describe('The addStreamResourceFinder fn', function() {
+    let streamFinderMock;
+
+    beforeEach(function() {
+      this.helpers.mock.models({
+        timelineentry: {},
+        authtoken: {},
+        user: {},
+        domain: {},
+        resourcelink: {},
+        passwordreset: {},
+        notification: {}
+      });
+
+      streamFinderMock = {};
+
+      mockery.registerMock('composable-middleware', () => streamFinderMock);
+
+    });
+
+    it('should use finder', function() {
+      var finder = {};
+
+      streamFinderMock.use = sinon.spy();
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream');
+
+      middleware.addStreamResourceFinder(finder);
+
+      expect(streamFinderMock.use).to.have.been.calledWith(finder);
+    });
+  });
+
+  describe('The addStreamWritableFinder fn', function() {
+    let writableFinderMock;
+
+    beforeEach(function() {
+      this.helpers.mock.models({
+        timelineentry: {},
+        authtoken: {},
+        user: {},
+        domain: {},
+        resourcelink: {},
+        passwordreset: {},
+        notification: {}
+      });
+
+      writableFinderMock = {};
+      mockery.registerMock('composable-middleware', () => writableFinderMock);
+    });
+
+    it('should use finder', function() {
+      var finder = {};
+
+      writableFinderMock.use = sinon.spy();
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream');
+
+      middleware.addStreamWritableFinder(finder);
+
+      expect(writableFinderMock.use).to.have.been.calledWith(finder);
     });
   });
 });
