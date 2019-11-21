@@ -4,17 +4,22 @@ export GENERATE_DB_CONFIG_FROM_ENV=${GENERATE_DB_CONFIG_FROM_ENV:-true}
 
 if [ "${GENERATE_DB_CONFIG_FROM_ENV}" = true ] ; then
   # Generate config/db.json using connection string or separate variables
-  if [ -z "$ESN_MONGO_URI" ] ; then
-    node bin/cli db --host $MONGO_HOST --port $MONGO_PORT --database $MONGO_DBNAME
-  else
-    if [ -z "$ESN_MONGO_USER" ] ; then
-      node bin/cli db --connection-string "mongodb://${ESN_MONGO_USER}:${ESN_MONGO_PASSWORD}${ESN_MONGO_URI}"
+  if [ -n "${ESN_MONGO_URI}" ] ; then
+    if [ -n "${ESN_MONGO_USER}" ] ; then
+      connectionString="mongodb://${ESN_MONGO_USER}:${ESN_MONGO_PASSWORD}@${ESN_MONGO_URI}"
     else
-      node bin/cli db --connection-string "mongodb://${ESN_MONGO_URI}"
+      connectionString="mongodb://${ESN_MONGO_URI}"
     fi
+  elif [ -n "${MONGO_CONNECTION_STRING}" ] ; then
+    connectionString="${MONGO_CONNECTION_STRING}"
+  else
+    connectionString="mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DBNAME}"
   fi
+
+  node bin/cli db --connection-string ${connectionString}
 fi
 
+#Local dev user injection mode (deprecated, should use LDAP instead)
 if [ "$PROVISION" = true ] ; then
 
   timeout=60;
