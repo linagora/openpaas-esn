@@ -501,8 +501,8 @@ function updateStates(req, res) {
 
 function updateTargetUserEmails(req, res) {
   const targetUser = req.targetUser;
-  const emailsToUpdate = req.body;
   const emailAccount = targetUser.accounts.find(account => account.type === 'email');
+  const emailsToUpdate = [...new Set(req.body)];
 
   emailAccount.preferredEmailIndex = emailsToUpdate.indexOf(targetUser.preferredEmail);
   emailAccount.emails = emailsToUpdate;
