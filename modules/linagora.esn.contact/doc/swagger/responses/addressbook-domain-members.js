@@ -1,13 +1,13 @@
 /**
  * @swagger
  * response:
- *   addressbook_domain_members_synchronize_jobs:
+ *   addressbook_domain_members_synchronize_job:
  *     description: Ok. With a submitted job containing job id
  *     schema:
  *       type: object
  *       properties:
  *         jobId:
- *         type: integer
+ *           type: integer
  *
  *     examples:
  *       application/json:
