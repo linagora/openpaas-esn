@@ -15,19 +15,14 @@ module.exports = dependencies => {
    *   post:
    *     tags:
    *       - synchoronize, addressbooks, domain-members
-   *     description:
-   *       Synchronize domain members address book (DMAB):
-   *
-   *       Notes:
-   *       - Synchronize DMAB can be launched in platform or domain scope. The different scopes present the different queries
-   *       - Synchronize DMAB in platform: POST /contact/api/addressbooks/domain-members/synchronize
-   *       - Synchronize DMAB in domain: POST /contact/api/addressbooks/domain-members/synchronize?domain_id={Objectid}
-   *
-   *     query:
+   *     description: To submit a synchronizing domain members address book job for a particular domain or all domains in the system <br>
+   *       - In case of a particular domain, domain admin role and a domain id param in query are required <br>
+   *       - In case of all domains in the system, platform admin role is required
+   *     parameters:
    *       - $ref: "#/parameters/addressbook_domain_members_domain_id"
    *     responses:
    *       201:
-   *         $ref: "#/responses/addressbook_domain_members_synchronize_jobs"
+   *         $ref: "#/responses/addressbook_domain_members_synchronize_job"
    *       400:
    *         $ref: "#/responses/cm_400"
    *       401:
