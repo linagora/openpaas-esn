@@ -161,4 +161,27 @@ describe('PUT api/users/:uuid/emails route', function() {
       });
     }));
   });
+
+  it('should return 204 if update user emails successfully when there are duplicated emails', function(done) {
+    helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+      const userModel = helpers.requireBackend('core/db/mongo/models/user');
+      const emails = ['foo@bar.com', 'foo@bar.com', user2Domain1Member.emails[0]];
+      const req = loggedInAsUser(request(app).put(`/api/users/${user2Domain1Member._id}/emails?domain_id=${domain1._id}`));
+
+      req.send(emails).expect(204).end(err => {
+        expect(err).to.not.exist;
+        userModel.findById(user2Domain1Member._id, (err, user) => {
+          if (err) done(err);
+
+          const emailAccount = user.accounts.find(account => account.type === 'email');
+
+          expect(emailAccount.emails.length).to.equal(2);
+          expect(emailAccount.emails[0]).to.equal('foo@bar.com');
+          expect(emailAccount.emails[1]).to.equal(user2Domain1Member.emails[0]);
+          expect(emailAccount.preferredEmailIndex).to.equal(1);
+          done();
+        });
+      });
+    }));
+  });
 });
