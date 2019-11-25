@@ -389,6 +389,44 @@ describe('The people service module', function() {
           done();
         }).catch(done);
       });
+
+      it('should resolve null and log out the error when the last resolver rejects', function(done) {
+        const service = new Service();
+        const resolveUser = () => Promise.resolve();
+        const resolveContact = () => Promise.reject();
+        const denormalizeUser = () => Promise.resolve();
+        const denormalizeContact = () => Promise.resolve();
+        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
+        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+
+        service.addResolver(userResolver);
+        service.addResolver(contactResolver);
+
+        service.resolve({ fieldType, value, objectTypes: ['user', 'contact'], context }).then(result => {
+          expect(result).to.be.empty;
+          expect(logger.error).to.have.been.calledWith(sinon.match(/Failed to resolve contact/));
+          done();
+        }).catch(done);
+      });
+
+      it('should resolve null and logout the error when a denormalizer rejects', function(done) {
+        const service = new Service();
+        const resolveUser = () => Promise.resolve();
+        const resolveContact = () => Promise.resolve({ id: 'contact1' });
+        const denormalizeUser = () => Promise.resolve();
+        const denormalizeContact = () => Promise.reject();
+        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
+        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+
+        service.addResolver(userResolver);
+        service.addResolver(contactResolver);
+
+        service.resolve({ fieldType, value, objectTypes: ['user', 'contact'], context }).then(result => {
+          expect(result).to.be.empty;
+          expect(logger.error).to.have.been.calledWith(sinon.match(/Failed to denormalize contact/));
+          done();
+        }).catch(done);
+      });
     });
   });
 });
