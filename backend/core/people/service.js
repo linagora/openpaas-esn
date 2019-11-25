@@ -59,21 +59,18 @@ class PeopleService {
         .sort((a, b) => (b.defaultPriority || 0) - (a.defaultPriority || 0));
     }
 
-    return localResolvers.reduce((promise, resolver, index, resolvers) => promise
-      .then(result => result || resolve(resolver, query))
-      .catch(error => {
-        logger.error(`Failed to resolve ${resolvers[index - 1].objectType}`, error);
-
-        return resolve(resolver, query);
-      }), Promise.resolve());
+    return localResolvers.reduce((promise, resolver) =>
+      promise.then(result => result || resolve(resolver, query)), Promise.resolve());
 
     function resolve(resolver, { fieldType, value, context }) {
       return resolver.resolve({ fieldType, value, context })
-        .then(result => (result && denormalize(result, resolver, context)));
+        .then(result => (result && denormalize(result, resolver, context)))
+        .catch(error => logger.error(`Failed to resolve ${resolver.objectType}`, error));
     }
 
     function denormalize(source, resolver, context) {
-      return resolver.denormalize({ source, context });
+      return resolver.denormalize({ source, context }).catch(error =>
+        logger.error(`Failed to denormalize ${resolver.objectType}`, error));
     }
   }
 
