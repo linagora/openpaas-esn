@@ -1,6 +1,10 @@
 const ICAL = require('@linagora/ical.js');
 const { GLOBAL_PUBSUB_EVENTS, NOTIFICATIONS, ELASTICSEARCH_EVENTS } = require('../constants');
-const helper = require('./helper');
+const {
+  parseAddressbookPath,
+  parseContactPath
+} = require('./helper');
+const { parsePrincipal } = require('../helper');
 
 module.exports = dependencies => {
   const pubsub = dependencies('pubsub');
@@ -24,10 +28,10 @@ module.exports = dependencies => {
     pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_CREATED).subscribe(onAddressbookSubscriptionCreated);
 
     function parseContact(msg) {
-      const data = helper.parseContactPath(msg.path);
+      const data = parseContactPath(msg.path);
 
       if (msg.owner) {
-        data.userId = helper.parsePrincipal(msg.owner).id;
+        data.userId = parsePrincipal(msg.owner).id;
       }
 
       if (msg.carddata) {
@@ -38,10 +42,10 @@ module.exports = dependencies => {
     }
 
     function parseAddressbook(msg) {
-      const data = helper.parseAddressbookPath(msg.path);
+      const data = parseAddressbookPath(msg.path);
 
       if (msg.owner) {
-        data.userId = helper.parsePrincipal(msg.owner).id;
+        data.userId = parsePrincipal(msg.owner).id;
       }
 
       return data;
