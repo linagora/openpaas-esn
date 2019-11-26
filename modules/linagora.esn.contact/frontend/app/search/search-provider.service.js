@@ -17,7 +17,6 @@
       fetch: function(query) {
         var searchOptions = {
           data: query,
-          userId: session.user._id,
           page: 1,
           limit: ELEMENTS_PER_REQUEST
         };

@@ -36,8 +36,7 @@
         fetch: function(query) {
           var aggregator;
           var searchOptions = {
-            query: query,
-            userId: session.user._id
+            query: query
           };
 
           return function() {
