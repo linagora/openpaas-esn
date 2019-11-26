@@ -54,6 +54,9 @@ describe('The addressbooks dav proxy', function() {
 
     dav = express();
     dav.use(bodyParser.json());
+    dav.propfind(`/principals/users/${user._id}`, function(req, res) {
+      res.status(200).json({});
+    });
 
     self.createDavServer = function(done) {
       var port = self.testEnv.serversConfig.express.port;

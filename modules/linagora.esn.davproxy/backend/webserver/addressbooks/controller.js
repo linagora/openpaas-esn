@@ -270,13 +270,16 @@ module.exports = function(dependencies) {
         search: req.query.search,
         limit: req.query.limit,
         page: req.query.page,
-        bookNames: [req.params.bookName],
+        addressbooks: [{
+          bookHome: req.params.bookHome,
+          bookNames: [req.params.bookName]
+        }],
         ESNToken: req.token && req.token.token ? req.token.token : '',
         davserver: req.davserver,
         originalUrl: req.originalUrl
       };
 
-      return _searchContacts(req.params.bookHome, options)
+      return _searchContacts(options)
         .then(result => {
           res.header('X-ESN-Items-Count', result.total_count);
 
@@ -337,13 +340,16 @@ module.exports = function(dependencies) {
         search: req.query.search,
         limit: req.query.limit,
         page: req.query.page,
-        bookNames: req.query.bookName ? req.query.bookName.split(',') : [],
+        addressbooks: req.query.bookName ? [{
+          bookHome: req.params.bookHome,
+          bookNames: req.query.bookName.split(',')
+        }] : [],
         ESNToken: req.token && req.token.token ? req.token.token : '',
         davserver: req.davserver,
         originalUrl: req.originalUrl
       };
 
-      return _searchContacts(req.params.bookHome, options)
+      return _searchContacts(options)
         .then(result => {
           res.header('X-ESN-Items-Count', result.total_count);
 
@@ -432,15 +438,14 @@ module.exports = function(dependencies) {
         });
   }
 
-  function _searchContacts(bookHome, options) {
+  function _searchContacts(options) {
     const clientOptions = {
       ESNToken: options.ESNToken,
       davserver: options.davserver
     };
 
     return contactModule.lib.client(clientOptions)
-      .addressbookHome(bookHome)
-      .search(options)
+      .searchContacts(options)
       .then(result => {
         const data = {
           _links: {
