@@ -1078,32 +1078,6 @@ describe('The addressbooks dav proxy', function() {
           });
         });
 
-        it('should respond 403 if user try to use others\' bookHome', function(done) {
-          const path = '/addressbooks/123456.json?search=abc';
-          const self = this;
-
-          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
-            if (err) {
-              return done(err);
-            }
-
-            const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
-
-            req.expect(403).end((err, res) => {
-
-              expect(err).to.not.exist;
-              expect(res.body).to.deep.equal({
-                error: {
-                  code: 403,
-                  message: 'Forbidden',
-                  details: 'User do not have the required privileges for this bookHome'
-                }
-              });
-              done();
-            });
-          });
-        });
-
         it('should respond 200 with empty result if user try to search on unavailable bookNames', function(done) {
           const self = this;
           const path = `/addressbooks/${user.id}.json?search=456&bookName=unavailableBookName,unavailableBookName2`;
