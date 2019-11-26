@@ -5,8 +5,7 @@ module.exports = dependencies => {
 
   return {
     requireDestinationInHeaders,
-    validateAddressbookCreation,
-    validateBookHome
+    validateAddressbookCreation
   };
 
   function validateAddressbookCreation(req, res, next) {
@@ -74,20 +73,6 @@ module.exports = dependencies => {
           code: 400,
           message: 'Bad Request',
           details: 'The destination header is required'
-        }
-      });
-    }
-
-    next();
-  }
-
-  function validateBookHome(req, res, next) {
-    if (req.query.search && req.params.bookHome !== req.user.id) {
-      return res.status(403).json({
-        error: {
-          code: 403,
-          message: 'Forbidden',
-          details: 'User do not have the required privileges for this bookHome'
         }
       });
     }
