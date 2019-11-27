@@ -6,7 +6,7 @@
     .list-title.ellipsis
       .addressbook-list-icon
         i.mdi.mdi-contacts
-      span {{::$ctrl.title | esnI18n}}
+      span {{::$ctrl.section | esnI18n}}
 
   ul
     contact-sidebar-addressbook-item(ng-repeat='book in $ctrl.addressbooks', addressbook-display-shell='book')
