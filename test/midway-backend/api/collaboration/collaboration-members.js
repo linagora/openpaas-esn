@@ -362,7 +362,7 @@ describe('The collaborations members API', function() {
       describe('open communities', function() {
 
         beforeEach(function() {
-          this.com = this.communities[0][0];
+          this.com = this.communities[0];
           this.creator = this.models.users[0].emails[0];
           this.member = this.models.users[1].emails[0];
           this.nonMember = this.models.users[2].emails[0];
@@ -398,7 +398,7 @@ describe('The collaborations members API', function() {
       describe('restricted communities', function() {
 
         beforeEach(function() {
-          this.com = this.communities[1][0];
+          this.com = this.communities[1];
           this.creator = this.models.users[0].emails[0];
           this.member = this.models.users[1].emails[0];
           this.nonMember = this.models.users[2].emails[0];
@@ -434,7 +434,7 @@ describe('The collaborations members API', function() {
       describe('private communities', function() {
 
         beforeEach(function() {
-          this.com = this.communities[2][0];
+          this.com = this.communities[2];
           this.creator = this.models.users[0].emails[0];
           this.member = this.models.users[1].emails[0];
           this.nonMember = this.models.users[2].emails[0];
@@ -470,7 +470,7 @@ describe('The collaborations members API', function() {
       describe('confidential communities', function() {
 
         beforeEach(function() {
-          this.com = this.communities[3][0];
+          this.com = this.communities[3];
           this.creator = this.models.users[0].emails[0];
           this.member = this.models.users[1].emails[0];
           this.nonMember = this.models.users[2].emails[0];
@@ -902,7 +902,7 @@ describe('The collaborations members API', function() {
 
       describe('open communities', function() {
         beforeEach(function() {
-          this.com = this.communities[0][0];
+          this.com = this.communities[0];
           this.creator = this.models.users[0].emails[0];
           this.member = this.models.users[1].emails[0];
           this.nonMember = this.models.users[2].emails[0];
@@ -934,7 +934,7 @@ describe('The collaborations members API', function() {
       });
       describe('restricted communities', function() {
         beforeEach(function() {
-          this.com = this.communities[1][0];
+          this.com = this.communities[1];
           this.creator = this.models.users[0].emails[0];
           this.member = this.models.users[1].emails[0];
           this.nonMember = this.models.users[2].emails[0];
@@ -966,7 +966,7 @@ describe('The collaborations members API', function() {
       });
       describe('private communities', function() {
         beforeEach(function() {
-          this.com = this.communities[2][0];
+          this.com = this.communities[2];
           this.creator = this.models.users[0].emails[0];
           this.member = this.models.users[1].emails[0];
           this.nonMember = this.models.users[2].emails[0];
@@ -998,7 +998,7 @@ describe('The collaborations members API', function() {
       });
       describe('confidential communities', function() {
         beforeEach(function() {
-          this.com = this.communities[3][0];
+          this.com = this.communities[3];
           this.creator = this.models.users[0].emails[0];
           this.member = this.models.users[1].emails[0];
           this.nonMember = this.models.users[2].emails[0];
@@ -1187,7 +1187,7 @@ describe('The collaborations members API', function() {
 
       describe('open communities', function() {
         beforeEach(function() {
-          this.com = this.communities[0][0];
+          this.com = this.communities[0];
           this.creator = this.models.users[0];
           this.member = this.models.users[1].emails[0];
           this.nonMember = this.models.users[2].emails[0];
@@ -1222,7 +1222,7 @@ describe('The collaborations members API', function() {
 
       describe('restricted communities', function() {
         beforeEach(function() {
-          this.com = this.communities[1][0];
+          this.com = this.communities[1];
           this.creator = this.models.users[0];
           this.member = this.models.users[1].emails[0];
           this.nonMember = this.models.users[2].emails[0];
@@ -1257,7 +1257,7 @@ describe('The collaborations members API', function() {
 
       describe('private communities', function() {
         beforeEach(function() {
-          this.com = this.communities[2][0];
+          this.com = this.communities[2];
           this.creator = this.models.users[0];
           this.member = this.models.users[1].emails[0];
           this.nonMember = this.models.users[2].emails[0];
@@ -1291,7 +1291,7 @@ describe('The collaborations members API', function() {
 
       describe('confidential communities', function() {
         beforeEach(function() {
-          this.com = this.communities[3][0];
+          this.com = this.communities[3];
           this.creator = this.models.users[0];
           this.member = this.models.users[1].emails[0];
           this.nonMember = this.models.users[2].emails[0];

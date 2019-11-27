@@ -176,8 +176,8 @@ describe('The document store routes resource', function() {
           expect(e).to.be.null;
           var json = JSON.parse(data);
           expect(json.connectionOptions).to.exist;
-          expect(json.connectionOptions.server).to.exist;
-          expect(json.connectionOptions.server.auto_reconnect).to.be.true;
+          expect(json.connectionOptions).to.exist;
+          expect(json.connectionOptions.auto_reconnect).to.be.true;
           done();
         });
       });

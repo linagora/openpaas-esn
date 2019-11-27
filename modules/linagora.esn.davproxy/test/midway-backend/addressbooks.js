@@ -29,6 +29,7 @@ describe('The addressbooks dav proxy', function() {
         }
 
         var wsserver = self.helpers.modules.getLib('linagora.esn.core.wsserver');
+
         wsserver.start('4500');
 
         self.helpers.modules.start(moduleName, function(err) {
@@ -88,6 +89,7 @@ describe('The addressbooks dav proxy', function() {
 
   afterEach(function(done) {
     var self = this;
+
     self.shutdownDav(function() {
       self.helpers.api.cleanDomainDeployment(self.models, function() {
         self.helpers.mongo.dropCollections(done);
@@ -99,6 +101,7 @@ describe('The addressbooks dav proxy', function() {
 
     beforeEach(function() {
       var expressApp = require('../../backend/webserver/application')(this.helpers.modules.current.deps);
+
       expressApp.use(PREFIX + '/addressbooks', this.helpers.modules.current.lib.api.addressbooks);
       this.app = this.helpers.modules.getWebServer(expressApp);
     });
@@ -118,6 +121,7 @@ describe('The addressbooks dav proxy', function() {
             expect(req.headers.yo).to.equal(yo);
             expect(req.headers.lo).to.equal(lo);
             called = true;
+
             return res.status(200).end();
           });
 
@@ -132,6 +136,7 @@ describe('The addressbooks dav proxy', function() {
               }
 
               var req = loggedInAsUser(request(self.app).delete(PREFIX + path));
+
               req.set('yo', yo);
               req.set('lo', lo);
               req.expect(200).end(function(err) {
@@ -154,8 +159,10 @@ describe('The addressbooks dav proxy', function() {
         var path = '/addressbooks/123/contacts.json';
 
         var result = [{foo: 'bar'}];
+
         dav.get(path, function(req, res) {
           called = true;
+
           return res.status(200).json(result);
         });
 
@@ -170,6 +177,7 @@ describe('The addressbooks dav proxy', function() {
             }
 
             var req = loggedInAsUser(request(self.app).get(PREFIX + path));
+
             req.expect(200).end(function(err, res) {
               expect(err).to.not.exist;
               expect(called).to.be.true;
@@ -266,6 +274,7 @@ describe('The addressbooks dav proxy', function() {
           }
           localpubsub.topic('elasticsearch:contact:added').publish(contact);
           var self = this;
+
           this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, requestAsMember) {
             if (err) {
               return done(err);
@@ -277,6 +286,7 @@ describe('The addressbooks dav proxy', function() {
               }
 
               var req = requestAsMember(request(self.app).get(PREFIX + '/addressbooks/' + user._id + '/contacts.json'));
+
               req.query({search: term}).expect(200).end(function(err, res) {
                 expect(err).to.not.exist;
                 expect(res.body).to.exist;
@@ -391,6 +401,7 @@ describe('The addressbooks dav proxy', function() {
 
         dav.put(path, function(req, res) {
           called = true;
+
           return res.status(201).json(result);
         });
 
@@ -405,6 +416,7 @@ describe('The addressbooks dav proxy', function() {
             }
 
             var req = loggedInAsUser(request(self.app).put(PREFIX + path));
+
             req.expect(201).end(function(err, res) {
               expect(err).to.not.exist;
               expect(called).to.be.true;
@@ -426,6 +438,7 @@ describe('The addressbooks dav proxy', function() {
 
         dav.delete(path, function(req, res) {
           called = true;
+
           return res.status(204).end();
         });
 
@@ -440,6 +453,7 @@ describe('The addressbooks dav proxy', function() {
             }
 
             var req = loggedInAsUser(request(self.app).delete(PREFIX + path));
+
             req.expect(204).end(function(err) {
               expect(err).to.not.exist;
               expect(called).to.be.true;
@@ -454,6 +468,7 @@ describe('The addressbooks dav proxy', function() {
 
       it('should return 401 if user is not authenticated', function(done) {
         var self = this;
+
         self.createDavServer(function() {
           self.helpers.api.requireLogin(self.app, 'delete', PREFIX + '/addressbooks/123/contacts/456.vcf', done);
         });
@@ -467,6 +482,7 @@ describe('The addressbooks dav proxy', function() {
 
         dav.delete(path, function(req, res) {
           called = true;
+
           return res.status(204).end();
         });
 
@@ -481,6 +497,7 @@ describe('The addressbooks dav proxy', function() {
             }
 
             var req = loggedInAsUser(request(self.app).del(PREFIX + path));
+
             req.expect(204).end(function(err) {
               expect(err).to.not.exist;
               expect(called).to.be.true;
@@ -495,6 +512,7 @@ describe('The addressbooks dav proxy', function() {
 
       it('should return 401 if user is not authenticated', function(done) {
         var self = this;
+
         self.createDavServer(function() {
           self.helpers.api.requireLogin(self.app, 'delete', PREFIX + '/addressbooks/123/contacts/456.vcf?graceperiod=10000', done);
         });
@@ -508,6 +526,7 @@ describe('The addressbooks dav proxy', function() {
 
         dav.delete(path, function(req, res) {
           called = true;
+
           return res.status(204).end();
         });
 
@@ -522,6 +541,7 @@ describe('The addressbooks dav proxy', function() {
             }
 
             var req = loggedInAsUser(request(self.app).del(PREFIX + path));
+
             req.expect(202).end(function(err, res) {
               expect(err).to.not.exist;
               expect(res.headers['x-esn-task-id']).to.be.a.string;
@@ -544,6 +564,7 @@ describe('The addressbooks dav proxy', function() {
 
         dav.post(path, function(req, res) {
           called = true;
+
           return res.status(201).json(result);
         });
 
@@ -558,6 +579,7 @@ describe('The addressbooks dav proxy', function() {
             }
 
             var req = loggedInAsUser(request(self.app).post(PREFIX + path));
+
             req.expect(201).end(function(err, res) {
               expect(err).to.not.exist;
               expect(res.body).to.exist;
@@ -1039,23 +1061,34 @@ describe('The addressbooks dav proxy', function() {
               ['uid', {}, 'text', '3cdq4032-fcs2-4g5w-bc0c-wo2o0aa280da'],
               ['n', {}, 'text', ['Justin', 'Bruce']]
             ]],
-            id: '4db41c7b-c747-41fe-ad8f-c3aa584bf0d9'
+            id: '4dbasc7b-cd47-41fe-ac8f-c3aks2k3nf0d9'
           };
 
-          this.helpers.elasticsearch.saveTestConfiguration(this.helpers.callbacks.noError(done));
-          localpubsub.topic('elasticsearch:contact:added').publish(contact1);
-          localpubsub.topic('elasticsearch:contact:added').publish(contact2);
+          this.helpers.elasticsearch.saveTestConfiguration(err => {
+            if (err) return done(err);
+
+            localpubsub.topic('elasticsearch:contact:added').publish(contact1);
+            localpubsub.topic('elasticsearch:contact:added').publish(contact2);
+
+            this.helpers.elasticsearch.checkDocumentsIndexed({ index: 'contacts.idx', type: 'contacts', ids: [contact1.id, contact2.id] }, err => {
+              if (err) return done(err);
+
+              done();
+            });
+          });
         });
 
         it('should respond 403 if user try to use others\' bookHome', function(done) {
           const path = '/addressbooks/123456.json?search=abc';
           const self = this;
+
           self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
             if (err) {
               return done(err);
             }
 
             const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
+
             req.expect(403).end((err, res) => {
 
               expect(err).to.not.exist;
@@ -1413,20 +1446,24 @@ describe('The addressbooks dav proxy', function() {
           );
 
           self.createDavServer(self.helpers.callbacks.noErrorAnd(() => {
-            self.helpers.api.loginAsUser(self.app, user.emails[0], password, self.helpers.callbacks.noErrorAnd(loggedInAsUser => {
-              const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
+            self.helpers.elasticsearch.checkDocumentsIndexed({index: 'contacts.idx', type: 'contacts', ids: [contact3.id]}, err => {
+              if (err) return done(err);
 
-              req.expect(200).end((err, res) => {
-                expect(err).to.not.exist;
-                expect(res.headers['x-esn-items-count']).to.equal('3');
-                expect(res.body._embedded['dav:item'][2]._links.self.href).to.include(`/addressbooks/${contact3.bookId}/${contact3.bookName}/${contact3.contactId}.vcf`);
-                expect(res.body._embedded['dav:item'][2]['openpaas:addressbook']).to.deep.equal({
-                  bookHome: user._id.toString(),
-                  bookName: subscribedBookName
+              self.helpers.api.loginAsUser(self.app, user.emails[0], password, self.helpers.callbacks.noErrorAnd(loggedInAsUser => {
+                const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
+
+                req.expect(200).end((err, res) => {
+                  expect(err).to.not.exist;
+                  expect(res.headers['x-esn-items-count']).to.equal('3');
+                  expect(res.body._embedded['dav:item'][2]._links.self.href).to.include(`/addressbooks/${contact3.bookId}/${contact3.bookName}/${contact3.contactId}.vcf`);
+                  expect(res.body._embedded['dav:item'][2]['openpaas:addressbook']).to.deep.equal({
+                    bookHome: user._id.toString(),
+                    bookName: subscribedBookName
+                  });
+                  done();
                 });
-                done();
-              });
-            }));
+              }));
+            });
           }));
         });
       });

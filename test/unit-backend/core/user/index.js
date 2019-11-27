@@ -434,29 +434,6 @@ describe('The user core module', function() {
       expect(topicStub).to.not.have.been.called;
       expect(publishSpy).to.not.have.been.called;
     });
-
-    it('should not publish event when user was updated successfully but rowAffected equals 0', function() {
-      const err = null;
-      const updatedUser = { _id: 1 };
-      const rowAffected = 0;
-      const user = {
-        save(callback) {
-          callback(err, updatedUser, rowAffected);
-        }
-      };
-      const callback = () => {};
-      const publishSpy = sinon.spy();
-      const topicStub = sinon.stub().returns({
-        publish: publishSpy
-      });
-
-      localPubsubMock.topic = topicStub;
-
-      getModule().update(user, callback);
-
-      expect(topicStub).to.not.have.been.called;
-      expect(publishSpy).to.not.have.been.called;
-    });
   });
 
   describe('updateProfile fn', function() {

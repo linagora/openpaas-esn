@@ -12,24 +12,18 @@ describe('The graceperiod API', function() {
 
     this.mongoose = require('mongoose');
 
-    this.testEnv.initRedisConfiguration(this.mongoose, function(err) {
+    self.helpers.modules.initMidway(moduleName, function(err) {
       if (err) {
         return done(err);
       }
 
-      self.helpers.modules.initMidway(moduleName, function(err) {
+      self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) {
           return done(err);
         }
-
-        self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
-          if (err) {
-            return done(err);
-          }
-          user = models.users[0];
-          self.models = models;
-          done();
-        });
+        user = models.users[0];
+        self.models = models;
+        done();
       });
     });
   });

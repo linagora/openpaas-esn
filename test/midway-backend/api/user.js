@@ -86,7 +86,7 @@ describe('User API', function() {
           return done(err);
         }
 
-        var correctIds = [communities[0][0].activity_stream.uuid + '', communities[1][0].activity_stream.uuid, communities[3][0].activity_stream.uuid];
+        var correctIds = [communities[0].activity_stream.uuid + '', communities[1].activity_stream.uuid, communities[3].activity_stream.uuid];
 
         self.helpers.api.loginAsUser(webserver.application, self.models2.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
           if (err) {
@@ -134,7 +134,7 @@ describe('User API', function() {
           return done(err);
         }
 
-        var correctIds = [communities[0][0].activity_stream.uuid + '', communities[1][0].activity_stream.uuid, communities[3][0].activity_stream.uuid];
+        var correctIds = [communities[0].activity_stream.uuid + '', communities[1].activity_stream.uuid, communities[3].activity_stream.uuid];
 
         self.helpers.api.loginAsUser(webserver.application, self.models1.users[3].emails[0], 'secret', function(err, loggedInAsUser) {
           if (err) {
@@ -183,7 +183,7 @@ describe('User API', function() {
           return done(err);
         }
 
-        var correctIds = [communities[0][0].activity_stream.uuid + '', communities[1][0].activity_stream.uuid, communities[2][0].activity_stream.uuid];
+        var correctIds = [communities[0].activity_stream.uuid + '', communities[1].activity_stream.uuid, communities[2].activity_stream.uuid];
 
         self.helpers.api.loginAsUser(webserver.application, self.models2.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
           if (err) {
@@ -318,7 +318,7 @@ describe('User API', function() {
           return done(err);
         }
 
-        var correctIds = [communities[1][0]._id + '', communities[3][0]._id + ''];
+        var correctIds = [communities[1]._id + '', communities[3]._id + ''];
 
         self.helpers.api.loginAsUser(webserver.application, self.models2.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
           if (err) {

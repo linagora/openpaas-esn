@@ -52,13 +52,12 @@ before(function() {
 
     initRedisConfiguration: function(mongoose, callback) {
       const configuration = require('../../backend/core/esn-config');
-
-      mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
-      mongoose.connect(this.mongoUrl);
-
       const self = this;
 
-      mongoose.connection.on('open', function() {
+      mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
+      mongoose.connect(this.mongoUrl, err => {
+        if (err) return callback(err);
+
         configuration('redis').store({ url: self.redisUrl }, err => {
           if (err) {
             console.log('Error while saving redis configuration', err);

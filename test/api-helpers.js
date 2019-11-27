@@ -120,7 +120,7 @@ module.exports = function(mixin, testEnv) {
         return q.reject(err);
       }
 
-      return q.npost(new Model(collaboration), 'save').spread(function(collab) {
+      return q.npost(new Model(collaboration), 'save').then(function(collab) {
         return collab;
       });
     }
@@ -129,7 +129,7 @@ module.exports = function(mixin, testEnv) {
       var domain = extend(true, {}, deployment.domain);
       delete domain.administrators;
 
-      return q.npost(new Domain(domain), 'save').spread(function(domain) {
+      return q.npost(new Domain(domain), 'save').then(function(domain) {
         deployment.models.domain = domain;
       });
     }
@@ -144,7 +144,7 @@ module.exports = function(mixin, testEnv) {
 
       domain.administrators = [{ user_id: deployment.models.users[0]._id }];
 
-      return q.npost(domain, 'save').spread(function(domain) {
+      return q.npost(domain, 'save').then(function(domain) {
         deployment.models.domain = domain;
       });
     }
