@@ -267,7 +267,6 @@ module.exports = function(dependencies) {
     authorizationMW.requiresAPILogin,
     proxyMW.generateNewToken,
     davMiddleware.getDavEndpoint,
-    middleware.validateBookHome,
     controller.getAddressbooks
   );
 

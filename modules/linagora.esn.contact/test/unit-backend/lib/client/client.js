@@ -5,7 +5,6 @@ const { parseString } = require('xml2js');
 
 const HEADER_JSON = 'application/json';
 const HEADER_VCARD_JSON = 'application/vcard+json';
-const { SHARING_INVITE_STATUS } = require('../../../../backend/lib/constants');
 
 describe('The contact client APIs', function() {
   var deps;
@@ -1043,32 +1042,6 @@ describe('The contact client APIs', function() {
             })
             .catch(err => done(err || 'should resolve'));
         });
-      });
-    });
-
-    describe('The search function', function() {
-      it('should call davClient with the right parameters', function(done) {
-        mockery.registerMock('../dav-client', {
-          rawClient: options => {
-            expect(options).to.shallowDeepEqual({
-              method: 'GET',
-              json: true,
-              headers: {
-                ESNToken: CLIENT_OPTIONS.ESNToken,
-                accept: HEADER_VCARD_JSON
-              },
-              query: {
-                personal: true,
-                subscribed: true,
-                shared: true,
-                inviteStatus: SHARING_INVITE_STATUS.ACCEPTED
-              }
-            });
-            expectBookHomeURL(options.url);
-            done();
-          }
-        });
-        getAddressbookHome().search();
       });
     });
   });

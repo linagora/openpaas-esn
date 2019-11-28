@@ -7,17 +7,12 @@
     searchProviders,
     contactSearchProviderService,
     contactSearchProviders,
-    memberSearchProvider,
-    esnConfig,
     contactConfiguration
   ) {
     contactConfiguration.get('enabled', true).then(function(isEnabled) {
       if (!isEnabled) {
         return;
       }
-      esnConfig('core.membersCanBeSearched', true).then(function(membersCanBeSearched) {
-        membersCanBeSearched && contactSearchProviders.register(memberSearchProvider);
-      });
 
       contactSearchProviders.register(contactSearchProviderService);
       searchProviders.add(contactSearchProviders.get());

@@ -1,18 +1,14 @@
 (function(angular) {
   'use strict';
 
-  'use strict';
-
   angular.module('linagora.esn.contact')
     .factory('ContactAPIClient', ContactAPIClient);
 
   function ContactAPIClient(
     $q,
-    $log,
     uuid4,
     AddressbookShell,
     ContactShell,
-    ContactsHelper,
     ContactShellBuilder,
     contactAvatarService,
     VcardBuilder,
