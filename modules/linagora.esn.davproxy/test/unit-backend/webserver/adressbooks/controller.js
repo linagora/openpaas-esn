@@ -256,25 +256,21 @@ describe('The addressbooks module', function() {
         });
         dependencies.contact.lib.client = function() {
           return {
-            addressbookHome: function() {
-              return {
-                search: () =>
-                  q.resolve({
-                    results: [{
-                      response: {
-                        statusCode: 200
-                      },
-                      current_page: 1,
-                      body: {}
-                    }, {
-                      response: {
-                        statusCode: 200
-                      },
-                      current_page: 1
-                    }]
-                  })
-              };
-            }
+            searchContacts: () =>
+              q.resolve({
+                results: [{
+                  response: {
+                    statusCode: 200
+                  },
+                  current_page: 1,
+                  body: {}
+                }, {
+                  response: {
+                    statusCode: 200
+                  },
+                  current_page: 1
+                }]
+              })
           };
         };
 
@@ -819,19 +815,19 @@ describe('The addressbooks module', function() {
       addressbookStub = sinon.stub();
     });
 
-    function createContactClientMock({ get, list, search }) {
+    function createContactClientMock({ get, list, searchContacts }) {
       dependencies.contact = {
         lib: {
           client() {
             return {
-              addressbookHome: addressbookHomeStub
+              addressbookHome: addressbookHomeStub,
+              searchContacts
             };
           }
         }
       };
 
       addressbookHomeStub.returns({
-        search,
         addressbook: addressbookStub
       });
 
@@ -968,7 +964,7 @@ describe('The addressbooks module', function() {
     describe('When req.query.search is defined', function() {
       it('should search in addressbooks', function(done) {
         createContactClientMock({
-          search() {
+          searchContacts() {
             return {
               then() { done(); }
             };
@@ -996,7 +992,7 @@ describe('The addressbooks module', function() {
           };
         });
         createContactClientMock({
-          search() {
+          searchContacts() {
             return q.resolve({
               results: [{
                 response: {

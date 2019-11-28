@@ -3,17 +3,16 @@ module.exports = dependencies => {
   const { token } = dependencies('auth');
 
   return ({ term, context, pagination, excludes }) => {
-    const userId = String(context.user._id);
     const options = {
       user: context.user,
       search: term,
       limit: pagination.limit,
-      bookNames: [],
+      addressbooks: [],
       excludeIds: excludes.map(tuple => tuple.id).filter(Boolean)
     };
 
     return getClientOptions(context)
-      .then(clientOptions => client(clientOptions).addressbookHome(userId).search(options))
+      .then(clientOptions => client(clientOptions).searchContacts(options))
       .then(result => result.results);
   };
 

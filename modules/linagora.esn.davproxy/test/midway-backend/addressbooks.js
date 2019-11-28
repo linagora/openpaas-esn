@@ -54,6 +54,9 @@ describe('The addressbooks dav proxy', function() {
 
     dav = express();
     dav.use(bodyParser.json());
+    dav.propfind(`/principals/users/${user._id}`, function(req, res) {
+      res.status(200).json({});
+    });
 
     self.createDavServer = function(done) {
       var port = self.testEnv.serversConfig.express.port;
@@ -1073,32 +1076,6 @@ describe('The addressbooks dav proxy', function() {
             this.helpers.elasticsearch.checkDocumentsIndexed({ index: 'contacts.idx', type: 'contacts', ids: [contact1.id, contact2.id] }, err => {
               if (err) return done(err);
 
-              done();
-            });
-          });
-        });
-
-        it('should respond 403 if user try to use others\' bookHome', function(done) {
-          const path = '/addressbooks/123456.json?search=abc';
-          const self = this;
-
-          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
-            if (err) {
-              return done(err);
-            }
-
-            const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
-
-            req.expect(403).end((err, res) => {
-
-              expect(err).to.not.exist;
-              expect(res.body).to.deep.equal({
-                error: {
-                  code: 403,
-                  message: 'Forbidden',
-                  details: 'User do not have the required privileges for this bookHome'
-                }
-              });
               done();
             });
           });
