@@ -61,8 +61,20 @@ div(ng-if='$ctrl.status === "loaded"')
   hr
 
   .listview
-    contact-sidebar-addressbooks-list(title="'My address books'", addressbooks='$ctrl.userAddressbooks')
+    contact-sidebar-addressbooks-list(
+      title=__('My address books'),
+      section="'My address books'"
+      addressbooks='$ctrl.userAddressbooks'
+    )
 
-    contact-sidebar-addressbooks-list.shared-addressbooks(feature-flag="linagora.esn.contact.features.isSharingAddressbookEnabled", title="'Shared address books'", addressbooks='$ctrl.sharedAddressbooks')
+    contact-sidebar-addressbooks-list.shared-addressbooks(
+      title=__('Shared address books'),
+      section="'Shared address books'",
+      addressbooks='$ctrl.sharedAddressbooks',
+      feature-flag="linagora.esn.contact.features.isSharingAddressbookEnabled")
 
-    contact-sidebar-addressbooks-list.virtual-addressbooks(title="'Directory'", addressbooks='$ctrl.virtualAddressbooks')
+    contact-sidebar-addressbooks-list.virtual-addressbooks(
+      title=__('Directory'),
+      section="'Directory'",
+      addressbooks='$ctrl.virtualAddressbooks'
+    )

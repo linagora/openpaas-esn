@@ -136,5 +136,6 @@
   "Synchronize domain members address book": "同步域成员地址簿",
   "Run": "跑",
   "Submitting request...": "提交要求...",
-  "Synchronize domain members address books for entire platform": "同步整个平台的域成员通讯录"
+  "Synchronize domain members address books for entire platform": "同步整个平台的域成员通讯录",
+  "Domain members": "域成员"
 }

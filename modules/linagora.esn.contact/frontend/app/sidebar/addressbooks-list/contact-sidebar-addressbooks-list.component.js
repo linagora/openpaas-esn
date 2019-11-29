@@ -6,7 +6,7 @@
       templateUrl: '/contact/app/sidebar/addressbooks-list/contact-sidebar-addressbooks-list.html',
       bindings: {
         addressbooks: '=',
-        title: '<'
+        section: '<'
       }
     });
 })(angular);
