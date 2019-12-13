@@ -136,5 +136,6 @@
   "Synchronize domain members address book": "Synchroniser le carnet d'adresses des membres du domaine",
   "Run": "Exécuter",
   "Submitting request...": "Soumettre la requête...",
-  "Synchronize domain members address books for entire platform": "Synchronisez les carnets d'adresses des membres du domaine pour l'ensemble de la plate-forme"
+  "Synchronize domain members address books for entire platform": "Synchronisez les carnets d'adresses des membres du domaine pour l'ensemble de la plate-forme",
+  "Domain members": "Membres du domaine"
 }
