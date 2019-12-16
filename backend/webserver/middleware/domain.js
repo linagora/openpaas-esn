@@ -67,16 +67,24 @@ function loadDomainByHostname(req, res, next) {
  * @param {Function} next
  */
 function load(req, res, next) {
-  if (!dbHelper.isValidObjectId(req.params.uuid)) {
+  const { uuid } = req.params;
+
+  if (!dbHelper.isValidObjectId(uuid)) {
     return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'Invalid domain id' }});
   }
 
-  Domain.loadFromID(req.params.uuid, function(err, domain) {
+  Domain.loadFromID(uuid, function(err, domain) {
     if (err) {
       return next(err);
     }
     if (!domain) {
-      return res.status(404).end();
+      return res.status(404).json({
+        error: {
+          code: 404,
+          message: 'Not Found',
+          details: `No domain found for id: ${uuid}`
+        }
+      });
     }
     req.domain = domain;
 

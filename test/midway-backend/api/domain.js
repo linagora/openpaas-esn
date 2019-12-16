@@ -549,9 +549,17 @@ describe('The domain API', function() {
 
       helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
         loggedInAsUser(request(app).put(`${API_PATH}/${notExistedDomainId}`).send(modifiedDomain))
-          .expect(404).end(helpers.callbacks.noErrorAnd(() => {
+          .expect(404)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.deep.equal({
+              error: {
+                code: 404,
+                message: 'Not Found',
+                details: `No domain found for id: ${notExistedDomainId}`
+              }
+            });
             done();
-        }));
+          }));
       }));
     });
 
@@ -710,6 +718,25 @@ describe('The domain API', function() {
       helpers.api.requireLogin(app, 'get', '/api/domains/' + domain1._id, done);
     });
 
+    it('should send back 404 when domain is not found', function(done) {
+      const notExistedDomainId = new ObjectId();
+
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).get(`${API_PATH}/${notExistedDomainId}`))
+          .expect(404)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.deep.equal({
+              error: {
+                code: 404,
+                message: 'Not Found',
+                details: `No domain found for id: ${notExistedDomainId}`
+              }
+            });
+            done();
+          }));
+      }));
+    });
+
     it('should send back 403 when current user is not domain member', function(done) {
       helpers.api.loginAsUser(app, user1Domain2Manager.emails[0], password, function(err, loggedInAsUser) {
         expect(err).to.not.exist;
@@ -755,10 +782,22 @@ describe('The domain API', function() {
     });
 
     it('should send back 404 when domain is not found', function(done) {
+      const notExistedDomainId = new ObjectId();
+
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
-        var req = requestAsMember(request(app).get('/api/domains/' + new ObjectId() + '/members'));
-        req.expect(404).end(helpers.callbacks.noError(done));
+        requestAsMember(request(app).get(`/api/domains/${notExistedDomainId}/members`))
+          .expect(404)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.deep.equal({
+              error: {
+                code: 404,
+                message: 'Not Found',
+                details: `No domain found for id: ${notExistedDomainId}`
+              }
+            });
+            done();
+          }));
       });
     });
 
@@ -1169,6 +1208,17 @@ describe('The domain API', function() {
       helpers.api.requireLogin(app, 'head', `/api/domains/${domain1._id}/members`, done);
     });
 
+    it('should send back 404 when domain is not found', function(done) {
+      const notExistedDomainId = new ObjectId();
+
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        requestAsMember(request(app).head(`/api/domains/${notExistedDomainId}/members`))
+          .expect(404)
+          .end(done);
+      });
+    });
+
     it('should send back 403 when current user is not domain member', function(done) {
       helpers.api.loginAsUser(app, user1Domain2Manager.emails[0], password, (err, loggedInAsUser) => {
         expect(err).to.not.exist;
@@ -1195,6 +1245,26 @@ describe('The domain API', function() {
   describe('GET /api/domains/:uuid/manager', function() {
     it('should send back 401 when not logged in', function(done) {
       helpers.api.requireLogin(app, 'get', '/api/domains/' + domain1._id + '/manager', done);
+    });
+
+    it('should send back 404 when domain is not found', function(done) {
+      const notExistedDomainId = new ObjectId();
+
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        requestAsMember(request(app).get(`/api/domains/${notExistedDomainId}/manager`))
+          .expect(404)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.deep.equal({
+              error: {
+                code: 404,
+                message: 'Not Found',
+                details: `No domain found for id: ${notExistedDomainId}`
+              }
+            });
+            done();
+          }));
+      });
     });
 
     it('should send back 403 when current user is not a domain manager', function(done) {
@@ -1303,10 +1373,22 @@ describe('The domain API', function() {
     });
 
     it('should send back 404 when domain is not found', function(done) {
+      const notExistedDomainId = new ObjectId();
+
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
-        var req = requestAsMember(request(app).post('/api/domains/' + new ObjectId() + '/members'));
-        req.expect(404).end(helpers.callbacks.noError(done));
+        requestAsMember(request(app).post(`/api/domains/${notExistedDomainId}/members`))
+          .expect(404)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.deep.equal({
+              error: {
+                code: 404,
+                message: 'Not Found',
+                details: `No domain found for id: ${notExistedDomainId}`
+              }
+            });
+            done();
+          }));
       });
     });
 
@@ -1359,9 +1441,21 @@ describe('The domain API', function() {
     });
 
     it('should send back 404 when domain is not found', function(done) {
+      const notExistedDomainId = new ObjectId();
+
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(function(requestAsMember) {
-        var req = requestAsMember(request(app).get('/api/domains/' + new ObjectId() + '/administrators'));
-        req.expect(404).end(helpers.callbacks.noError(done));
+        requestAsMember(request(app).get(`/api/domains/${notExistedDomainId}/administrators`))
+          .expect(404)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.deep.equal({
+              error: {
+                code: 404,
+                message: 'Not Found',
+                details: `No domain found for id: ${notExistedDomainId}`
+              }
+            });
+            done();
+          }));
       }));
     });
 
@@ -1430,11 +1524,22 @@ describe('The domain API', function() {
     });
 
     it('should send back 404 when domain is not found', function(done) {
+      const notExistedDomainId = new ObjectId();
+
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
-        var req = requestAsMember(request(app).post('/api/domains/' + new ObjectId() + '/administrators'));
-
-        req.expect(404).end(helpers.callbacks.noError(done));
+        requestAsMember(request(app).post(`/api/domains/${notExistedDomainId}/administrators`))
+          .expect(404)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.deep.equal({
+              error: {
+                code: 404,
+                message: 'Not Found',
+                details: `No domain found for id: ${notExistedDomainId}`
+              }
+            });
+            done();
+          }));
       });
     });
 
@@ -1513,11 +1618,22 @@ describe('The domain API', function() {
     });
 
     it('should send back 404 when domain is not found', function(done) {
+      const notExistedDomainId = new ObjectId();
+
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
-        var req = requestAsMember(request(app).delete('/api/domains/' + new ObjectId() + '/administrators/' + user1Domain1Manager._id));
-
-        req.expect(404).end(helpers.callbacks.noError(done));
+        requestAsMember(request(app).delete(`/api/domains/${notExistedDomainId}/administrators/${user1Domain1Manager._id}`))
+          .expect(404)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.deep.equal({
+              error: {
+                code: 404,
+                message: 'Not Found',
+                details: `No domain found for id: ${notExistedDomainId}`
+              }
+            });
+            done();
+          }));
       });
     });
 
