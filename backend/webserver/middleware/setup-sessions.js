@@ -1,5 +1,3 @@
-'use strict';
-
 const expressSession = require('express-session');
 const MongoStore = require('connect-mongo')(expressSession);
 const mongoose = require('mongoose');
