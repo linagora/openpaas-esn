@@ -1,7 +1,6 @@
 'use strict';
 
 var express = require('express');
-var cdm = require('connect-dynamic-middleware');
 var i18n = require('../i18n');
 var path = require('path');
 var passport = require('passport');
@@ -12,6 +11,7 @@ var logger = require('../core').logger;
 const startupBuffer = require('./middleware/startup-buffer')(config.webserver.startupBufferTimeout);
 const cookieParser = require('cookie-parser');
 const staticAssets = require('./middleware/static-assets');
+const session = require('./session');
 
 var application = express();
 exports = module.exports = application;
@@ -41,15 +41,7 @@ application.use(bodyParser.urlencoded({
 application.use(startupBuffer);
 application.use(cookieParser());
 
-var session = require('express-session');
-var sessionMiddleware = cdm(session({
-  resave: false,
-  saveUninitialized: false,
-  cookie: { maxAge: 6000000 },
-  secret: 'this is the secret!'
-}));
-application.use(sessionMiddleware);
-require('./middleware/setup-sessions')(sessionMiddleware);
+application.use(session());
 
 application.use(i18n.init); // Should stand before app.route
 require('./passport');
