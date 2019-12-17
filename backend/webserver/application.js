@@ -1,19 +1,21 @@
-'use strict';
-
-var express = require('express');
-var i18n = require('../i18n');
-var path = require('path');
-var passport = require('passport');
-var flash = require('connect-flash');
-var FRONTEND_PATH = path.normalize(__dirname + '/../../frontend');
-var config = require('../core').config('default');
-var logger = require('../core').logger;
+const express = require('express');
+const i18n = require('../i18n');
+const path = require('path');
+const flash = require('connect-flash');
+const bodyParser = require('body-parser');
+const FRONTEND_PATH = path.normalize(__dirname + '/../../frontend');
+const config = require('../core').config('default');
+const logger = require('../core').logger;
 const startupBuffer = require('./middleware/startup-buffer')(config.webserver.startupBufferTimeout);
 const cookieParser = require('cookie-parser');
 const staticAssets = require('./middleware/static-assets');
-const session = require('./session');
+const sessionSetup = require('./session');
+const pubsubSetup = require('./pubsub');
+const routesSetup = require('./routes');
+const passportSetup = require('./passport');
 
-var application = express();
+const application = express();
+
 exports = module.exports = application;
 
 application.set('views', [FRONTEND_PATH + '/views', FRONTEND_PATH + '/js']);
@@ -32,24 +34,16 @@ staticAssets(application, '/components', FRONTEND_PATH + '/components');
 application.use('/js', express.static(FRONTEND_PATH + '/js', { extensions: ['js']}));
 application.use('/core/js', express.static(FRONTEND_PATH + '/js/modules', { extensions: ['js']}));
 
-var bodyParser = require('body-parser');
 application.use(bodyParser.json());
-application.use(bodyParser.urlencoded({
-  extended: true
-}));
+application.use(bodyParser.urlencoded({ extended: true }));
 
 application.use(startupBuffer);
 application.use(cookieParser());
-
-application.use(session());
+application.use(sessionSetup());
 
 application.use(i18n.init); // Should stand before app.route
-require('./passport');
 
-application.use(passport.initialize());
-application.use(passport.session());
-
-application.use(function(req, res, next) {
+application.use((req, res, next) => {
   // put the user in locals
   // so they it can be used directly in template
   res.locals.user = req.user;
@@ -60,8 +54,9 @@ application.use(flash());
 
 application.locals.appName = config.app && config.app.name ? config.app.name : '';
 
-require('./pubsub')(application);
-require('./routes')(application);
+passportSetup(application);
+pubsubSetup(application);
+routesSetup(application);
 
 application.use((err, req, res, next) => {
   logger.error('Unhandled error on Core Express Server', err.stack);
