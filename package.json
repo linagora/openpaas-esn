@@ -4,7 +4,6 @@
   "description": "Linagora RSE",
   "main": "index.js",
   "dependencies": {
-    "@linagora/awesome-sessionstore": "0.1.0",
     "@linagora/char-api": "0.1.1",
     "@linagora/i18n-node": "0.9.1",
     "@linagora/ical.js": "1.2.4",
@@ -29,6 +28,7 @@
     "composable-middleware": "0.3.0",
     "connect-dynamic-middleware": "0.1.0",
     "connect-flash": "0.1.1",
+    "connect-mongo": "3.2.0",
     "connect-restreamer": "1.0.3",
     "cookie-parser": "1.4.3",
     "cors": "2.8.1",
