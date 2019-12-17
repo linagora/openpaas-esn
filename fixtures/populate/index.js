@@ -1,50 +1,100 @@
-'use strict';
+const q = require('q');
+const extend = require('extend');
+const mongoose = require('mongoose');
+const { promisify } = require('util');
 
-var q = require('q');
-var extend = require('extend');
-var mongoose = require('mongoose');
 require('../../backend/core/db/mongo/models/domain');
 require('../../backend/core/db/mongo/models/community');
 require('../../backend/core/db/mongo/models/user');
-var Domain = mongoose.model('Domain');
-var Community = mongoose.model('Community');
-var User = mongoose.model('User');
-var helpers = require('../../backend/core/db/mongo/plugins/helpers');
+const Domain = mongoose.model('Domain');
+const Community = mongoose.model('Community');
+const User = mongoose.model('User');
+const userDomainModule = require('../../backend/core/user/domain');
+const helpers = require('../../backend/core/db/mongo/plugins/helpers');
+
 helpers.applyPlugins();
 helpers.patchFindOneAndUpdate();
 
-var userDomainModule = require('../../backend/core/user/domain');
-var populateObjects = require('./data/populate-objects');
+const {
+  ADMIN,
+  USER,
+  DOMAIN,
+  COMMUNITY
+} = require('./data/populate-objects');
 
-var ADMIN_OBJECT = populateObjects.ADMIN;
+module.exports = {
+  populateAll,
+  provisionDomainAndAdministrator,
+  populateDomainConfigurationAndTechnicalUsers
+};
 
-var USER_OBJECT = populateObjects.USER;
+function populateDomainConfigurationAndTechnicalUsers(host, [admin, domain]) {
+  _log('[INFO] POPULATE Domain configuration and technical user');
 
-var DOMAIN_OBJECT = populateObjects.DOMAIN;
+  const technicalUsers = require('./data/technical-users');
+  const configuration = require('./data/configuration');
 
-var COMMUNITY_OBJECT = populateObjects.COMMUNITY;
+  return Promise.all([technicalUsers([domain]), configuration([domain], host)])
+    .then(function() {
+      return Promise.resolve([admin, domain]);
+    });
+}
+
+function populateAll(host) {
+  _log('[INFO] POPULATE the ESN');
+
+  return _populateAdmin()
+    .then(_populateDomain.bind(null, null))
+    .then(populateDomainConfigurationAndTechnicalUsers.bind(null, host))
+    .then(_joinDomain)
+    .then(_populateCommunity)
+    .then(_populateMembers);
+}
+
+function provisionDomainAndAdministrator(email, password) {
+  const parts = email.split('@');
+  const login = parts[0];
+  const domainName = parts[1];
+  const admin = {
+    firstname: 'Admin',
+    lastname: 'Admin',
+    password: password || login,
+    accounts: [{
+      type: 'email',
+      hosted: true,
+      emails: [email]
+    }]
+  };
+  const domain = {
+    name: domainName,
+    company_name: domainName
+  };
+
+  return _populateAdmin(admin)
+    .then(_populateDomain.bind(null, domain))
+    .then(_joinDomain);
+}
 
 function _populateAdmin(adminObject) {
-  console.log('[INFO] POPULATE admin');
+  _log('[INFO] POPULATE admin');
 
-  return q.ninvoke(new User(adminObject || ADMIN_OBJECT), 'save');
+  const admin = new User(adminObject || ADMIN);
+
+  return admin.save();
 }
 
 function _populateDomain(domainObject, admin) {
-  console.log('[INFO] POPULATE domain');
+  _log('[INFO] POPULATE domain');
 
-  var object = extend({}, domainObject || DOMAIN_OBJECT, { administrators: [{ user_id: admin[0] }] });
+  const object = extend({}, domainObject || DOMAIN, { administrators: [{ user_id: admin }] });
+  const domain = new Domain(object);
 
-  return q.ninvoke(new Domain(object), 'save').then(domain => [admin[0], domain[0]]);
+  return domain.save().then(domain => [admin, domain]);
 }
 
-function _joinDomain(user, domain) {
-  var deferred = q.defer();
-  userDomainModule.joinDomain(user, domain, function(err) {
-    if (err) { deferred.reject(err); }
-    deferred.resolve([user, domain]);
-  });
-  return deferred.promise;
+function _joinDomain([user, domain]) {
+  return promisify(userDomainModule.joinDomain)(user, domain)
+    .then(() => [user, domain]);
 }
 
 function _buildMember(id) {
@@ -57,113 +107,55 @@ function _buildMember(id) {
   };
 }
 
-function _populateCommunity(admin, domain) {
-  console.log('[INFO] POPULATE community');
-  var object = extend({}, COMMUNITY_OBJECT);
-  object.creator = admin._id;
-  object.domain_ids = [domain._id];
-  object.members = [_buildMember(admin._id)];
-  var community = new Community(object);
-  return q.ninvoke(community, 'save')
-    .then(function() {
-      return [community, domain];
-    });
+function _populateCommunity([admin, domain]) {
+  _log('[INFO] POPULATE community');
+
+  const community = new Community({
+    creator: admin._id,
+    domain_ids: [domain._id],
+    members: [_buildMember(admin._id)],
+    ...COMMUNITY
+  });
+
+  return community.save().then(() => [community, domain]);
 }
 
 function _createUser(index, community, domain) {
-  var userToSave = {
-    firstname: USER_OBJECT.firstname + index,
-    lastname: USER_OBJECT.lastname + index,
-    password: USER_OBJECT.password,
+  const userToSave = {
+    firstname: USER.firstname + index,
+    lastname: USER.lastname + index,
+    password: USER.password,
     accounts: [{
-      type: USER_OBJECT.accounts[0].type,
-      emails: [USER_OBJECT.accounts[0].emails[0].replace(/(\w+)@/, '$1' + index + '@')]
+      type: USER.accounts[0].type,
+      emails: [USER.accounts[0].emails[0].replace(/(\w+)@/, '$1' + index + '@')]
     }]
   };
 
-  var user = new User(userToSave);
-  return q.ninvoke(user, 'save')
-    .then(function(user) {
-      return user[0];
-    })
-    .then(function(user) {
-      return _joinDomain(user, domain);
-    })
-    .spread(function(user) {
-      return q.ninvoke(
-        Community, 'update',
-        {
-          _id: community._id,
-          'members.user': {$ne: user._id}
-        },
-        {
-          $push: { members: _buildMember(user._id) }
-        });
-    });
+  const user = new User(userToSave);
+
+  return user.save()
+    .then(user => _joinDomain(user, domain))
+    .then(([user]) =>
+      promisify(Community.update)({
+        _id: community._id,
+        'members.user': {$ne: user._id}
+      }, {
+        $push: { members: _buildMember(user._id) }
+      })
+    );
 }
 
-function _populateMembers(community, domain) {
-  console.log('[INFO] POPULATE members');
-  var createUsers = [];
+function _populateMembers([community, domain]) {
+  _log('[INFO] POPULATE members');
+  const createUsers = [];
 
-  for (var i = 0; i < 20; i++) {
-    var promise = _createUser(i, community, domain);
-
-    createUsers.push(promise);
+  for (let i = 0; i < 20; i++) {
+    createUsers.push(_createUser(i, community, domain));
   }
 
   return q.allSettled(createUsers);
 }
 
-function populateDomainConfigurationAndTechnicalUsers(host, admin, domain) {
-  console.log('[INFO] POPULATE Domain configuration and technical user');
-
-  var technicalUsers = require('./data/technical-users');
-  var configuration = require('./data/configuration');
-
-  return q.all([technicalUsers([domain]), configuration([domain], host)])
-    .then(function() {
-      return q([admin, domain]);
-    });
+function _log(message) {
+  console.log(message); // eslint-disable-line
 }
-
-function populateAll(host) {
-  console.log('[INFO] POPULATE the ESN');
-
-  return _populateAdmin()
-    .then(_populateDomain.bind(null, null))
-    .spread(populateDomainConfigurationAndTechnicalUsers.bind(null, host))
-    .spread(_joinDomain)
-    .spread(_populateCommunity)
-    .spread(_populateMembers);
-}
-
-function provisionDomainAndAdministrator(email, password) {
-  const parts = email.split('@'),
-        login = parts[0],
-        domainName = parts[1],
-        admin = {
-          firstname: 'Admin',
-          lastname: 'Admin',
-          password: password || login,
-          accounts: [{
-            type: 'email',
-            hosted: true,
-            emails: [email]
-          }]
-        },
-        domain = {
-          name: domainName,
-          company_name: domainName
-        };
-
-  return _populateAdmin(admin)
-    .then(_populateDomain.bind(null, domain))
-    .spread(_joinDomain);
-}
-
-module.exports = {
-  populateAll,
-  provisionDomainAndAdministrator,
-  populateDomainConfigurationAndTechnicalUsers
-};
