@@ -1,16 +1,19 @@
-'use strict';
-
-var expect = require('chai').expect,
-    mockery = require('mockery');
+const { expect } = require('chai');
+const mockery = require('mockery');
+const sinon = require('sinon');
 
 describe('The passport configuration module', function() {
+  let application;
 
   beforeEach(function(done) {
+    application = {
+      use: sinon.spy()
+    };
     this.testEnv.initCore(done);
   });
 
   it('should not fail with default configuration settings (file)', function(done) {
-    this.helpers.requireBackend('webserver/passport');
+    this.helpers.requireBackend('webserver/passport')(application);
     var passport = require('passport');
     expect(passport._strategy('local')).to.exist;
     done();
@@ -38,7 +41,7 @@ describe('The passport configuration module', function() {
         }
       };
       mockery.registerMock('../core', configMock);
-      this.helpers.requireBackend('webserver/passport');
+      this.helpers.requireBackend('webserver/passport')(application);
       var passport = require('passport');
       expect(passport._strategy('foobar')).to.be.undefined;
     });
@@ -49,7 +52,7 @@ describe('The passport configuration module', function() {
     var passport;
 
     beforeEach(function() {
-      this.helpers.requireBackend('webserver/passport');
+      this.helpers.requireBackend('webserver/passport')(application);
       passport = require('passport');
     });
 
