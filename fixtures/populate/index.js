@@ -134,9 +134,9 @@ function _createUser(index, community, domain) {
   const user = new User(userToSave);
 
   return user.save()
-    .then(user => _joinDomain(user, domain))
+    .then(user => _joinDomain([user, domain]))
     .then(([user]) =>
-      promisify(Community.update)({
+      Community.update({
         _id: community._id,
         'members.user': {$ne: user._id}
       }, {
