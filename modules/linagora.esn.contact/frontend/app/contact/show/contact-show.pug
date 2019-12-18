@@ -6,7 +6,7 @@ sub-header
     .card-body.contact-body
       contact-display(ng-if='loaded && !error' contact='contact')
       div.bs-alert.bs-alert-warning.clearfix.text-center(ng-if= 'loaded && !error && !displayShell.addressbook.canEditContact')
-        strong #{__("This contact can not be edited")}
+        strong #{__("This contact cannot be edited")}
 
   .contact-content.visible-xs.fadeIn200ms(ng-if='loaded && !error')
     .contact-avatar.p-relative
@@ -101,4 +101,4 @@ sub-header
             p {{contact.notes}}
             p.type #{__('Comments')}
     div.bs-alert.bs-alert-warning.clearfix.text-center(ng-if= '!displayShell.addressbook.canEditContact')
-      strong #{__("This contact can not be edited")}
+      strong #{__("This contact cannot be edited")}
