@@ -6,6 +6,15 @@ const sinon = require('sinon');
 const q = require('q');
 
 describe('The setup-session middleware', function() {
+  let MongoStore;
+
+  beforeEach(function() {
+    const mongooseMock = this.helpers.requireFixture('mongoose').mongoose();
+
+    MongoStore = sinon.spy();
+    mockery.registerMock('connect-mongo', () => MongoStore);
+    mockery.registerMock('mongoose', mongooseMock);
+  });
 
   it('should be a function', function() {
     const setupSession = this.helpers.requireBackend('webserver/middleware/setup-sessions');
@@ -14,10 +23,6 @@ describe('The setup-session middleware', function() {
   });
 
   it('should set the middleware if the datastore is connected', function(done) {
-    const mongooseMock = this.helpers.requireFixture('mongoose').mongoose();
-
-    mongooseMock.connections = [true];
-
     const coreMock = {
       db: {
         mongo: {
@@ -31,7 +36,7 @@ describe('The setup-session middleware', function() {
         }
       },
       'esn-config': () => ({
-        get: () => q.resolve()
+        get: sinon.stub().returns(Promise.resolve({}))
       })
     };
 
@@ -41,19 +46,13 @@ describe('The setup-session middleware', function() {
       }
     };
 
-    mockery.registerMock('mongoose', mongooseMock);
     mockery.registerMock('../../core', coreMock);
+    mockery.registerMock('express-session', sinon.spy());
 
-    const setupSession = this.helpers.requireBackend('webserver/middleware/setup-sessions');
-
-    setupSession(session);
+    this.helpers.requireBackend('webserver/middleware/setup-sessions')(session);
   });
 
   it('should register a subscription mongodb:connectionAvailable', function() {
-    const mongooseMock = this.helpers.requireFixture('mongoose').mongoose();
-
-    mongooseMock.connections = [true];
-
     const subscriptions = {};
     const coreMock = {
       db: {
@@ -74,21 +73,15 @@ describe('The setup-session middleware', function() {
       }
     };
 
-    mockery.registerMock('mongoose', mongooseMock);
     mockery.registerMock('../../core', coreMock);
 
-    const setupSession = this.helpers.requireBackend('webserver/middleware/setup-sessions');
+    this.helpers.requireBackend('webserver/middleware/setup-sessions')(session);
 
-    setupSession(session);
     expect(subscriptions).to.have.property('mongodb:connectionAvailable');
     expect(subscriptions['mongodb:connectionAvailable']).to.be.a.function;
   });
 
   it('should set the session middleware when mongodb:connectionAvailable is published', function(done) {
-    const mongooseMock = this.helpers.requireFixture('mongoose').mongoose();
-
-    mongooseMock.connections = [true];
-
     const subscriptions = {};
     const coreMock = {
       db: {
@@ -117,21 +110,16 @@ describe('The setup-session middleware', function() {
       }
     };
 
-    mockery.registerMock('mongoose', mongooseMock);
     mockery.registerMock('../../core', coreMock);
+    mockery.registerMock('express-session', sinon.spy());
 
-    const setupSession = this.helpers.requireBackend('webserver/middleware/setup-sessions');
+    this.helpers.requireBackend('webserver/middleware/setup-sessions')(session);
 
-    setupSession(session);
-    session.setMiddleware = function() {done();};
+    session.setMiddleware = function() { done(); };
     subscriptions['mongodb:connectionAvailable']();
   });
 
   it('should use the cached MongoStore to set up session middleware when mongodb:connectionAvailable is published twice', function() {
-    const mongooseMock = this.helpers.requireFixture('mongoose').mongoose();
-
-    mongooseMock.connections = [true];
-
     const subscriptions = {};
     const coreMock = {
       db: {
@@ -154,37 +142,25 @@ describe('The setup-session middleware', function() {
         get: () => q.resolve()
       })
     };
-    const MongoStoreSpy = sinon.spy();
-    const awesomeSessionstoreMock = () => MongoStoreSpy;
     const session = { setMiddleware() {} };
-    const expressSessionMock = function() {};
 
-    mockery.registerMock('mongoose', mongooseMock);
     mockery.registerMock('../../core', coreMock);
-    mockery.registerMock('@linagora/awesome-sessionstore', awesomeSessionstoreMock);
-    mockery.registerMock('express-session', expressSessionMock);
+    mockery.registerMock('express-session', sinon.spy());
 
-    const setupSession = this.helpers.requireBackend('webserver/middleware/setup-sessions');
-
-    setupSession(session);
+    this.helpers.requireBackend('webserver/middleware/setup-sessions')(session);
 
     subscriptions['mongodb:connectionAvailable']();
     subscriptions['mongodb:connectionAvailable']();
 
-    expect(MongoStoreSpy).to.have.been.calledOnce;
+    expect(MongoStore).to.have.been.calledOnce;
   });
 
   it('should use session configuration to configure session', function(done) {
-    const mongooseMock = this.helpers.requireFixture('mongoose').mongoose();
-
-    mongooseMock.connections = [true];
-
     const sessionConfigMock = {
       secret: 'cats are cute',
       saveUninitialized: true,
       cookie: { maxAge: 1000 }
     };
-    const awesomeSessionstoreMock = () => sinon.spy();
     const expressSessionMock = sinon.spy();
     const coreMock = {
       db: {
@@ -210,9 +186,7 @@ describe('The setup-session middleware', function() {
       }
     };
 
-    mockery.registerMock('mongoose', mongooseMock);
     mockery.registerMock('../../core', coreMock);
-    mockery.registerMock('@linagora/awesome-sessionstore', awesomeSessionstoreMock);
     mockery.registerMock('express-session', expressSessionMock);
 
     this.helpers.requireBackend('webserver/middleware/setup-sessions')(session);

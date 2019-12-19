@@ -1,7 +1,5 @@
-'use strict';
-
 const expressSession = require('express-session');
-const MongoStore = require('@linagora/awesome-sessionstore')(expressSession);
+const MongoStore = require('connect-mongo')(expressSession);
 const mongoose = require('mongoose');
 const core = require('../../core');
 const esnConfig = require('../../core/esn-config');
@@ -19,7 +17,7 @@ module.exports = init;
 
 function init(session) {
   if (!initialized) {
-    store = new MongoStore({ mongoose });
+    store = new MongoStore({ mongooseConnection: mongoose.connection });
     initialized = true;
   }
 
