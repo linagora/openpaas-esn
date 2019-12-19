@@ -143,6 +143,7 @@ unit-storage-test:
     MONGO_PORT: 27017
     AMQP_HOST: rabbitmq-unit
     AMQP_PORT: 5672
+    ESN_ELASTIC_HOST: elasticsearch-unit
     ELASTICSEARCH_HOST: elasticsearch-unit
     ELASTICSEARCH_PORT: 9200
     REDIS_HOST: redis-unit
@@ -168,6 +169,7 @@ modules-midway-test:
     MONGO_PORT: 27017
     AMQP_HOST: rabbitmq-midway
     AMQP_PORT: 5672
+    ESN_ELASTIC_HOST: elasticsearch-midway
     ELASTICSEARCH_HOST: elasticsearch-midway
     ELASTICSEARCH_PORT: 9200
     REDIS_HOST: redis-midway
@@ -192,6 +194,7 @@ midway-backend-test:
     MONGO_PORT: 27017
     AMQP_HOST: rabbitmq-backend
     AMQP_PORT: 5672
+    ESN_ELASTIC_HOST: elasticsearch-backend
     ELASTICSEARCH_HOST: elasticsearch-backend
     ELASTICSEARCH_PORT: 9200
     REDIS_HOST: redis-backend
