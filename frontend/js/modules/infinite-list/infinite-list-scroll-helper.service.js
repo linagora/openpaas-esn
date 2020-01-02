@@ -5,15 +5,15 @@
     .factory('infiniteScrollHelper', infiniteScrollHelper);
 
   function infiniteScrollHelper(infiniteScrollHelperBuilder) {
-    return function(scope, loadNextItems) {
-
+    return function(scope, loadNextItems, updateScope, elementsPerPage) {
       scope.elements = scope.elements || [];
-
-      return infiniteScrollHelperBuilder(scope, loadNextItems, function(newElements) {
+      updateScope = updateScope || function(newElements) {
         newElements.forEach(function(element) {
           scope.elements.push(element);
         });
-      });
+      };
+
+      return infiniteScrollHelperBuilder(scope, loadNextItems, updateScope, elementsPerPage);
     };
   }
 })();
