@@ -146,3 +146,16 @@ To see all supported commands, use `help` command:
 ```bash
 $ node ./bin/cli help platformadmin
 ```
+
+**james**
+This command allows you to generate James JWT token with administrator right
+
+```bash
+$ node ./bin/cli james generate-token
+```
+
+To see all supported commands, use `help` command:
+
+```bash
+$ node ./bin/cli help james
+```
