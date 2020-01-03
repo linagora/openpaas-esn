@@ -355,7 +355,7 @@ deploy-dev:
       - name: docker-registry.linagora.com:5000/linshare-snapshots/linshare-dind:latest
         alias: docker-dind
 
-docker-master:
+docker-release-1.6.x:
   <<: *build-docker-tpl
   stage: build
   variables:
@@ -367,15 +367,15 @@ docker-master:
     - source version.env
     - docker-tag-computing.sh ${VERSION} docker-tag-and-push.env
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_TOKEN} docker-registry.linagora.com:5000
-    - docker build . -t build:latest
-    - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PRIVATE}
+    - docker build . -t build:release-1.6.x
+    - docker-tag-and-push.sh build:release-1.6.x ${DOCKER_IMAGE_PRIVATE}
     - docker logout docker-registry.linagora.com:5000
     - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
-    - echo "export DOCKER_TAGS=branch-master" > docker-tag-and-push.env
-    - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PUBLIC}
+    - echo "export DOCKER_TAGS=branch-release-1.6.x" > docker-tag-and-push.env
+    - docker-tag-and-push.sh build:release-1.6.x ${DOCKER_IMAGE_PUBLIC}
     - docker logout
   only:
-    - master@linagora/lgs/openpaas/esn
+    - release-1.6.x@linagora/lgs/openpaas/esn
   except:
     variables:
       - $SKIP_BUILD_DOCKER
