@@ -197,7 +197,7 @@ midway-backend-test:
     REDIS_HOST: redis-backend
     REDIS_PORT: 6379
   script:
-    - grunt --chunk=1 -v gitlab-test-midway-backend
+    - node --max-old-space-size=8192 /usr/local/bin/grunt --chunk=1 -v gitlab-test-midway-backend
 
 # Why is it deactivated ?
 # This job try to build and test everything !!!
