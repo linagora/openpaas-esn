@@ -104,6 +104,13 @@ beforeEach(function() {
   this.helpers.mock.winston();
 });
 
+beforeEach(function() {
+  console.log('###')
+  console.log(process.env);
+  console.log('Before Heap Used', process.memoryUsage().heapUsed / 1024 / 1024);
+  console.log('####')
+});
+
 afterEach(function(done) {
   try {
     this.helpers.requireBackend('core/db/mongo/file-watcher').clear();
@@ -116,3 +123,8 @@ afterEach(function(done) {
   mockery.disable();
   this.helpers.requireBackend('core/pubsub').global.unsetClient(done);
 });
+
+afterEach(function() {
+  console.log('After Heap Used', process.memoryUsage().heapUsed / 1024 / 1024);
+});
+
