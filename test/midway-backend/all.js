@@ -106,9 +106,11 @@ beforeEach(function() {
 
 beforeEach(function() {
   const memory = process.memoryUsage();
-  console.log('###');
-  console.log('Before Heap Used', memory.heapUsed / 1024 / 1024);
-  console.log('Before Heap Total', memory.heapTotal / 1024 / 1024);
+  console.log('### Before');
+  console.log('Heap Used', memory.heapUsed / 1024 / 1024);
+  console.log('Heap Total', memory.heapTotal / 1024 / 1024);
+  console.log('RSS', memory.rss / 1024 / 1024);
+  console.log('external', memory.external / 1024 / 1024);
   console.log('####');
 });
 
