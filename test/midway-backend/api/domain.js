@@ -2,7 +2,7 @@ const request = require('supertest'),
     expect = require('chai').expect,
     ObjectId = require('bson').ObjectId;
 
-describe('The domain API', function() {
+describe.skip('The domain API', function() {
   const API_PATH = '/api/domains';
   let app;
   let user1Domain1Manager, user2Domain1Member;
