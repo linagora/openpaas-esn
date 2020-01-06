@@ -110,6 +110,7 @@ function setupAPI(application) {
   require('./ldap')(router);
   require('./i18n')(router);
   require('./themes')(router);
+  require('./technicalusers')(router);
 
   application.use('/api', router);
   application.use('/api/v0.1', router);
