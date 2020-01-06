@@ -105,10 +105,10 @@ beforeEach(function() {
 });
 
 beforeEach(function() {
-  console.log('###')
+  console.log('###');
   console.log(process.env);
   console.log('Before Heap Used', process.memoryUsage().heapUsed / 1024 / 1024);
-  console.log('####')
+  console.log('####');
 });
 
 afterEach(function(done) {
