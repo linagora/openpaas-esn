@@ -44,6 +44,8 @@ stages:
   before_script:
     - npm install -g grunt-cli
     - npm install
+    - node -v
+    - npm -v
     - 'echo "INFO: NB node packages : $(ls node_modules | wc -l)"'
     - 'echo "INFO: NB bower packages : $(ls frontend/components | wc -l)"'
   except:
