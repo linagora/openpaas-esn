@@ -10,6 +10,7 @@ describe('The authorization middleware', function() {
     domainModuleMock = {};
 
     mockery.registerMock('../../core/user', {});
+    mockery.registerMock('../../core/platformadmin', {});
     mockery.registerMock('../../core/domain', domainModuleMock);
   });
 
@@ -438,6 +439,153 @@ describe('The authorization middleware', function() {
         expect(domain).to.deep.equal(req.domain);
         callback(null, false);
       };
+
+      middleware(req, res, next);
+    });
+  });
+
+  describe('The requirePlatformAdminOrDomainAdmin fn', function() {
+    let middleware;
+    const platformAdminModule = {};
+
+    beforeEach(function() {
+      mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/platformadmin', platformAdminModule);
+      middleware = this.helpers.requireBackend('webserver/middleware/authorization').requirePlatformAdminOrDomainAdmin;
+    });
+
+    it('should call #next() if req.user is a domain administrator', function(done) {
+      const req = {
+        user: {
+          _id: 123
+        },
+        domain: {
+          _id: 111,
+          administrators: []
+        }
+      };
+      const res = {};
+      const next = done.bind(null, null);
+
+      platformAdminModule.isPlatformAdmin = function() {
+        return Promise.resolve(false);
+      };
+
+      domainModuleMock.userIsDomainAdministrator = function(user, domain, callback) {
+        expect(user).to.deep.equal(req.user);
+        expect(domain).to.deep.equal(req.domain);
+        callback(null, true);
+      };
+
+      middleware(req, res, next);
+    });
+
+    it('should call #next() if req.user is a platform admin', function(done) {
+      const req = {
+        user: {
+          id: 123
+        }
+      };
+      const res = {};
+      const next = done.bind(null, null);
+
+      platformAdminModule.isPlatformAdmin = sinon.stub().returns(Promise.resolve(true));
+      domainModuleMock.userIsDomainAdministrator = sinon.spy();
+
+      middleware(req, res, next);
+
+      expect(platformAdminModule.isPlatformAdmin).to.have.been.calledOnce;
+      expect(platformAdminModule.isPlatformAdmin).to.have.been.calledWith(req.user.id);
+      expect(domainModuleMock.userIsDomainAdministrator).to.not.have.been.called;
+    });
+
+    it('should return 403 when req.user is not a platform admin nor a domain admin', function(done) {
+      const req = {
+        user: {
+          _id: 123
+        },
+        domain: {
+          _id: 111,
+          administrators: []
+        }
+      };
+
+      const next = done.bind(null, null);
+
+      const res = this.helpers.express.jsonResponse(
+        function(code) {
+          expect(platformAdminModule.isPlatformAdmin).to.have.been.calledOnce;
+          expect(platformAdminModule.isPlatformAdmin).to.have.been.calledWith(req.user.id);
+          expect(code).to.equal(403);
+          done();
+        }
+      );
+
+      platformAdminModule.isPlatformAdmin = sinon.stub().returns(Promise.resolve(false));
+
+      domainModuleMock.userIsDomainAdministrator = function(user, domain, callback) {
+        expect(user).to.deep.equal(req.user);
+        expect(domain).to.deep.equal(req.domain);
+        callback(null, false);
+      };
+
+      middleware(req, res, next);
+    });
+
+    it('should return 500 when error occurs while checking domain administrator role of a user', function(done) {
+      const req = {
+        user: {
+          _id: 123
+        },
+        domain: {
+          _id: 111,
+          administrators: []
+        }
+      };
+
+      const next = done.bind(null, null);
+      const res = this.helpers.express.jsonResponse(
+        function(code) {
+          expect(platformAdminModule.isPlatformAdmin).to.have.been.calledWith(req.user.id);
+          expect(code).to.equal(500);
+          done();
+        }
+      );
+
+      platformAdminModule.isPlatformAdmin = sinon.stub().returns(Promise.resolve(false));
+
+      domainModuleMock.userIsDomainAdministrator = function(user, domain, callback) {
+        expect(user).to.deep.equal(req.user);
+        expect(domain).to.deep.equal(req.domain);
+        callback(new Error('something wrong'), null);
+      };
+
+      middleware(req, res, next);
+    });
+
+    it('should return 500 when error occurs while checking platform admin role of a user', function(done) {
+      const req = {
+        user: {
+          _id: 123
+        },
+        domain: {
+          _id: 111,
+          administrators: []
+        }
+      };
+
+      const next = done.bind(null, null);
+      const res = this.helpers.express.jsonResponse(
+        function(code) {
+          expect(platformAdminModule.isPlatformAdmin).to.have.been.calledWith(req.user.id);
+          expect(domainModuleMock.userIsDomainAdministrator).to.not.have.been.called;
+          expect(code).to.equal(500);
+          done();
+        }
+      );
+
+      platformAdminModule.isPlatformAdmin = sinon.stub().returns(Promise.reject(new Error('something wrong')));
+      domainModuleMock.userIsDomainAdministrator = sinon.spy();
 
       middleware(req, res, next);
     });
