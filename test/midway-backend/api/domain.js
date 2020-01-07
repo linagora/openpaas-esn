@@ -16,7 +16,7 @@ describe('The domain API', function() {
   //let core;
 
   beforeEach(function(done) {
-    console.log("###DOMAIN TEST###");
+    console.log('###DOMAIN TEST###');
     helpers = this.helpers;
     const self = this;
 
@@ -207,7 +207,7 @@ describe('The domain API', function() {
     let platformAdmin;
 
     beforeEach(function(done) {
-      let self = this;
+      const self = this;
       const fixtures = helpers.requireFixture('models/users.js')(helpers.requireBackend('core/db/mongo/models/user'));
 
       fixtures.newDummyUser(['platformadmin@email.com'])
@@ -510,7 +510,7 @@ describe('The domain API', function() {
     let platformAdmin;
 
     beforeEach(function(done) {
-      let self = this;
+      const self = this;
       const fixtures = helpers.requireFixture('models/users.js')(helpers.requireBackend('core/db/mongo/models/user'));
 
       fixtures.newDummyUser(['platformadmin@email.com'])
