@@ -2,7 +2,7 @@ const request = require('supertest'),
     expect = require('chai').expect,
     ObjectId = require('bson').ObjectId;
 
-describe.skip('The domain API', function() {
+describe('The domain API', function() {
   const API_PATH = '/api/domains';
   let app;
   let user1Domain1Manager, user2Domain1Member;
@@ -13,15 +13,16 @@ describe.skip('The domain API', function() {
   let Domain;
   let userDenormalize;
   let helpers;
-  let core;
+  //let core;
 
   beforeEach(function(done) {
+    console.log("###DOMAIN TEST###");
     helpers = this.helpers;
     const self = this;
 
     self.mongoose = require('mongoose');
 
-    core = self.testEnv.initCore(function() {
+    this.core = self.testEnv.initCore(function() {
       app = helpers.requireBackend('webserver/application');
       Domain = helpers.requireBackend('core/db/mongo/models/domain');
       userDenormalize = helpers.requireBackend('core/user/denormalize').denormalize;
@@ -47,13 +48,14 @@ describe.skip('The domain API', function() {
 
   afterEach(function(done) {
     this.helpers.mongo.dropDatabase(done);
+    this.core = null;
   });
 
   describe('GET /api/domains', function() {
     let domains;
 
     beforeEach(function(done) {
-      core.platformadmin
+      this.core.platformadmin
         .addPlatformAdmin(user2Domain1Member)
         .then(() => done())
         .catch(err => done(err || 'failed to add platformadmin'));
@@ -205,13 +207,14 @@ describe.skip('The domain API', function() {
     let platformAdmin;
 
     beforeEach(function(done) {
+      let self = this;
       const fixtures = helpers.requireFixture('models/users.js')(helpers.requireBackend('core/db/mongo/models/user'));
 
       fixtures.newDummyUser(['platformadmin@email.com'])
         .save(helpers.callbacks.noErrorAnd(user => {
           platformAdmin = user;
 
-          core.platformadmin
+          self.core.platformadmin
             .addPlatformAdmin(platformAdmin)
             .then(() => done())
             .catch(err => done(err || 'failed to add platformadmin'));
@@ -507,13 +510,14 @@ describe.skip('The domain API', function() {
     let platformAdmin;
 
     beforeEach(function(done) {
+      let self = this;
       const fixtures = helpers.requireFixture('models/users.js')(helpers.requireBackend('core/db/mongo/models/user'));
 
       fixtures.newDummyUser(['platformadmin@email.com'])
         .save(helpers.callbacks.noErrorAnd(user => {
           platformAdmin = user;
 
-          core.platformadmin
+          self.core.platformadmin
             .addPlatformAdmin(platformAdmin)
             .then(() => done())
             .catch(err => done(err || 'failed to add platformadmin'));
@@ -838,7 +842,7 @@ describe.skip('The domain API', function() {
     });
 
     it('should send back 200 with empty array if membersCanBeSearched configuration is disabled', function(done) {
-      const config = new core['esn-config'].EsnConfig('core', domain1._id);
+      const config = new this.core['esn-config'].EsnConfig('core', domain1._id);
 
       config.set({ name: 'membersCanBeSearched', value: false }).then(function() {
         helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
@@ -858,7 +862,7 @@ describe.skip('The domain API', function() {
     });
 
     it('should send back 200 empty search result if membersCanBeSearched configuration is disabled', function(done) {
-      const config = new core['esn-config'].EsnConfig('core', domain1._id);
+      const config = new this.core['esn-config'].EsnConfig('core', domain1._id);
 
       config.set({ name: 'membersCanBeSearched', value: false }).then(function() {
         helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
@@ -879,7 +883,7 @@ describe.skip('The domain API', function() {
     });
 
     it('should send back 200 with domain members if membersCanBeSearched configuration is disabled but the domain manager is ignoring it ', function(done) {
-      const config = new core['esn-config'].EsnConfig('core', domain1._id);
+      const config = new this.core['esn-config'].EsnConfig('core', domain1._id);
 
       config.set({ name: 'membersCanBeSearched', value: false }).then(function() {
         helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
@@ -900,7 +904,7 @@ describe.skip('The domain API', function() {
     });
 
     it('should send back 200 with search matching members if membersCanBeSearched configuration is disabled but the domain manager is ignoring it ', function(done) {
-      const config = new core['esn-config'].EsnConfig('core', domain1._id);
+      const config = new this.core['esn-config'].EsnConfig('core', domain1._id);
       const ids = domain1Users.map(user => user._id);
 
       helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
@@ -929,7 +933,7 @@ describe.skip('The domain API', function() {
     });
 
     it('should send back 200 with domain members if membersCanBeSearched configuration is enabled', function(done) {
-      const config = new core['esn-config'].EsnConfig('core', domain1._id);
+      const config = new this.core['esn-config'].EsnConfig('core', domain1._id);
 
       config.set({ name: 'membersCanBeSearched', value: true }).then(function() {
         helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
@@ -949,7 +953,7 @@ describe.skip('The domain API', function() {
     });
 
     it('should send back 200 with search matching members if membersCanBeSearched configuration is enabled', function(done) {
-      const config = new core['esn-config'].EsnConfig('core', domain1._id);
+      const config = new this.core['esn-config'].EsnConfig('core', domain1._id);
       const ids = domain1Users.map(user => user._id);
 
       helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
@@ -1098,7 +1102,7 @@ describe.skip('The domain API', function() {
     });
 
     it('should send back 200 with all the members matching the search terms which includes disabled searchable members if requester is domain administrator and includesDisabledSearchable query is true', function(done) {
-      core.user.updateStates(
+      this.core.user.updateStates(
         user2Domain1Member._id,
         [{ name: 'searchable', value: 'disabled' }],
         helpers.callbacks.noErrorAnd(() => {
@@ -1125,7 +1129,7 @@ describe.skip('The domain API', function() {
     });
 
     it('should send back 200 with all the members matching the search terms which searchable feature is not disabled', function(done) {
-      core.user.updateStates(
+      this.core.user.updateStates(
         user2Domain1Member._id,
         [{ name: 'searchable', value: 'disabled' }],
         helpers.callbacks.noErrorAnd(() => {
@@ -1150,7 +1154,7 @@ describe.skip('The domain API', function() {
     });
 
     it('should send back 200 with all domain members excluding members that have searchable feature disabled when listing domain members', function(done) {
-      core.user.updateStates(
+      this.core.user.updateStates(
         user2Domain1Member._id,
         [{ name: 'searchable', value: 'disabled' }],
         helpers.callbacks.noErrorAnd(() => {
@@ -1172,7 +1176,7 @@ describe.skip('The domain API', function() {
     });
 
     it('should send back 200 with all domain members including members that have searchable feature disabled when listing domain members with includesDisabledSearchable query is true', function(done) {
-      core.user.updateStates(
+      this.core.user.updateStates(
         user2Domain1Member._id,
         [{ name: 'searchable', value: 'disabled' }],
         helpers.callbacks.noErrorAnd(() => {
