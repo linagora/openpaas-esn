@@ -68,7 +68,7 @@ module.exports = function(grunt) {
     },
     mochacli: {
       options: {
-        flags: process.env.INSPECT ? ['--debug-brk', '--inspect'] : ['--max-old-space-size=4096'],
+        flags: process.env.INSPECT ? ['--debug-brk', '--inspect'] : ['--max-old-space-size=8192'],
         debug: false,
         require: ['chai', 'mockery'],
         reporter: 'spec',
