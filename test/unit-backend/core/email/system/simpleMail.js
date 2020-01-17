@@ -1,12 +1,9 @@
-'use strict';
-
 const { expect } = require('chai');
 const sinon = require('sinon');
 const mockery = require('mockery');
 
 describe('The simple email module', function() {
-  let defaultProperties, userModuleMock, emailMock, emailSendMock,
-    simpleMail, error, users;
+  let defaultProperties, userModuleMock, simpleMail, error, users;
 
   beforeEach(function() {
 
@@ -27,16 +24,7 @@ describe('The simple email module', function() {
       get: sinon.spy((userId, cb) => cb(error, users[userId]))
     };
 
-    emailSendMock = sinon.spy((message, callback) => callback(null, 'ok'));
-
-    emailMock = {
-      getMailer: () => ({
-        send: emailSendMock
-      })
-    };
-
     mockery.registerMock('../../user', userModuleMock);
-    mockery.registerMock('../index', emailMock);
 
     simpleMail = this.helpers.requireBackend('core/email/system/simpleMail');
 
@@ -99,6 +87,14 @@ describe('The simple email module', function() {
   it('it should get the user from user module', function(done) {
     error = null;
 
+    const emailMock = {
+      getMailer: () => ({
+        send: (message, callback) => callback(null, 'ok')
+      })
+    };
+
+    mockery.registerMock('../index', emailMock);
+
     simpleMail(1, defaultProperties).then(() => {
       expect(userModuleMock.get).to.have.been.calledWith(1, sinon.match.func);
       done();
@@ -106,6 +102,15 @@ describe('The simple email module', function() {
   });
 
   it('it should send a email', function(done) {
+    const emailSendMock = sinon.spy((message, callback) => callback(null, 'ok'));
+    const emailMock = {
+      getMailer: sinon.spy(() => ({
+        send: emailSendMock
+      }))
+    };
+
+    mockery.registerMock('../index', emailMock);
+
     error = null;
 
     const properties = {
@@ -115,8 +120,9 @@ describe('The simple email module', function() {
     };
 
     simpleMail(1, defaultProperties).then(() => {
+      expect(emailMock.getMailer).to.have.been.calledWith(users[1]);
       expect(emailSendMock).to.have.been.calledWith(properties, sinon.match.func);
       done();
-    }).catch(done);
+    }).catch(err => done(err || new Error('should resolve')));
   });
 });
