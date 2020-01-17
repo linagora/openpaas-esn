@@ -1,10 +1,7 @@
-'use strict';
-
 const { promisify } = require('util');
 
 module.exports = (userId, properties = {}) => {
   const getUser = promisify(require('../../user').get);
-  const sendEmail = promisify(require('../index').getMailer().send);
 
   if (!properties.subject || !properties.text) {
     return Promise.reject(new Error('subject and text can not be null'));
@@ -21,6 +18,8 @@ module.exports = (userId, properties = {}) => {
       }
 
       properties.to = user.preferredEmail;
+
+      const sendEmail = promisify(require('../index').getMailer(user).send);
 
       return sendEmail(properties);
     });
