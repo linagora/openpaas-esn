@@ -373,11 +373,11 @@ deploy-dev:
     - docker build . -t localImage
     - docker-tag-and-push.sh localImage ${DOCKER_IMAGE_PRIVATE}
     - docker logout docker-registry.linagora.com:5000
+    - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
 
 docker-master:
   <<: *build-docker-branches
   script:
-    - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
     - echo "export DOCKER_TAGS=branch-master" > docker-tag-and-push.env
     - docker-tag-and-push.sh localImage ${DOCKER_IMAGE_PUBLIC}
     - docker logout
@@ -389,6 +389,10 @@ docker-master:
 
 docker-snapshot:
   <<: *build-docker-branches
+  script:
+    - echo "echo DOCKER_TAGS=branch-${CI_COMMIT_REF_NAME}" > docker-tag-and-push.env
+    - docker-tag-and-push.sh localImage ${DOCKER_IMAGE_PUBLIC}
+    - docker logout
   only:
     - /^release-.*/@linagora/lgs/openpaas/esn
   except:
