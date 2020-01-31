@@ -508,6 +508,10 @@ const injections = [
     'themes/themes.module.js',
     'themes/themes.service.js',
     'themes/color-contrast.service.js'
+  ], innerApps: ['esn']},
+  {angular: 'esn.technicaluser', files: [
+    'technicaluser/technicaluser.module.js',
+    'technicaluser/technicaluser-api.service.js'
   ], innerApps: ['esn']}
 ];
 
