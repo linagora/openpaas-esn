@@ -2,4 +2,4 @@
   .pm-overview
     profile-overview(user="$ctrl.user", me="$ctrl.me", can-edit="::$ctrl.canEdit")
   .pm-body.clearfix
-    profile-tabs(ng-if="$ctrl.user", user="$ctrl.user", me="$ctrl.me")
+    profile-tabs(ng-if="$ctrl.user", user="$ctrl.user", me="$ctrl.me", can-edit="$ctrl.canEdit")
