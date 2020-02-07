@@ -61,7 +61,7 @@
           url: '/followers',
           views: {
             'details@profile.details': {
-              template: '<follower-list></follower-list>'
+              template: '<profile-show-follower user="user" />'
             }
           }
         })
@@ -69,7 +69,7 @@
           url: '/followings',
           views: {
             'details@profile.details': {
-              template: '<following-list></following-list>'
+              template: '<profile-show-following user="user" />'
             }
           }
         })
@@ -77,7 +77,7 @@
           url: '/timeline',
           views: {
             'details@profile.details': {
-              template: '<esn-timeline-entries></esn-timeline-entries>'
+              template: '<profile-show-timeline />'
             }
           }
         });

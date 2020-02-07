@@ -2,8 +2,8 @@
   'use strict';
 
   angular.module('linagora.esn.profile')
-    .component('profileShowSubheader', {
-      templateUrl: '/profile/app/show/subheader/profile-show-subheader.html',
+    .component('profileShowDetailsSubheader', {
+      templateUrl: '/profile/app/show/details/subheader/profile-show-details-subheader.html',
       bindings: {
         showEditButton: '<'
       }
