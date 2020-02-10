@@ -76,6 +76,7 @@
     "linagora.esn.unifiedinbox.social": "linagora/linagora.esn.unifiedinbox.social",
     "linagora.esn.unifiedinbox.twitter": "linagora/linagora.esn.unifiedinbox.twitter",
     "linagora.esn.videoconference": "linagora/linagora.esn.videoconference",
+    "linagora.esn.community": "linagora/linagora.esn.community",
     "lodash": "4.17.15",
     "logrotate-stream": "0.2.5",
     "mailparser": "0.6.1",
