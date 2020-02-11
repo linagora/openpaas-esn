@@ -142,7 +142,8 @@
     "linagora.esn.group",
     "linagora.esn.chat",
     "linagora.esn.lemonldap",
-    "linagora.esn.linshare"
+    "linagora.esn.linshare",
+    "linagora.esn.community"
   ],
   "email": {
     "templatesDir": "./templates/email"
