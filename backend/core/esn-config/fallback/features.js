@@ -2,7 +2,6 @@
 
 // DEPRECATED: only be used as fallback for configurations collection
 
-const _ = require('lodash');
 let Features;
 
 try {
@@ -38,5 +37,5 @@ function _qualifyFeature(feature) {
 }
 
 module.exports = {
-  findByDomainId: _.memoize(findByDomainId)
+  findByDomainId
 };
