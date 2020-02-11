@@ -2,15 +2,20 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var trackerMock;
 
 describe('The activitystreams controller module', function() {
 
   beforeEach(function() {
-    mockery.registerMock('../../core/activitystreams/tracker', {getTracker: function() {
-      return {
-        updateLastTimelineEntry: function() {}
-      };
-    }});
+    trackerMock = {};
+
+    mockery.registerMock('../../core/activitystreams/tracker', {
+     getTracker: type => {
+       expect(type).equal('read');
+
+       return trackerMock;
+     }
+    });
   });
 
   it('get should return HTTP 400 when activity_stream is not set', function(done) {
@@ -184,7 +189,7 @@ describe('The activitystreams controller module', function() {
     activitystreams.get(req, res);
   });
 
-  it('getMine should return 400 when req.user is undefined', function(done) {
+  it('getMine should return HTTP 400 when req.user is undefined', function(done) {
     this.helpers.mock.models({});
 
     var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
@@ -204,7 +209,7 @@ describe('The activitystreams controller module', function() {
     activitystreams.getMine(req, res);
   });
 
-  it('getMine should return 500 when activitystreams module sends back error', function(done) {
+  it('getMine should return HTTP 500 when activitystreams module sends back error', function(done) {
     this.helpers.mock.models({});
 
     mockery.registerMock('../../core/activitystreams', {
@@ -229,7 +234,7 @@ describe('The activitystreams controller module', function() {
     activitystreams.getMine(req, res);
   });
 
-  it('getMine should return 200 when activitystreams module sends back streams', function(done) {
+  it('getMine should return HTTP 200 when activitystreams module sends back streams', function(done) {
     this.helpers.mock.models({});
 
     mockery.registerMock('../../core/activitystreams', {
@@ -256,7 +261,7 @@ describe('The activitystreams controller module', function() {
     activitystreams.getMine(req, res);
   });
 
-  it('getMine should return 200 when activitystreams module sends back nothing', function(done) {
+  it('getMine should return HTTP 200 when activitystreams module sends back nothing', function(done) {
     this.helpers.mock.models({});
 
     mockery.registerMock('../../core/activitystreams', {
@@ -283,4 +288,201 @@ describe('The activitystreams controller module', function() {
     activitystreams.getMine(req, res);
   });
 
+  it('getResource should return HTTP 400 when activity stream is undefined', function(done) {
+    this.helpers.mock.models({
+      Community: {
+        getFromActivityStreamID: function(uuid, cb) {
+          return cb(null, {});
+        }
+      }
+    });
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
+    var req = {
+      params: {}
+    };
+
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    );
+
+    activitystreams.getResource(req, res);
+  });
+
+  it('getResource should return HTTP 404 when activity stream target is not found', function(done) {
+    this.helpers.mock.models({
+      Community: {
+        getFromActivityStreamID: function(uuid, cb) {
+          return cb(null, {});
+        }
+      }
+    });
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
+    var req = {
+      query: {limit: 10},
+      activity_stream: {
+        target: null
+      }
+    };
+
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
+        expect(code).to.equal(404);
+        done();
+      }
+    );
+
+    activitystreams.getResource(req, res);
+  });
+
+  it('getResource should return HTTP 200 when activity stream target is found', function(done) {
+    this.helpers.mock.models({
+      Community: {
+        getFromActivityStreamID: function(uuid, cb) {
+          return cb(null, {});
+        }
+      }
+    });
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
+    var req = {
+      query: {limit: 10},
+      activity_stream: {
+        target: 'abc'
+      }
+    };
+
+    var res = this.helpers.express.jsonResponse(
+      function(code, result) {
+        expect(code).to.equal(200);
+        expect(result).to.equal('abc');
+        done();
+      }
+    );
+
+    activitystreams.getResource(req, res);
+  });
+
+  it('getUnreadCount should return HTTP 400 when activity stream is undefined', function(done) {
+    this.helpers.mock.models({
+      Community: {
+        getFromActivityStreamID: function(uuid, cb) {
+          return cb(null, {});
+        }
+      }
+    });
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
+    var req = {
+      query: {limit: 10}
+    };
+
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    );
+
+    activitystreams.getUnreadCount(req, res);
+  });
+
+  it('getUnreadCount should return HTTP 500 when tracker module sends back error', function(done) {
+    this.helpers.mock.models({});
+
+    trackerMock.countSinceLastTimelineEntry = function(userId, activityStreamUuid, cb) {
+      return cb(new Error());
+    };
+
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
+
+    var req = {
+      activity_stream: {
+        _id: '11111'
+      },
+      user: {
+        _id: '12345'
+      }
+    };
+
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
+        expect(code).to.equal(500);
+        done();
+      }
+    );
+    activitystreams.getUnreadCount(req, res);
+  });
+
+  it('getUnreadCount should return HTTP 200 when tracker module sends back activitystream id', function(done) {
+    this.helpers.mock.models({});
+
+    trackerMock.countSinceLastTimelineEntry = function(userId, activityStreamUuid, cb) {
+      return cb(null, 10);
+    };
+
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
+
+    var req = {
+      activity_stream: {
+        _id: '678'
+      },
+      user: {
+        _id: '12345'
+      }
+    };
+
+    var res = this.helpers.express.jsonResponse(
+      function(code, result) {
+        expect(code).to.equal(200);
+        expect(result._id).to.equal('678');
+        expect(result.unread_count).to.equal(10);
+        done();
+      }
+    );
+    activitystreams.getUnreadCount(req, res);
+  });
+
+  it('updateTimelineEntryVerbFromStreamMessage should return HTTP 500 when activitystreams module sends back error', function(done) {
+    this.helpers.mock.models({});
+
+    mockery.registerMock('../../core/activitystreams', {
+      updateTimelineEntryVerbFromStreamMessage: (activitystream, message, verb, cb) => cb(new Error())
+    });
+
+    const activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
+    const req = {
+      activity_stream: {
+        _id: 123
+      }
+    };
+    const res = this.helpers.express.jsonResponse((code, result) => {
+      expect(code).to.equal(500);
+      expect(result.error.details).to.equal('Can not update the timeline entry verb to abc');
+      done();
+    });
+
+    activitystreams.updateTimelineEntryVerb('abc')(req, res);
+  });
+
+  it('updateTimelineEntryVerbFromStreamMessage should return HTTP 204 when activitystreams successfully updateTimelineEntryVerbFromStreamMessage', function(done) {
+    this.helpers.mock.models({});
+
+    mockery.registerMock('../../core/activitystreams', {
+      updateTimelineEntryVerbFromStreamMessage: (activity_stream, message, verb, cb) => cb()
+    });
+
+    const activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
+    const req = {
+      activity_stream: {
+        _id: 123
+      }
+    };
+    const res = this.helpers.express.response(code => {
+      expect(code).to.equal(204);
+      done();
+    });
+
+    activitystreams.updateTimelineEntryVerb('verb')(req, res);
+  });
 });
