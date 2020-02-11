@@ -64,26 +64,6 @@ describe('userAPI service', function() {
     });
   });
 
-  describe('getCommunities() method', function() {
-    beforeEach(angular.mock.inject(function(_userAPI_, _$httpBackend_, _Restangular_) {
-      $httpBackend = _$httpBackend_;
-      userAPI = _userAPI_;
-      _Restangular_.setFullResponse(true);
-    }));
-
-    it('should send a GET request to /api/user/communities', function() {
-      $httpBackend.expectGET('/api/user/communities').respond(200, []);
-      userAPI.getCommunities();
-      $httpBackend.flush();
-    });
-
-    it('should return a promise', function() {
-      var promise = userAPI.getCommunities();
-
-      expect(promise.then).to.be.a.function;
-    });
-  });
-
   describe('getUsersByEmail() method', function() {
     it('should send a GET request to /api/users', function() {
       $httpBackend.expectGET('/api/users?email=admin@open-paas.org').respond(200, []);
