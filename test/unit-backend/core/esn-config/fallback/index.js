@@ -37,7 +37,7 @@ describe('The core/esn-config/fallback module', function() {
 
   describe('The getConfiguration fn', function() {
 
-    it('should get data from deprecated collections once then cache it', function(done) {
+    it('should get data from deprecated collections', function(done) {
       var execSpyFn = sinon.stub().returns(q({}));
 
       FeaturesMock.findOne = function() {
@@ -54,46 +54,7 @@ describe('The core/esn-config/fallback module', function() {
       .getConfiguration()
       .then(function() {
         expect(execSpyFn).to.have.been.calledOnce;
-
-        return getModule()
-          .getConfiguration()
-          .then(function() {
-            // get data from cache in second call
-            expect(execSpyFn).to.have.been.calledOnce;
-
-            done();
-          });
-      })
-      .catch(done.bind(null, 'should resolve'));
-    });
-
-    it('should not cache configuration of other domain', function(done) {
-      var execSpyFn = sinon.stub().returns(q({}));
-
-      FeaturesMock.findOne = function() {
-        return {
-          lean: function() {
-            return {
-              exec: execSpyFn
-            };
-          }
-        };
-      };
-
-      getModule()
-      .getConfiguration('domain1')
-      .then(function() {
-        // called twice to get both system-wide and domain-wide
-        expect(execSpyFn).to.have.been.calledTwice;
-
-        return getModule()
-          .getConfiguration('domain2')
-          .then(function() {
-            // different domains so the data is not cached
-            expect(execSpyFn).to.have.been.calledThrice;
-
-            done();
-          });
+        done();
       })
       .catch(done.bind(null, 'should resolve'));
     });
