@@ -5,7 +5,6 @@
 const mongoconfig = require('mongoconfig');
 const mongoose = require('mongoose');
 const q = require('q');
-const _ = require('lodash');
 
 mongoconfig.setDefaultMongoose(mongoose);
 
@@ -57,5 +56,5 @@ function findByDomainId() {
 }
 
 module.exports = {
-  findByDomainId: _.memoize(findByDomainId)
+  findByDomainId
 };
