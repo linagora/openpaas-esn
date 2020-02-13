@@ -364,13 +364,13 @@ deploy-dev:
   - docker-tag-computing.sh ${VERSION} docker-tag-and-push.env
   - source docker-tag-and-push.env
   - docker login -u ${REGISTRY_USER} -p ${REGISTRY_TOKEN} docker-registry.linagora.com:5000
-  - docker build . -t build:latest
-  - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PRIVATE}
+  - docker build . -t localimage
+  - docker-tag-and-push.sh localimage ${DOCKER_IMAGE_PRIVATE}
   - docker logout docker-registry.linagora.com:5000
 
 .docker-public-registry: &docker-public-registry
   - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
-  - docker tag build:latest ${DOCKER_IMAGE_PUBLIC}:${DOCKER_PUBLIC_TAG_NAME}
+  - docker tag localimage ${DOCKER_IMAGE_PUBLIC}:${DOCKER_PUBLIC_TAG_NAME}
   - docker push ${DOCKER_IMAGE_PUBLIC}:${DOCKER_PUBLIC_TAG_NAME}
   - docker logout
 
@@ -439,8 +439,8 @@ docker-release:
     - docker-tag-computing.sh ${CI_COMMIT_TAG} docker-tag-and-push.env
     - docker login -u ${REGISTRY_USER_RELEASE} -p ${REGISTRY_TOKEN_RELEASE} docker-registry.linagora.com:5000
     - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
-    - docker build . -t build:latest
-    - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PRIVATE} ${DOCKER_IMAGE_PUBLIC}
+    - docker build . -t localimage
+    - docker-tag-and-push.sh localimage ${DOCKER_IMAGE_PRIVATE} ${DOCKER_IMAGE_PUBLIC}
     - docker logout
   only:
     - tags@linagora/lgs/openpaas/esn
