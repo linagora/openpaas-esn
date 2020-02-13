@@ -358,6 +358,8 @@ deploy-dev:
       - name: docker-registry.linagora.com:5000/linshare-snapshots/linshare-dind:latest
         alias: docker-dind
 
+####### Build & publish branch base docker images (master branch, release maintaining branches, feature branches)
+
 .docker-internal-registry: &docker-internal-registry
   - guess-version.sh guess
   - source version.env
@@ -427,6 +429,8 @@ docker-feature:
   except:
     variables:
       - $SKIP_BUILD_DOCKER
+
+####### Build & publish release
 
 docker-release:
   <<: *build-docker-tpl
