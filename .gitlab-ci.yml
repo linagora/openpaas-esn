@@ -409,6 +409,25 @@ docker-snapshot:
     variables:
       - $SKIP_BUILD_DOCKER
 
+docker-feature:
+  <<: *build-docker-tpl
+  stage: build
+  variables:
+    <<: *docker-branches-variables
+  script:
+    - export DOCKER_PUBLIC_TAG_NAME=${CI_COMMIT_REF_NAME}
+    - docker login -u ${REGISTRY_USER} -p ${REGISTRY_TOKEN} docker-registry.linagora.com:5000
+    - docker build . -t localimage
+    - docker tag localimage ${DOCKER_IMAGE_PRIVATE}:${DOCKER_PUBLIC_TAG_NAME}
+    - docker push ${DOCKER_IMAGE_PRIVATE}:${DOCKER_PUBLIC_TAG_NAME}
+    - docker logout docker-registry.linagora.com:5000
+    - *docker-public-registry
+  only:
+    - /^feature-.*/@linagora/lgs/openpaas/esn
+  except:
+    variables:
+      - $SKIP_BUILD_DOCKER
+
 docker-release:
   <<: *build-docker-tpl
   stage: build
