@@ -358,6 +358,15 @@ deploy-dev:
       - name: docker-registry.linagora.com:5000/linshare-snapshots/linshare-dind:latest
         alias: docker-dind
 
+.docker-internal-registry: &docker-internal-registry
+  - guess-version.sh guess
+  - source version.env
+  - docker-tag-computing.sh ${VERSION} docker-tag-and-push.env
+  - docker login -u ${REGISTRY_USER} -p ${REGISTRY_TOKEN} docker-registry.linagora.com:5000
+  - docker build . -t build:latest
+  - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PRIVATE}
+  - docker logout docker-registry.linagora.com:5000
+
 docker-master:
   <<: *build-docker-tpl
   stage: build
@@ -366,13 +375,7 @@ docker-master:
       DOCKER_IMAGE_PRIVATE: "docker-registry.linagora.com:5000/openpaas-snapshots/openpaas-esn"
       DOCKER_IMAGE_PUBLIC: "linagora/esn"
   script:
-    - guess-version.sh guess
-    - source version.env
-    - docker-tag-computing.sh ${VERSION} docker-tag-and-push.env
-    - docker login -u ${REGISTRY_USER} -p ${REGISTRY_TOKEN} docker-registry.linagora.com:5000
-    - docker build . -t build:latest
-    - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PRIVATE}
-    - docker logout docker-registry.linagora.com:5000
+    - *docker-internal-registry
     - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
     - echo "export DOCKER_TAGS=branch-master" > docker-tag-and-push.env
     - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PUBLIC}
@@ -391,13 +394,7 @@ docker-snapshot:
     DOCKER_IMAGE_PRIVATE: "docker-registry.linagora.com:5000/openpaas-snapshots/openpaas-esn"
     DOCKER_IMAGE_PUBLIC: "linagora/esn"
   script:
-    - guess-version.sh guess
-    - source version.env
-    - docker-tag-computing.sh ${VERSION} docker-tag-and-push.env
-    - docker login -u ${REGISTRY_USER} -p ${REGISTRY_TOKEN} docker-registry.linagora.com:5000
-    - docker build . -t build:latest
-    - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PRIVATE}
-    - docker logout
+    - *docker-internal-registry
   only:
     - /^release-.*/@linagora/lgs/openpaas/esn
   except:
