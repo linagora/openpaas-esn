@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
@@ -8,25 +8,23 @@ describe('The profileController', function() {
   var $rootScope;
   var $controller;
   var userMock;
-  var sessionMock;
   var $scope;
+  var profileHelpersService;
 
   beforeEach(function() {
     angular.mock.module('linagora.esn.profile');
 
-    inject(function(_$rootScope_, _$controller_) {
+    inject(function(_$rootScope_, _$controller_, _profileHelpersService_) {
       $rootScope = _$rootScope_;
       $controller = _$controller_;
+      profileHelpersService = _profileHelpersService_;
     });
   });
 
   beforeEach(function() {
     userMock = {
-      name: 'Foo',
-      address: 'foo@bar.com',
       _id: '123'
     };
-    sessionMock = { user: userMock, userIsDomainAdministrator: angular.noop };
     $scope = $rootScope.$new();
   });
 
@@ -35,43 +33,39 @@ describe('The profileController', function() {
 
     return $controller('profileController', {
       $scope: $scope,
-      user: userMock,
-      session: sessionMock
+      user: userMock
     });
   }
 
-  it('should set "me" and "canEdit" true for current user', function() {
+  it('should set "me" true if the target user is current user', function() {
+    profileHelpersService.isMe = sinon.stub().returns(true);
     initProfileController();
 
     expect($scope.me).to.be.true;
-    expect($scope.canEdit).to.be.true;
+    expect(profileHelpersService.isMe).to.have.been.calledWith(userMock);
   });
 
-  it('should set "me" and "canEdit" false for another user who is not domain admin', function() {
-    sessionMock = {
-      user: {
-        _id: '456'
-      },
-      userIsDomainAdministrator: function() { return false; }
-    };
-
+  it('should set "me" false if the target user is not current user', function() {
+    profileHelpersService.isMe = sinon.stub().returns(false);
     initProfileController();
 
     expect($scope.me).to.be.false;
+    expect(profileHelpersService.isMe).to.have.been.calledWith(userMock);
+  });
+
+  it('should set "canEdit" true if the current user can edit the target user', function() {
+    profileHelpersService.canEdit = sinon.stub().returns(true);
+    initProfileController();
+
+    expect($scope.canEdit).to.be.true;
+    expect(profileHelpersService.canEdit).to.have.been.calledWith(userMock);
+  });
+
+  it('should set "canEdit" true if the current user cannot edit the target user', function() {
+    profileHelpersService.canEdit = sinon.stub().returns(false);
+    initProfileController();
+
     expect($scope.canEdit).to.be.false;
-  });
-
-  it('should set "canEdit" true for domain admin user', function() {
-    sessionMock = {
-      user: {
-        _id: '456'
-      },
-      userIsDomainAdministrator: function() { return true; }
-    };
-
-    initProfileController();
-
-    expect($scope.me).to.be.false;
-    expect($scope.canEdit).to.be.true;
+    expect(profileHelpersService.canEdit).to.have.been.calledWith(userMock);
   });
 });

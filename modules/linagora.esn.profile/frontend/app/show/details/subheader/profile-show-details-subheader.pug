@@ -3,6 +3,8 @@ extends /modules/subheader/responsive-subheader.pug
 block left
   button.btn.btn-link.btn-icon(esn-back-button='home', title=__('Back'))
     i.mdi.mdi-arrow-left
+  span.title.ellipsis
+    |  #{__('Profile')}
 
 block right
   button.btn.btn-link.hidden-xs(ng-if="$ctrl.showEditButton", ui-sref="profile.details.edit", ui-sref-opts="{location: 'replace'}")

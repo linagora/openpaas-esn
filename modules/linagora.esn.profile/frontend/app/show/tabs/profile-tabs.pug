@@ -3,6 +3,7 @@
     li.btn-wave(ui-sref-active="active")
       a(href="", ui-sref="profile.details.view", ui-sref-opts="{location: 'replace'}")
         | #{__('Profile')}
+    li(dynamic-directive="profile-tabs")
     li.btn-wave(ui-sref-active="active")
       a(href="", ui-sref="profile.details.followers", ui-sref-opts="{location: 'replace'}")
         | #{__('Followers')} ({{$ctrl.user.followers}})

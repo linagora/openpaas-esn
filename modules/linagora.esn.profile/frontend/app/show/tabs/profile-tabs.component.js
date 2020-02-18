@@ -7,7 +7,8 @@
       controller: 'profileTabsController',
       bindings: {
         user: '<',
-        me: '<'
+        me: '<',
+        canEdit: '<'
       }
     });
 })(angular);
