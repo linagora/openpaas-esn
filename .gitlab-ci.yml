@@ -358,25 +358,38 @@ deploy-dev:
       - name: docker-registry.linagora.com:5000/linshare-snapshots/linshare-dind:latest
         alias: docker-dind
 
+####### Build & publish branch base docker images (master branch, release maintaining branches, feature branches)
+
+.docker-internal-registry: &docker-internal-registry
+  - guess-version.sh guess
+  - source version.env
+  - docker-tag-computing.sh ${VERSION} docker-tag-and-push.env
+  - source docker-tag-and-push.env
+  - docker login -u ${REGISTRY_USER} -p ${REGISTRY_TOKEN} docker-registry.linagora.com:5000
+  - docker build . -t localimage
+  - docker-tag-and-push.sh localimage ${DOCKER_IMAGE_PRIVATE}
+  - docker logout docker-registry.linagora.com:5000
+
+.docker-public-registry: &docker-public-registry
+  - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
+  - docker tag localimage ${DOCKER_IMAGE_PUBLIC}:${DOCKER_PUBLIC_TAG_NAME}
+  - docker push ${DOCKER_IMAGE_PUBLIC}:${DOCKER_PUBLIC_TAG_NAME}
+  - docker logout
+
+variables: &docker-branches-variables
+  DOCKER_HOST: "tcp://docker-dind"
+  DOCKER_IMAGE_PRIVATE: "docker-registry.linagora.com:5000/openpaas-snapshots/openpaas-esn"
+  DOCKER_IMAGE_PUBLIC: "linagora/esn"
+
 docker-master:
   <<: *build-docker-tpl
   stage: build
   variables:
-      DOCKER_HOST: "tcp://docker-dind"
-      DOCKER_IMAGE_PRIVATE: "docker-registry.linagora.com:5000/openpaas-snapshots/openpaas-esn"
-      DOCKER_IMAGE_PUBLIC: "linagora/esn"
+    <<: *docker-branches-variables
+    DOCKER_PUBLIC_TAG_NAME: "branch-master"
   script:
-    - guess-version.sh guess
-    - source version.env
-    - docker-tag-computing.sh ${VERSION} docker-tag-and-push.env
-    - docker login -u ${REGISTRY_USER} -p ${REGISTRY_TOKEN} docker-registry.linagora.com:5000
-    - docker build . -t build:latest
-    - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PRIVATE}
-    - docker logout docker-registry.linagora.com:5000
-    - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
-    - echo "export DOCKER_TAGS=branch-master" > docker-tag-and-push.env
-    - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PUBLIC}
-    - docker logout
+    - *docker-internal-registry
+    - *docker-public-registry
   only:
     - master@linagora/lgs/openpaas/esn
   except:
@@ -387,22 +400,37 @@ docker-snapshot:
   <<: *build-docker-tpl
   stage: build
   variables:
-    DOCKER_HOST: "tcp://docker-dind"
-    DOCKER_IMAGE_PRIVATE: "docker-registry.linagora.com:5000/openpaas-snapshots/openpaas-esn"
-    DOCKER_IMAGE_PUBLIC: "linagora/esn"
+    <<: *docker-branches-variables
   script:
-    - guess-version.sh guess
-    - source version.env
-    - docker-tag-computing.sh ${VERSION} docker-tag-and-push.env
-    - docker login -u ${REGISTRY_USER} -p ${REGISTRY_TOKEN} docker-registry.linagora.com:5000
-    - docker build . -t build:latest
-    - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PRIVATE}
-    - docker logout
+    - *docker-internal-registry
+    - export DOCKER_PUBLIC_TAG_NAME=branch-${DOCKER_TAG}
+    - *docker-public-registry
   only:
     - /^release-.*/@linagora/lgs/openpaas/esn
   except:
     variables:
       - $SKIP_BUILD_DOCKER
+
+docker-feature:
+  <<: *build-docker-tpl
+  stage: build
+  variables:
+    <<: *docker-branches-variables
+  script:
+    - export DOCKER_PUBLIC_TAG_NAME=${CI_COMMIT_REF_NAME}
+    - docker login -u ${REGISTRY_USER} -p ${REGISTRY_TOKEN} docker-registry.linagora.com:5000
+    - docker build . -t localimage
+    - docker tag localimage ${DOCKER_IMAGE_PRIVATE}:${DOCKER_PUBLIC_TAG_NAME}
+    - docker push ${DOCKER_IMAGE_PRIVATE}:${DOCKER_PUBLIC_TAG_NAME}
+    - docker logout docker-registry.linagora.com:5000
+    - *docker-public-registry
+  only:
+    - /^feature-.*/@linagora/lgs/openpaas/esn
+  except:
+    variables:
+      - $SKIP_BUILD_DOCKER
+
+####### Build & publish release
 
 docker-release:
   <<: *build-docker-tpl
@@ -415,8 +443,8 @@ docker-release:
     - docker-tag-computing.sh ${CI_COMMIT_TAG} docker-tag-and-push.env
     - docker login -u ${REGISTRY_USER_RELEASE} -p ${REGISTRY_TOKEN_RELEASE} docker-registry.linagora.com:5000
     - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
-    - docker build . -t build:latest
-    - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PRIVATE} ${DOCKER_IMAGE_PUBLIC}
+    - docker build . -t localimage
+    - docker-tag-and-push.sh localimage ${DOCKER_IMAGE_PRIVATE} ${DOCKER_IMAGE_PUBLIC}
     - docker logout
   only:
     - tags@linagora/lgs/openpaas/esn
