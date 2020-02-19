@@ -25,4 +25,16 @@ describe('The esnTechnicalUserAPIClient service', function() {
         $httpBackend.flush();
       });
     });
+
+    describe('The add fn', function() {
+      it('should send a request to /api/domains/:domainId/technicalusers', function() {
+        var domainId = 1;
+        var technicalUser = {};
+
+        $httpBackend.expectPOST('/api/domains/' + domainId + '/technicalusers').respond(201, []);
+
+        esnTechnicalUserAPIClient.add(domainId, technicalUser);
+        $httpBackend.flush();
+      });
+    });
 });
