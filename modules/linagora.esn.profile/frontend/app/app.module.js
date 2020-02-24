@@ -14,6 +14,7 @@
     'esn.previous-page',
     'esn.i18n',
     'esn.async-action',
-    'esn.availability'
+    'esn.availability',
+    'esn.module-registry'
   ]);
 })(angular);
