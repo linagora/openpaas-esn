@@ -37,4 +37,33 @@ describe('The esnTechnicalUserAPIClient service', function() {
         $httpBackend.flush();
       });
     });
+
+    describe('The update fn', function() {
+      it('should send a request to /api/domains/:domainId/technicalusers/:technicalUserId', function() {
+        var domainId = 1;
+        var technicalUser = {
+          _id: 123
+        };
+
+        $httpBackend.expectPUT('/api/domains/' + domainId + '/technicalusers/' + technicalUser._id).respond(204, []);
+
+        esnTechnicalUserAPIClient.update(domainId, technicalUser);
+        $httpBackend.flush();
+      });
+    });
+
+    describe('The remove fn', function() {
+      it('should send a request to /api/domains/:domainId/technicalusers/:technicalUserId', function() {
+        var domainId = 1;
+        var technicalUser = {
+          _id: 123
+        };
+
+        $httpBackend.expectDELETE('/api/domains/' + domainId + '/technicalusers/' + technicalUser._id).respond(204, []);
+
+        esnTechnicalUserAPIClient.remove(domainId, technicalUser);
+        $httpBackend.flush();
+
+      });
+    });
 });
