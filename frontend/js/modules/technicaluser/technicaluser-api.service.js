@@ -8,7 +8,9 @@
   function esnTechnicalUserAPIClient(esnRestangular, Restangular) {
     return {
       list: list,
-      add: add
+      add: add,
+      update: update,
+      remove: remove
     };
 
     function list(domainId, options) {
@@ -23,6 +25,14 @@
         .then(function(response) {
           return Restangular.stripRestangular(response.data);
         });
+    }
+
+    function update(domainId, technicalUser) {
+      return esnRestangular.one('domains', domainId).one('technicalusers', technicalUser._id).customPUT(technicalUser);
+    }
+
+    function remove(domainId, technicalUser) {
+      return esnRestangular.one('domains', domainId).one('technicalusers', technicalUser._id).remove();
     }
   }
 })(angular);
