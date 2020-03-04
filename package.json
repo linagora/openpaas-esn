@@ -1,6 +1,6 @@
 {
   "name": "linagora-rse",
-  "version": "1.7.0",
+  "version": "1.7.1-dev",
   "description": "Linagora RSE",
   "main": "index.js",
   "dependencies": {
