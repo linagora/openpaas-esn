@@ -224,7 +224,11 @@
     function removeContainerIfPossible() {
       var container = getContainer();
 
-      if (container.children().length === 0) {
+      var boxOverlayOpenElement = _.find(container.children(), function(child) {
+        return child.className.indexOf('box-overlay-open') > -1;
+      });
+
+      if (!boxOverlayOpenElement) {
         container.remove();
       }
     }
