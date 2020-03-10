@@ -4,7 +4,7 @@ services:
 
   esn:
     container_name: esn
-    image: linagora/esn:branch-master
+    image: linagora/esn:1.7.1
     ports:
      - "8080:8080"
     volumes:
@@ -76,7 +76,7 @@ services:
 
   sabre:
     container_name: esn_sabre
-    image: linagora/esn-sabre:branch-master
+    image: linagora/esn-sabre:1.7.1
     ports:
       - "8001:80"
     environment:
@@ -98,7 +98,7 @@ services:
   james:
     container_name: esn_james
     entrypoint: bash -c "java -Dlogback.configurationFile=/root/conf/logback.xml -Dworking.directory=/root/ -jar james-server.jar"
-    image: linagora/james-project:branch-master
+    image: linagora/james-project:openpaas-1.7.3
     hostname: open-paas.org
     depends_on:
       - esn # to have configuration ready in shared volume
