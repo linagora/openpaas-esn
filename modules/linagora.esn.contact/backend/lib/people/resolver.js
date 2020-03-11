@@ -14,15 +14,13 @@ module.exports = dependencies => {
    * TODO: Implement a method to directly 'get' contacts by a field value to DAV server.
    */
   return ({ fieldType, value, context }) => {
-    const userId = String(context.user._id);
     const options = {
       user: context.user,
-      search: value,
-      bookNames: []
+      search: value
     };
 
     return getClientOptions(context)
-      .then(clientOptions => client(clientOptions).addressbookHome(userId).search(options))
+      .then(clientOptions => client(clientOptions).searchContacts(options))
       .then(data => {
         if (!data.results || !data.results.length) {
           return;
