@@ -53,7 +53,7 @@ function update(id, payload, callback) {
     }, callback);
 }
 
-function list(options, callback) {
+function list(options, populateOptions, callback) {
   options = options || {};
   const findOptions = {};
 
@@ -62,6 +62,10 @@ function list(options, callback) {
   }
 
   let query = TechnicalUser.find(findOptions);
+
+  if (populateOptions) {
+    query.populate(populateOptions);
+  }
 
   if (options.offset > 0) {
     query = query.skip(+options.offset);

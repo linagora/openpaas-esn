@@ -8,12 +8,20 @@
   function esnTechnicalUserAPIClient(esnRestangular, Restangular) {
     return {
       list: list,
+      listForDomain: listForDomain,
       add: add,
       update: update,
       remove: remove
     };
 
-    function list(domainId, options) {
+    function list(options) {
+      return esnRestangular.all('technicalusers').getList(options)
+        .then(function(response) {
+          return Restangular.stripRestangular(response.data);
+        });
+    }
+
+    function listForDomain(domainId, options) {
       return esnRestangular.one('domains', domainId).all('technicalusers').getList(options)
         .then(function(response) {
           return Restangular.stripRestangular(response.data);

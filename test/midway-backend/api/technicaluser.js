@@ -5,7 +5,7 @@ const {ObjectId} = require('bson').ObjectId;
 describe('The technicalusers API', function() {
   let app;
   let core;
-  let domain;
+  let domain, domain2;
   let user, platformAdminUser, domainAdminUser;
   let TechnicalUser;
   let technicalUser1, technicalUser2;
@@ -48,6 +48,7 @@ describe('The technicalusers API', function() {
           user = models2.users[0];
           platformAdminUser = models2.users[1];
           domainAdminUser = models2.users[2];
+          domain2 = models2.domain;
           done();
         });
       });
@@ -142,6 +143,7 @@ describe('The technicalusers API', function() {
 
       technicalUsersList = technicalUsersList.map(technicalUser => {
         const { name, description, type, data } = technicalUser;
+
         return {name, description, type, data};
       });
 
@@ -161,6 +163,7 @@ describe('The technicalusers API', function() {
 
       technicalUsersList = technicalUsersList.map(technicalUser => {
         const { name, description, type, data } = technicalUser;
+
         return {name, description, type, data};
       });
 
@@ -495,6 +498,82 @@ describe('The technicalusers API', function() {
             done();
           }));
       });
+    });
+  });
+
+  describe('GET /api/technicalusers', function() {
+    it('should send back 401 when not logged in', function(done) {
+      helpers.api.requireLogin(app, 'get', '/api/technicalusers', done);
+    });
+
+    it('should send back 403 if the logged in user is not platform admin', function(done) {
+      helpers.api.loginAsUser(app, domainAdminUser.emails[0], password, function(err, loggedInAsUser) {
+        loggedInAsUser(request(app).get('/api/technicalusers'))
+          .expect(403)
+          .end(helpers.callbacks.noError(done));
+      });
+    });
+
+    it('should send back 200 with a list of all technical users in the platform when user is platform admin', function(done) {
+      const technicalUser3 = {
+        _id: new ObjectId(),
+        name: 'Dummy User',
+        description: 'A description',
+        type: 'dav',
+        domain: domain2._id,
+        data: 'Some datas'
+      };
+
+      let technicalUsersList = [technicalUser1, technicalUser2, technicalUser3];
+
+      technicalUsersList = technicalUsersList.map(technicalUser => {
+        technicalUser.domain = technicalUser.domain.toString();
+        technicalUser._id = technicalUser._id.toString();
+
+        technicalUser.domain = {
+          _id: technicalUser.domain,
+          name: technicalUser === technicalUser3 ? domain2.name : domain.name
+        };
+
+        return technicalUser;
+      });
+
+      core['technical-user'].add(technicalUser3, err => {
+        if (err) return done(err);
+
+        helpers.api.loginAsUser(app, platformAdminUser.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+          const req = loggedInAsUser(request(app).get('/api/technicalusers'));
+
+          req.expect(200).end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.exist;
+            expect(res.body).to.shallowDeepEqual(technicalUsersList);
+            done();
+          }));
+        }));
+      });
+    });
+
+    it('should send back 200 with a list of technical users corresponding to the limit and offset value', function(done) {
+      const expectedResponse = [
+        {
+          name: 'Sabre',
+          description: 'Sabre\'s dummy description',
+          data: 'Sabre\'s dummy data',
+          type: 'dav'
+        }
+      ];
+
+      helpers.api.loginAsUser(app, platformAdminUser.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        const LIMIT = 1;
+        const req = loggedInAsUser(request(app).get('/api/technicalusers'));
+
+        req.query({ limit: LIMIT })
+          .expect(200)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual(expectedResponse);
+            done();
+        }));
+      }));
     });
   });
 });
