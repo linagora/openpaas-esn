@@ -7,7 +7,7 @@ describe('The people service module', function() {
 
   beforeEach(function() {
     logger = {
-      error: sinon.spy(),
+      error: sinon.spy(() => 'Logger error'),
       info: sinon.spy(),
       debug: sinon.spy()
     };
