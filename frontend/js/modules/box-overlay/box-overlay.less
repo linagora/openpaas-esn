@@ -1,5 +1,4 @@
-@overlayContainerZIndex: @modal-z-index - 1;
-@overlayContainerMaximizedZIndex: @modal-z-index + 1;
+@overlayContainerZIndex: @modal-z-index;
 @overlayBoxZIndex: 5;
 @overlayHeight: 60vh;
 @overlayMinHeight: 400px;
@@ -16,7 +15,7 @@
   min-height: @overlayMinHeight;
   height: @overlayHeight;
   padding-right: 110px;
-  z-index: @overlayContainerZIndex + 1;
+  z-index: @overlayContainerZIndex;
   pointer-events: none;
   width: 100%;
 
@@ -44,7 +43,6 @@
     height: 100%;
     top: 0;
     left: 0;
-    z-index: @overlayContainerMaximizedZIndex;
 
     background-color: rgba(0, 0, 0, 0.3);
 
