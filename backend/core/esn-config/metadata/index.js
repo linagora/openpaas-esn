@@ -32,6 +32,7 @@ module.exports = {
     maxSizeUpload: require('./maxSizeUpload'),
     session: require('./session'),
     oidc: require('./oidc'),
+    userMetadata: require('./userMetadata'),
     user: RESTRICTED,
     amqp: RESTRICTED,
     redis: RESTRICTED,
