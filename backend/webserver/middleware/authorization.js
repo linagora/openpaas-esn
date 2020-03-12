@@ -2,6 +2,9 @@ const passport = require('passport');
 const config = require('../../core').config('default');
 const userModule = require('../../core/user');
 const domainModule = require('../../core/domain');
+const platformAdminModule = require('../../core/platformadmin');
+const { promisify } = require('util');
+const logger = require('../../core/logger');
 
 module.exports = {
   loginAndContinue,
@@ -11,6 +14,7 @@ module.exports = {
   requiresDomainManager,
   requiresDomainMember,
   requiresTargetUserIsDomainMember,
+  requirePlatformAdminOrDomainAdmin,
   requiresJWT,
   decodeJWTandLoadUser
 };
@@ -112,6 +116,41 @@ function requiresDomainMember(req, res, next) {
 
 function requiresTargetUserIsDomainMember(req, res, next) {
   return requiresDomainMember(Object.assign({}, req, { user: req.targetUser }), res, next);
+}
+
+function requirePlatformAdminOrDomainAdmin(req, res, next) {
+  const user = req.user;
+  const domain = req.domain;
+
+  platformAdminModule.isPlatformAdmin(user.id).then(isPlatformAdmin => {
+    if (isPlatformAdmin) return next();
+
+    return promisify(domainModule.userIsDomainAdministrator)(user, domain)
+      .then(isDomainAdmin => {
+        if (!isDomainAdmin) {
+          return res.status(403).json({
+            error: 403,
+            message: 'Forbidden',
+            details: 'To perform this action, you need to be a platform admin or domain admin'
+          });
+        }
+
+        return next();
+      });
+    })
+    .catch(err => {
+      if (err) {
+        const details = 'Error while checking domain administrator and platform admin role of a user';
+
+        logger.error(details, err);
+
+        return res.status(500).json({
+          error: 500,
+          message: 'Server Error',
+          details
+        });
+      }
+    });
 }
 
 function requiresJWT(req, res, next) {

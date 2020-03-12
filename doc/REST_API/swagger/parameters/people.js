@@ -56,7 +56,7 @@
  *     description: The value to be resolved in a field
  *     in: path
  *     required: true
- *     type: tring
+ *     type: string
  *   ppl_object_types_query:
  *     name: objectTypes
  *     description: The list of object types to find resolved person. The types must be separated by a comma (e.g user,contact,group)
