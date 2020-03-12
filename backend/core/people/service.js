@@ -65,12 +65,15 @@ class PeopleService {
     function resolve(resolver, { fieldType, value, context }) {
       return resolver.resolve({ fieldType, value, context })
         .then(result => (result && denormalize(result, resolver, context)))
-        .catch(error => logger.error(`Failed to resolve ${resolver.objectType}`, error));
+        .catch(error => {
+          logger.error(`Failed to resolve ${resolver.objectType}`, error);
+        });
     }
 
     function denormalize(source, resolver, context) {
-      return resolver.denormalize({ source, context }).catch(error =>
-        logger.error(`Failed to denormalize ${resolver.objectType}`, error));
+      return resolver.denormalize({ source, context }).catch(error => {
+        logger.error(`Failed to denormalize ${resolver.objectType}`, error);
+      });
     }
   }
 
