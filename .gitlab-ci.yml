@@ -101,7 +101,7 @@ check_author:
 frontend-test:
   <<: *test-template
   script:
-    - grunt -v test-frontend
+    - grunt -f -v test-frontend
 
 modules-frontend-test:
   <<: *test-template
@@ -109,7 +109,7 @@ modules-frontend-test:
     - npm install
     # Weird behaviour: at the time, npm postinstall was not called.
     - ./node_modules/.bin/bower install --allow-root
-    - grunt -v test-modules-frontend
+    - grunt -f -v test-modules-frontend
     - TZ="Pacific/Kiritimati" grunt -v test-modules-frontend
     - TZ="Pacific/Midway" grunt -v test-modules-frontend
     - TZ="Pacific/Chatham" grunt -v test-modules-frontend
@@ -117,12 +117,12 @@ modules-frontend-test:
 unit-backend-test:
   <<: *test-template
   script:
-    - grunt -v --chunk=1 test-unit-backend
+    - grunt -f -v --chunk=1 test-unit-backend
 
 modules-unit-backend-test:
   <<: *test-template
   script:
-    - grunt -v --chunk=1 test-modules-unit-backend
+    - grunt -f -v --chunk=1 test-modules-unit-backend
 
 ####### tests with services requirements
 
@@ -149,8 +149,8 @@ unit-storage-test:
     REDIS_HOST: redis-unit
     REDIS_PORT: 6379
   script:
-    - grunt -v --chunk=1 gitlab-test-unit-storage
-    - grunt -v --chunk=1 gitlab-test-modules-unit-storage
+    - grunt -f -v --chunk=1 gitlab-test-unit-storage
+    - grunt -f -v --chunk=1 gitlab-test-modules-unit-storage
 
 modules-midway-test:
   <<: *test-template
@@ -175,7 +175,7 @@ modules-midway-test:
     REDIS_HOST: redis-midway
     REDIS_PORT: 6379
   script:
-    - grunt -v --chunk=1 gitlab-test-modules-midway
+    - grunt -f -v --chunk=1 gitlab-test-modules-midway
 
 midway-backend-test:
   <<: *test-template
@@ -200,7 +200,7 @@ midway-backend-test:
     REDIS_HOST: redis-backend
     REDIS_PORT: 6379
   script:
-    - grunt --chunk=1 -v gitlab-test-midway-backend
+    - grunt -f --chunk=1 -v gitlab-test-midway-backend
 
 # Why is it deactivated ?
 # This job try to build and test everything !!!
