@@ -1,15 +1,13 @@
-'use strict';
-
-var mockery = require('mockery');
-var sinon = require('sinon');
-var expect = require('chai').expect;
+const mockery = require('mockery');
+const sinon = require('sinon');
+const expect = require('chai').expect;
 
 describe('The ldap-mongo passport strategy', function() {
   const USERNAME = 'user@email';
   const PASSWORD = 'secret';
   let getModule;
   let existingUser, translatedUser, provisionedUser, updatedUser, ldapUser, autoProvisioningResult;
-  let coreUserMock, coreLdapMock, loggerMock, helpersMock;
+  let coreUserMock, coreLdapMock, loggerMock, helpersMock, setUserMetadataMock;
 
   beforeEach(function() {
     getModule = () => this.helpers.requireBackend('core/passport/ldap-mongo');
@@ -20,11 +18,17 @@ describe('The ldap-mongo passport strategy', function() {
     updatedUser = { _id: 'updatedUser' };
     ldapUser = { email: 'user@ldap' };
     autoProvisioningResult = true;
+    setUserMetadataMock = () => Promise.resolve();
+
     coreUserMock = {
       findByEmail: sinon.spy((email, callback) => callback(null, existingUser)),
       provisionUser: sinon.spy((user, callback) => callback(null, provisionedUser)),
-      update: sinon.spy((user, callback) => callback(null, updatedUser))
+      update: sinon.spy((user, callback) => callback(null, updatedUser)),
+      metadata: () => ({
+        set: setUserMetadataMock
+      })
     };
+
     coreLdapMock = {
       findLDAPForUser(username, callback) {
         callback(null, [{}, {}]);
@@ -177,7 +181,8 @@ describe('The ldap-mongo passport strategy', function() {
     };
 
     const callback = (err, user) => {
-      expect(err).to.not.exist;
+      if (err) return done(err);
+
       expect(coreLdapMock.translate).to.have.been.calledWith(existingUser, sinon.match({
         user: ldapUser
       }));
@@ -255,5 +260,68 @@ describe('The ldap-mongo passport strategy', function() {
     };
 
     getModule()(USERNAME, PASSWORD, callback);
+  });
+
+  describe('saving user provisioned fields and blocked fields', function() {
+    const mapping = {
+      firstname: 'name',
+      lastname: 'sn'
+    };
+
+    it('should not update user metadata if provisioning user failed', function(done) {
+      coreUserMock.provisionUser = (user, callback) => callback(new Error('destined to fail'));
+      setUserMetadataMock = sinon.spy();
+
+      const callback = err => {
+        expect(err.message).to.equal('destined to fail');
+        expect(setUserMetadataMock).to.not.have.been.called;
+        done();
+      };
+
+      getModule()(USERNAME, PASSWORD, callback);
+    });
+
+    it('should not update user metadata if updating existing user failed', function(done) {
+      existingUser = { _id: 'existingUser' };
+      coreUserMock.update = (user, callback) => callback(new Error('destined to fail'));
+      setUserMetadataMock = sinon.spy();
+
+      const callback = err => {
+        expect(err.message).to.equal('destined to fail');
+        expect(setUserMetadataMock).to.not.have.been.called;
+        done();
+      };
+
+      getModule()(USERNAME, PASSWORD, callback);
+    });
+
+    it('should update user metadata after provision user', function(done) {
+      coreLdapMock.findLDAPForUser = (user, callback) => callback(null, [{ configuration: { mapping } }]);
+      setUserMetadataMock = sinon.stub().returns(Promise.resolve());
+
+      const callback = err => {
+        if (err) return done(err);
+
+        expect(setUserMetadataMock).to.have.been.calledWith('profileProvisionedFields', ['firstname', 'lastname']);
+        done();
+      };
+
+      getModule()(USERNAME, PASSWORD, callback);
+    });
+
+    it('should update user metadata after updating existing user', function(done) {
+      existingUser = { _id: 'existingUser' };
+      coreLdapMock.findLDAPForUser = (user, callback) => callback(null, [{ configuration: { mapping } }]);
+      setUserMetadataMock = sinon.stub().returns(Promise.resolve());
+
+      const callback = err => {
+        if (err) return done(err);
+
+        expect(setUserMetadataMock).to.have.been.calledWith('profileProvisionedFields', ['firstname', 'lastname']);
+        done();
+      };
+
+      getModule()(USERNAME, PASSWORD, callback);
+    });
   });
 });
