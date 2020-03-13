@@ -7,8 +7,8 @@
  *     description: The technical user ID.
  *     required: true
  *     type: string
- *   tu_payload:
- *     name: payload
+ *   tu_technicaluser:
+ *     name: tu_technicaluser
  *     in: body
  *     description: The payload which is used to create or update technical user.
  *     required: true
