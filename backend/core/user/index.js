@@ -37,6 +37,7 @@ module.exports = {
   find,
   init,
   moderation,
+  metadata: require('./metadata'),
   provision: require('./provision'),
   domain: require('./domain'),
   follow: require('./follow'),
