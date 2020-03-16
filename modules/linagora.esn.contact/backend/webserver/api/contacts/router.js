@@ -17,7 +17,7 @@ module.exports = (dependencies, moduleName) => {
 
   /**
    * @swagger
-   * /contacts/{addressBookId}/{addressbookName}/{contactId}/avatar:
+   * /contact/api/contacts/{addressBookId}/{addressbookName}/{contactId}/avatar:
    *   get:
    *     tags:
    *       - Contact
