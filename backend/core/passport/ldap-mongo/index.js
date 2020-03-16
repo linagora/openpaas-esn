@@ -1,10 +1,14 @@
-'use strict';
+const q = require('q');
+const { promisify } = require('util');
+const logger = require('../../logger');
+const ldapModule = require('../../ldap');
+const helpers = require('../../ldap/helpers');
+const userModule = require('../../user');
 
-const q = require('q'),
-      userModule = require('../../user'),
-      ldapModule = require('../../ldap'),
-      logger = require('../../logger'),
-      helpers = require('../../ldap/helpers');
+const metadata = userModule.metadata;
+const findUserByEmail = promisify(userModule.findByEmail);
+const updateUser = promisify(userModule.update);
+const provisionUser = promisify(userModule.provisionUser);
 
 module.exports = (username, password, done) => {
   ldapModule.findLDAPForUser(username, (err, ldaps) => {
@@ -41,31 +45,41 @@ module.exports = (username, password, done) => {
         logger.warn(`LDAP directory ${ldapConfig.name} does not have domain information, user provision could fail`);
       }
 
-      q.nfcall(userModule.findByEmail, username)
-          .then(user => {
-            if (user || helpers.isLdapUsedForAutoProvisioning(ldapConfig)) {
-              return updateOrProvisionUser(user, ldapUser, ldapConfig, done);
-            }
-            return done(null, false);
-          })
-          .catch(done);
+      findUserByEmail(username)
+        .then(user => _updateOrProvisionUser(user, ldapUser, ldapConfig))
+        .then(user => _saveUserProvisionedFields(user, ldapConfig))
+        .then(result => done(null, result))
+        .catch(error => {
+          if (error) return done(error);
+
+          done(null, false);
+        });
     }
 
-    function updateOrProvisionUser(user, ldapUser, ldapConfig, callback) {
+    function _updateOrProvisionUser(user, ldapUser, ldapConfig) {
+      if (!user && !helpers.isLdapUsedForAutoProvisioning(ldapConfig)) {
+        return Promise.reject();
+      }
 
-      var ldapPayload = {
+      const ldapPayload = {
             username,
             user: ldapUser,
             config: ldapConfig.configuration,
             domainId: ldapConfig.domainId
           },
-          method = user ? 'update' : 'provisionUser',
+          method = user ? updateUser : provisionUser,
           newUser = ldapModule.translate(user, ldapPayload);
 
-      return q.ninvoke(userModule, method, newUser)
-          .then(savedUser => {
-            callback(null, savedUser);
-          });
+      return method(newUser);
+    }
+
+    function _saveUserProvisionedFields(user, ldapConfig = {}) {
+      const provisionFields = ldapConfig.configuration &&
+                              ldapConfig.configuration.mapping &&
+                              Object.keys(ldapConfig.configuration.mapping) || [];
+
+      return metadata(user).set('profileProvisionedFields', provisionFields)
+        .then(() => user);
     }
 
     function onError(errorResults) {
