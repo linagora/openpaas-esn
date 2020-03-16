@@ -106,9 +106,6 @@ frontend-test:
 modules-frontend-test:
   <<: *test-template
   script:
-    - npm install
-    # Weird behaviour: at the time, npm postinstall was not called.
-    - ./node_modules/.bin/bower install --allow-root
     - grunt -v test-modules-frontend
     - TZ="Pacific/Kiritimati" grunt -v test-modules-frontend
     - TZ="Pacific/Midway" grunt -v test-modules-frontend
