@@ -76,7 +76,8 @@ module.exports = function(router) {
     authorize.requiresDomainManager,
     usersMW.loadTargetUser,
     authorize.requiresTargetUserIsDomainMember,
-    users.updateTargetUserProfile
+    usersMW.validateUserUpdateOnReq('targetUser'),
+    users.updateUserProfileOnReq('targetUser')
   );
 
   /**

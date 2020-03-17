@@ -8,6 +8,7 @@ const oauthclients = require('../controllers/oauthclients');
 const { validateMIMEType } = require('../middleware/file');
 const { ACCEPTED_MIME_TYPES } = require('../../core/image').CONSTANTS;
 const { requireInQuery, requirePositiveIntegersInQuery } = require('../middleware/helper');
+const { validateUserUpdateOnReq } = require('../middleware/users');
 
 module.exports = function(router) {
 
@@ -75,7 +76,11 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.put('/user/profile', authorize.requiresAPILogin, users.updateProfile);
+  router.put('/user/profile',
+    authorize.requiresAPILogin,
+    validateUserUpdateOnReq('user'),
+    users.updateUserProfileOnReq('user')
+  );
 
   /**
    * @swagger

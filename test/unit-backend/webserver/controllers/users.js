@@ -1,8 +1,6 @@
-'use strict';
-
-var expect = require('chai').expect;
-var mockery = require('mockery');
-var q = require('q');
+const { expect } = require('chai');
+const mockery = require('mockery');
+const q = require('q');
 
 describe('The User controller', function() {
 
@@ -12,71 +10,76 @@ describe('The User controller', function() {
 
   describe('The logout fn', function() {
     it('should call req.logout()', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         logout: done
       };
-      var res = {
+      const res = {
         redirect: function() {}
       };
+
       users.logout(req, res);
     });
     it('should redirect to "/"', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         logout: function() {}
       };
-      var res = {
+      const res = {
         redirect: function(path) {
           expect(path).to.equal('/');
           done();
         }
       };
+
       users.logout(req, res);
     });
   });
 
   describe('The logmein fn', function() {
     it('should redirect to / if user is set in request', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         user: {
           emails: ['foo@bar.com']
         }
       };
-      var res = {
+      const res = {
         redirect: function(path) {
           expect(path).to.equal('/');
           done();
         }
       };
+
       users.logmein(req, res);
     });
 
     it('should return HTTP 500 if user email is not defined', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         user: {
         }
       };
-      var res = this.helpers.express.response(
+      const res = this.helpers.express.response(
         function(status) {
           expect(status).to.equal(500);
           done();
         }
       );
+
       users.logmein(req, res);
     });
 
     it('should return HTTP 500 if user is not set in request', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {};
-      var res = this.helpers.express.response(
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {};
+      const res = this.helpers.express.response(
         function(status) {
           expect(status).to.equal(500);
           done();
         }
       );
+
       users.logmein(req, res);
     });
   });
@@ -88,8 +91,8 @@ describe('The User controller', function() {
           return q(user);
         }
       });
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         user: {
           accounts: [{
             type: 'email',
@@ -97,7 +100,7 @@ describe('The User controller', function() {
           }]
         }
       };
-      var res = this.helpers.express.jsonResponse(
+      const res = this.helpers.express.jsonResponse(
         function(code, data) {
           expect(code).to.equal(200);
           expect(data).to.shallowDeepEqual(req.user);
@@ -105,19 +108,21 @@ describe('The User controller', function() {
           done();
         }
       );
+
       users.user(req, res);
     });
 
     it('should return HTTP 404 if user is not defined in the request', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
       };
-      var res = this.helpers.express.jsonResponse(
+      const res = this.helpers.express.jsonResponse(
         function(status) {
           expect(status).to.equal(404);
           done();
         }
       );
+
       users.user(req, res);
     });
   });
@@ -125,12 +130,12 @@ describe('The User controller', function() {
   describe('The profile function', function() {
     it('should return HTTP 400 if the uuid is missing', function(done) {
 
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         user: {id: this.helpers.objectIdMock('1')},
         params: {}
       };
-      var res = this.helpers.express.jsonResponse(
+      const res = this.helpers.express.jsonResponse(
         function(code, data) {
           expect(code).to.equal(400);
           expect(data.error.code).to.equal(400);
@@ -145,27 +150,26 @@ describe('The User controller', function() {
     });
 
     it('should return HTTP 500 if there is an error', function(done) {
-      var error = {
+      const error = {
         message: 'error message'
       };
-      var moduleMock = {
+      const moduleMock = {
         user: {
-          get: function(uuid, callback) {
-            callback(error);
-          }
+          get: (uuid, callback) => callback(error),
+          updateProfile: (user, profile, callback) => callback()
         }
       };
 
       mockery.registerMock('../../core', moduleMock);
 
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         user: {id: this.helpers.objectIdMock('123')},
         params: {
           uuid: '123'
         }
       };
-      var res = this.helpers.express.jsonResponse(
+      const res = this.helpers.express.jsonResponse(
         function(code, data) {
           expect(code).to.equal(500);
           expect(data.error).to.equal(500);
@@ -180,24 +184,23 @@ describe('The User controller', function() {
     });
 
     it('should return HTTP 404 if user does not exist', function(done) {
-      var moduleMock = {
+      const moduleMock = {
         user: {
-          get: function(uuid, callback) {
-            callback();
-          }
+          get: (uuid, callback) => callback(),
+          updateProfile: (user, profile, callback) => callback()
         }
       };
 
       mockery.registerMock('../../core', moduleMock);
 
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         user: {id: this.helpers.objectIdMock('123')},
         params: {
           uuid: '123'
         }
       };
-      var res = this.helpers.express.jsonResponse(
+      const res = this.helpers.express.jsonResponse(
         function(code, data) {
           expect(code).to.equal(404);
           expect(data.error).to.equal(404);
@@ -212,16 +215,15 @@ describe('The User controller', function() {
     });
 
     it('should return HTTP 200 if the user is returned', function(done) {
-      var user = {
+      const user = {
         _id: '123',
         firstname: 'Dali',
         lastname: 'Dali'
       };
-      var moduleMock = {
+      const moduleMock = {
         user: {
-          get: function(uuid, callback) {
-            callback(null, user);
-          }
+          get: (uuid, callback) => callback(null, user),
+          updateProfile: (user, profile, callback) => callback()
         }
       };
 
@@ -233,8 +235,8 @@ describe('The User controller', function() {
 
       mockery.registerMock('../../core', moduleMock);
 
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         user: {
           _id: '123'
         },
@@ -242,7 +244,7 @@ describe('The User controller', function() {
           uuid: '123'
         }
       };
-      var res = this.helpers.express.jsonResponse(
+      const res = this.helpers.express.jsonResponse(
         function(code, data) {
           expect(code).to.equal(200);
           expect(data).to.shallowDeepEqual(user);
@@ -255,58 +257,21 @@ describe('The User controller', function() {
     });
   });
 
-  describe('The updateProfile fn', function() {
+  describe('The updateUserProfileOnReq fn', function() {
 
     beforeEach(function() {
-      var mock = {
+      const mock = {
         user: {
-          updateProfile: function(user, profile, callback) {
-            return callback();
-          }
+          updateProfile: (user, profile, callback) => callback()
         }
       };
+
       mockery.registerMock('../../core', mock);
     });
 
-    it('should send back 404 if user is not set', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
-      };
-      var res = {
-        json: function() {
-          done();
-        },
-        status: function(code) {
-          expect(code).to.equal(404);
-          return this;
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if profile is not set', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
-        profile: {},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function() {
-          done();
-        },
-        status: function(code) {
-          expect(code).to.equal(400);
-          return this;
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
     it('should be OK if profile is set with valid values', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         body: {
           firstname: 'James',
           lastname: 'Amaly',
@@ -321,22 +286,24 @@ describe('The User controller', function() {
           emails: ['foo@bar.com']
         }
       };
-      var res = {
+      const res = {
         json: function() {
           done();
         },
         status: function(code) {
           expect(code).to.equal(200);
+
           return this;
         }
       };
-      users.updateProfile(req, res);
+
+      users.updateUserProfileOnReq('user')(req, res);
     });
   });
 
   describe('postProfileAvatar() function', function() {
     it('should call the image.recordAvatar method', function(done) {
-      var imageMock = {
+      const imageMock = {
         recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
           expect(avatarId).to.have.property('toHexString');
           expect(mimetype).to.equal('image/png');
@@ -344,20 +311,22 @@ describe('The User controller', function() {
           done();
         }
       };
+
       mockery.registerMock('./image', imageMock);
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {user: {}, query: {mimetype: 'image/png', size: 42}};
+      const res = {
       };
+
       users.postProfileAvatar(req, res);
     });
 
     it('should set the current user as avatar creator', function(done) {
-      var user = {
+      const user = {
         _id: 123
       };
 
-      var imageMock = {
+      const imageMock = {
         recordAvatar: function(avatarId, mimetype, opts) {
           expect(opts).to.exist;
           expect(opts.creator).to.exist;
@@ -366,26 +335,30 @@ describe('The User controller', function() {
           done();
         }
       };
+
       mockery.registerMock('./image', imageMock);
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {user: user, query: {mimetype: 'image/png', size: 42}};
-      var res = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {user: user, query: {mimetype: 'image/png', size: 42}};
+      const res = {
       };
+
       users.postProfileAvatar(req, res);
     });
 
     it('should return 500 if the recordAvatar response is a datastore failure', function(done) {
-      var imageMock = {
+      const imageMock = {
         recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
-          var err = new Error('yolo');
+          const err = new Error('yolo');
+
           err.code = 1;
           avatarRecordResponse(err);
         }
       };
+
       mockery.registerMock('./image', imageMock);
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = this.helpers.express.jsonResponse(
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {user: {}, query: {mimetype: 'image/png', size: 42}};
+      const res = this.helpers.express.jsonResponse(
         (code, data) => {
           expect(code).to.equal(500);
           expect(data.error).to.shallowDeepEqual({
@@ -397,21 +370,24 @@ describe('The User controller', function() {
           done();
         }
       );
+
       users.postProfileAvatar(req, res);
     });
 
     it('should return 500 if the recordAvatar response is an image manipulation failure', function(done) {
-      var imageMock = {
+      const imageMock = {
         recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
-          var err = new Error('yolo');
+          const err = new Error('yolo');
+
           err.code = 2;
           avatarRecordResponse(err);
         }
       };
+
       mockery.registerMock('./image', imageMock);
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = this.helpers.express.jsonResponse(
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {user: {}, query: {mimetype: 'image/png', size: 42}};
+      const res = this.helpers.express.jsonResponse(
         (code, data) => {
           expect(code).to.equal(500);
           expect(data.error).to.shallowDeepEqual({
@@ -423,20 +399,23 @@ describe('The User controller', function() {
           done();
         }
       );
+
       users.postProfileAvatar(req, res);
     });
 
     it('should return 500 if the recordAvatar response is a generic error', function(done) {
-      var imageMock = {
+      const imageMock = {
         recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
-          var err = new Error('yolo');
+          const err = new Error('yolo');
+
           avatarRecordResponse(err);
         }
       };
+
       mockery.registerMock('./image', imageMock);
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = this.helpers.express.jsonResponse(
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {user: {}, query: {mimetype: 'image/png', size: 42}};
+      const res = this.helpers.express.jsonResponse(
         (code, data) => {
           expect(code).to.equal(500);
           expect(data.error).to.shallowDeepEqual({
@@ -453,15 +432,16 @@ describe('The User controller', function() {
     });
 
     it('should return 412 if the object recorded size is not the size provided by the user agent', function(done) {
-      var imageMock = {
+      const imageMock = {
         recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
           avatarRecordResponse(null, 666);
         }
       };
+
       mockery.registerMock('./image', imageMock);
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = this.helpers.express.jsonResponse(
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {user: {}, query: {mimetype: 'image/png', size: 42}};
+      const res = this.helpers.express.jsonResponse(
         (code, data) => {
           expect(code).to.equal(412);
           expect(data.error).to.shallowDeepEqual({
@@ -473,21 +453,23 @@ describe('The User controller', function() {
           done();
         }
       );
+
       users.postProfileAvatar(req, res);
     });
 
     it('should call the update function of the user module to update user', function(done) {
-      var usermock = {
+      const usermock = {
         avatars: [],
         currentAvatar: undefined
       };
-      var moduleMock = {
+      const moduleMock = {
         user: {
           update: function() {
             expect(usermock.avatars).to.have.length(1);
             expect(usermock.currentAvatar).to.equal(usermock.avatars[0]);
             done();
-          }
+          },
+          updateProfile: (user, profile, callback) => callback()
         },
         image: {
           recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
@@ -495,24 +477,28 @@ describe('The User controller', function() {
           }
         }
       };
+
       mockery.registerMock('../../core', moduleMock);
 
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
-      var res = this.helpers.express.jsonResponse(
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
+      const res = this.helpers.express.jsonResponse(
         function() {
         }
       );
+
       users.postProfileAvatar(req, res);
     });
 
     it('should return 500 if the model cannot be saved', function(done) {
-      var moduleMock = {
+      const moduleMock = {
         user: {
           update: function(user, callback) {
-            var err = new Error('yolo');
+            const err = new Error('yolo');
+
             callback(err);
-          }
+          },
+          updateProfile: (user, profile, callback) => callback()
         },
         image: {
           recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
@@ -523,16 +509,17 @@ describe('The User controller', function() {
           error: () => {}
         }
       };
+
       mockery.registerMock('../../core', moduleMock);
 
-      var users = this.helpers.requireBackend('webserver/controllers/users');
+      const users = this.helpers.requireBackend('webserver/controllers/users');
 
-      var usermock = {
+      const usermock = {
         avatars: [],
         currentAvatar: undefined
       };
-      var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
-      var res = this.helpers.express.jsonResponse(
+      const req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
+      const res = this.helpers.express.jsonResponse(
         (code, data) => {
           expect(code).to.equal(500);
           expect(data.error).to.shallowDeepEqual({
@@ -544,15 +531,17 @@ describe('The User controller', function() {
           done();
         }
       );
+
       users.postProfileAvatar(req, res);
     });
 
     it('should return 200 and the avatar id, if recording is successfull', function(done) {
-      var moduleMock = {
+      const moduleMock = {
         user: {
           update: function(user, callback) {
             callback();
-          }
+          },
+          updateProfile: (user, profile, callback) => callback()
         },
         image: {
           recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
@@ -560,16 +549,17 @@ describe('The User controller', function() {
           }
         }
       };
+
       mockery.registerMock('../../core', moduleMock);
 
-      var users = this.helpers.requireBackend('webserver/controllers/users');
+      const users = this.helpers.requireBackend('webserver/controllers/users');
 
-      var usermock = {
+      const usermock = {
         avatars: [],
         currentAvatar: undefined
       };
-      var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
-      var res = this.helpers.express.jsonResponse(
+      const req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
+      const res = this.helpers.express.jsonResponse(
         function(code, data) {
           expect(code).to.equal(200);
           expect(data._id).to.exist;
@@ -577,26 +567,28 @@ describe('The User controller', function() {
           done();
         }
       );
+
       users.postProfileAvatar(req, res);
     });
   });
 
   describe('the getProfileAvatar function', function() {
     it('should return 404 if the user is not logged in', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {};
-      var res = this.helpers.express.jsonResponse(
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {};
+      const res = this.helpers.express.jsonResponse(
         function(code, data) {
           expect(code).to.equal(404);
           expect(data).to.deep.equal({error: 404, message: 'Not found', details: 'User not found'});
           done();
         }
       );
+
       users.getProfileAvatar(req, res);
     });
 
     it('should redirect to default avatar the image Module return an error', function(done) {
-      var imageModuleMock = {
+      const imageModuleMock = {
         getAvatar: function(defaultAvatar, format, callback) {
           return callback(new Error('error !'));
         },
@@ -604,15 +596,16 @@ describe('The User controller', function() {
           return callback(null, {});
         }
       };
+
       mockery.registerMock('./image', imageModuleMock);
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         user: {
           currentAvatar: 'id'
         },
         query: {}
       };
-      var res = {
+      const res = {
         redirect: function() {
           done();
         }
@@ -622,7 +615,7 @@ describe('The User controller', function() {
     });
 
     it('should redirect to default avatar the image Module does not return the stream', function(done) {
-      var imageModuleMock = {
+      const imageModuleMock = {
         getAvatar: function(defaultAvatar, format, callback) {
           return callback();
         },
@@ -630,15 +623,16 @@ describe('The User controller', function() {
           return callback(null, {});
         }
       };
+
       mockery.registerMock('./image', imageModuleMock);
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         user: {
           currentAvatar: 'id'
         },
         query: {}
       };
-      var res = {
+      const res = {
         redirect: function() {
           done();
         }
@@ -648,7 +642,7 @@ describe('The User controller', function() {
     });
 
     it('should return 200 and the stream even if meta data can not be found', function(done) {
-      var image = {
+      const image = {
         stream: 'test',
         pipe: function(res) {
           expect(res.header['Last-Modified']).to.not.exist;
@@ -657,15 +651,16 @@ describe('The User controller', function() {
         }
       };
 
-      var imageModuleMock = {
+      const imageModuleMock = {
         getAvatar: function(defaultAvatar, format, callback) {
           return callback(null, null, image);
         }
       };
+
       mockery.registerMock('./image', imageModuleMock);
 
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         headers: {
         },
         user: {
@@ -675,7 +670,7 @@ describe('The User controller', function() {
         query: {
         }
       };
-      var res = {
+      const res = {
         status: function(code) {
           this.code = code;
 
@@ -690,7 +685,7 @@ describe('The User controller', function() {
     });
 
     it('should return 200, add to the cache, and the stream of the avatar file if all is ok', function(done) {
-      var image = {
+      const image = {
         stream: 'test',
         pipe: function(res) {
           expect(res.header['Last-Modified']).to.exist;
@@ -699,7 +694,7 @@ describe('The User controller', function() {
         }
       };
 
-      var imageModuleMock = {
+      const imageModuleMock = {
         getAvatar: function(defaultAvatar, format, callback) {
           return callback(null,
             {
@@ -708,10 +703,11 @@ describe('The User controller', function() {
             }, image);
         }
       };
+
       mockery.registerMock('./image', imageModuleMock);
 
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         headers: {
           'if-modified-since': 'Thu Apr 17 2013 11:13:15 GMT+0200 (CEST)'
         },
@@ -722,7 +718,7 @@ describe('The User controller', function() {
         query: {
         }
       };
-      var res = {
+      const res = {
         status: function(code) {
           this.code = code;
 
@@ -737,14 +733,14 @@ describe('The User controller', function() {
     });
 
     it('should return 304 if the avatar has not changed til the last GET', function(done) {
-      var image = {
+      const image = {
         stream: 'test',
         pipe: function() {
           throw new Error();
         }
       };
 
-      var imageModuleMock = {
+      const imageModuleMock = {
         getAvatar: function(defaultAvatar, format, callback) {
           return callback(null,
             {
@@ -753,10 +749,11 @@ describe('The User controller', function() {
             }, image);
         }
       };
+
       mockery.registerMock('./image', imageModuleMock);
 
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
+      const users = this.helpers.requireBackend('webserver/controllers/users');
+      const req = {
         headers: {
           'if-modified-since': 'Thu Apr 17 2014 11:13:15 GMT+0200 (CEST)'
         },
@@ -767,7 +764,7 @@ describe('The User controller', function() {
         query: {
         }
       };
-      var res = this.helpers.express.response(
+      const res = this.helpers.express.response(
         function(code) {
           expect(code).to.equal(304);
           done();

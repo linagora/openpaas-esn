@@ -9,7 +9,8 @@ module.exports = {
   requireProfilesQueryParams,
   requirePreferredEmail,
   validateUserStates,
-  validateUsersProvision
+  validateUsersProvision,
+  validateUserUpdateOnReq
 };
 
 function onFind(req, res, next, err, user) {
@@ -167,4 +168,48 @@ function validateUsersProvision(req, res, next) {
         }
       });
     });
+}
+
+function validateUserUpdateOnReq(property) {
+  return (req, res, next) => {
+    const targetUser = req[property];
+
+    if (!req.body) {
+      return res.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: 'Request body is required when updating a user'
+        }
+      });
+    }
+
+    user.metadata(targetUser).get('profileProvisionedFields')
+      .then((fields = []) => {
+        const bodyContainsProvisionedFields = fields.some(field => !!(req.body[field]));
+
+        if (bodyContainsProvisionedFields) {
+          return res.status(400).json({
+            error: {
+              code: 400,
+              message: 'Bad Request',
+              details: `These following fields are provisioned and not editable: ${fields.join(', ')}`
+            }
+          });
+        }
+        next();
+      })
+      .catch(error => {
+        const details = 'Unable to get user metadata while updating user';
+
+        logger.error(details, error);
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details
+          }
+        });
+      });
+  };
 }
