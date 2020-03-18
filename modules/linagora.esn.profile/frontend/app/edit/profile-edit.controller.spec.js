@@ -6,15 +6,24 @@
 var expect = chai.expect;
 
 describe('The profileEditController', function() {
-  var $rootScope, $controller;
+  var $rootScope, $controller, esnConfigApi;
 
   beforeEach(function() {
     angular.mock.module('linagora.esn.profile');
 
-    inject(function(_$rootScope_, _$controller_) {
+    inject(function(_$rootScope_, _$controller_, _esnConfigApi_) {
       $rootScope = _$rootScope_;
       $controller = _$controller_;
+      esnConfigApi = _esnConfigApi_;
     });
+
+    esnConfigApi.getDomainConfigurations = sinon.stub().returns($q.when([{
+      name: 'core',
+      configurations: [{
+        name: 'allowDomainAdminToManageUserEmails',
+        value: true
+      }]
+    }]));
   });
 
   function initController(scope, user) {
@@ -45,7 +54,22 @@ describe('The profileEditController', function() {
       expect(controller.canEditEmails).to.be.false;
     });
 
-    it('should set canEditEmails to true if the modifier is a domain administrator', function() {
+    it('should set canEditEmails to false if the edit user emails feature is disabled', function() {
+      esnConfigApi.getDomainConfigurations = sinon.stub().returns($q.when([{
+        name: 'core',
+        configurations: [{
+          name: 'allowDomainAdminToManageUserEmails',
+          value: false
+        }]
+      }]));
+      session.userIsDomainAdministrator = sinon.stub().returns(true);
+
+      var controller = initController();
+
+      expect(controller.canEditEmails).to.be.false;
+    });
+
+    it('should set canEditEmails to true if the modifier is a domain administrator and the edit user emails feature is enable', function() {
       session.userIsDomainAdministrator = sinon.stub().returns(true);
 
       var controller = initController();

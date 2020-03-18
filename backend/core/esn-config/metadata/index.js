@@ -10,6 +10,7 @@ module.exports = {
     admin: 'rw'
   },
   configurations: {
+    allowDomainAdminToManageUserEmails: require('./allowDomainAdminToManageUserEmails'),
     businessHours: require('./businessHours'),
     datetime: require('./datetime'),
     elasticsearch: require('./elasticsearch'),

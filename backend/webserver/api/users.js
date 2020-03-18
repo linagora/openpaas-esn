@@ -270,6 +270,7 @@ module.exports = function(router) {
     authorize.requiresAPILogin,
     loadFromDomainIdParameter,
     authorize.requiresDomainManager,
+    usersMW.canManageUserEmails,
     usersMW.loadTargetUser,
     authorize.requiresTargetUserIsDomainMember,
     helperMW.requireBodyAsArray,
