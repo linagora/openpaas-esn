@@ -1,16 +1,46 @@
 const { logger, user } = require('../../core');
 const composableMw = require('composable-middleware');
 const platformadminsMW = require('../middleware/platformadmins');
+const esnConfig = require('../../core/esn-config');
 
 module.exports = {
   checkEmailsAvailability,
   checkProfilesQueryPermission,
   loadTargetUser,
+  canManageUserEmails,
   requireProfilesQueryParams,
   requirePreferredEmail,
   validateUserStates,
   validateUsersProvision
 };
+
+function canManageUserEmails(req, res, next) {
+  return esnConfig('allowDomainAdminToManageUserEmails').inModule('core').get()
+    .then(allowDomainAdminToManageUserEmails => {
+      if (allowDomainAdminToManageUserEmails) return next();
+
+      return res.status(403).json({
+        error: {
+          code: 403,
+          message: 'Forbidden',
+          details: 'Manage user emails feature is disabled'
+        }
+      });
+    })
+    .catch(err => {
+      const details = 'Error while checking allowing domain admin manage to manage user emails feature';
+
+      logger.error(details, err);
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
+    });
+}
 
 function onFind(req, res, next, err, user) {
   if (err) {

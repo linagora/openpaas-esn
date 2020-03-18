@@ -3,6 +3,7 @@
 
   angular.module('linagora.esn.profile', [
     'esn.core',
+    'esn.configuration',
     'ui.router',
     'op.dynamicDirective',
     'esn.http',
