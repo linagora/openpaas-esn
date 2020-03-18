@@ -7,6 +7,7 @@
   function profileEditController(
     $q,
     $state,
+    esnConfigApi,
     _,
     session,
     userAPI,
@@ -35,7 +36,22 @@
 
     function $onInit() {
       self.mutableUser = _.cloneDeep(self.user);
-      self.canEditEmails = session.userIsDomainAdministrator();
+
+      canEditEmails().then(function(canEdit) {
+        self.canEditEmails = canEdit;
+      });
+    }
+
+    function canEditEmails() {
+      if (!session.userIsDomainAdministrator()) return $q.when(false);
+
+      return esnConfigApi.getDomainConfigurations(session.domain._id, [{
+        name: 'core',
+        keys: ['allowDomainAdminToManageUserEmails']
+      }]).then(function(config) {
+        return config && config[0] && config[0].configurations &&
+          config[0].configurations[0] && config[0].configurations[0].value;
+      });
     }
 
     function onSaveBtnClick() {
