@@ -1,10 +1,10 @@
-'use strict';
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
+const path = require('path');
+const glob = require('glob-all');
+const FRONTEND_JS_PATH = __dirname + '/frontend/js/';
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
-var path = require('path');
-
-var importContactModule = new AwesomeModule('linagora.esn.contact.import.google', {
+const importContactModule = new AwesomeModule('linagora.esn.contact.import.google', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.contact', 'contact'),
@@ -15,17 +15,19 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import.google'
   ],
   states: {
     lib: function(dependencies, callback) {
-      var libModule = require('./backend/lib')(dependencies);
+      const libModule = require('./backend/lib')(dependencies);
+
       return callback(null, {lib: libModule});
     },
 
     deploy: function(dependencies, callback) {
-      var frontendModules = [
-        'app.js',
-        'constants.js',
-        'services.js',
-        'directives.js'
-      ];
+      const frontendJsFileFullPaths = glob.sync([
+        FRONTEND_JS_PATH + '*.js'
+      ]);
+
+      const frontendJsFileURIs = frontendJsFileFullPaths.map(function(filepath) {
+        return filepath.replace(FRONTEND_JS_PATH, '');
+      });
 
       dependencies('contact-import').lib.addImporter({
         ns: 'contact.import.google',
@@ -33,7 +35,8 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import.google'
         lib: this.lib,
         frontend: {
           staticPath: path.normalize(__dirname + '/frontend'),
-          modules: frontendModules,
+          jsFileFullPaths: frontendJsFileFullPaths,
+          jsFileURIs: frontendJsFileURIs,
           moduleName: 'linagora.esn.contact.import.google'
         }
       });
