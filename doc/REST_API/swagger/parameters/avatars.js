@@ -21,14 +21,14 @@
   *     name: id
   *     in: query
   *     description: If objectType is 'community', the parameter value is the id of the community. If the object type is 'image', the id is the image id.
-  *     required: true
+  *     required: false
   *     type: string
   *     format: uuid
   *   av_format:
   *     name: format
   *     in: query
   *     description: If format is set to 'original', send back the original avatar which has been uploaded, else send back the 128px x 128px one.
-  *     required: true
+  *     required: false
   *     type: string
   *   av_if_modified_since:
   *     name: if_modified_since
