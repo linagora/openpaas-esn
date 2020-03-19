@@ -10,7 +10,7 @@ module.exports = router => {
    *      - Avatar
    *     description: Retrieve avatar of a resource.
    *     parameters:
-   *       - $ref: "#/parameters/av_type"
+   *       - $ref: "#/parameters/av_object_type"
    *       - $ref: "#/parameters/av_email"
    *       - $ref: "#/parameters/av_id"
    *       - $ref: "#/parameters/av_format"
