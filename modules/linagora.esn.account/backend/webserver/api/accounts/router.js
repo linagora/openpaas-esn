@@ -11,7 +11,7 @@ module.exports = dependencies => {
 
   /**
    * @swagger
-   * /accounts:
+   * /account/api/accounts:
    *   get:
    *     tags:
    *       - Accounts
@@ -30,7 +30,7 @@ module.exports = dependencies => {
 
   /**
    * @swagger
-   * /accounts/{id}:
+   * /account/api/accounts/{id}:
    *   delete:
    *     tags:
    *       - Accounts
@@ -51,7 +51,7 @@ module.exports = dependencies => {
 
   /**
    * @swagger
-   * /accounts/providers:
+   * /account/api/accounts/providers:
    *   get:
    *     tags:
    *       - Accounts

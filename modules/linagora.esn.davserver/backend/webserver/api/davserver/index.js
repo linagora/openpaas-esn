@@ -11,7 +11,7 @@ module.exports = function(dependencies) {
 
   /**
    * @swagger
-   * /info:
+   * /davserver/api/info:
    *   get:
    *     tags:
    *       - DavServer

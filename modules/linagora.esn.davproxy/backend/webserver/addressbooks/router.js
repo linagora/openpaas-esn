@@ -40,7 +40,7 @@ module.exports = function(dependencies) {
 
   /**
    * @swagger
-   * /addressbooks/{bookHome}.json:
+   * /dav/api/addressbooks/{bookHome}/{bookName}.json:
    *   delete:
    *     tags:
    *       - Davproxy
@@ -66,7 +66,7 @@ module.exports = function(dependencies) {
 
   /**
    * @swagger
-   * /addressbooks/{bookHome}.json:
+   * /dav/api/addressbooks/{bookHome}/{bookName}.json:
    *   put:
    *     tags:
    *       - Davproxy
@@ -93,7 +93,7 @@ module.exports = function(dependencies) {
 
   /**
    * @swagger
-   * /addressbooks/{bookHome}/{bookName}/{contactId}.vcf:
+   * /dav/api/addressbooks/{bookHome}/{bookName}/{contactId}.vcf:
    *   get:
    *     tags:
    *       - Davproxy
@@ -242,7 +242,7 @@ module.exports = function(dependencies) {
 
   /**
    * @swagger
-   * /addressbooks/{bookHome}.json:
+   * /dav/api/addressbooks/{bookHome}/{bookName}.json:
    *   get:
    *     tags:
    *       - Davproxy
