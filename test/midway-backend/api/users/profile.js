@@ -1,7 +1,5 @@
-'use strict';
-
-const request = require('supertest'),
-    expect = require('chai').expect;
+const request = require('supertest');
+const { expect } = require('chai');
 
 describe('The profile API', function() {
   let app, helpers, mongoose, core;
@@ -178,6 +176,36 @@ describe('The profile API', function() {
 
     it('should return 401 if not authenticated', function(done) {
       helpers.api.requireLogin(app, 'put', '/api/user/profile', done);
+    });
+
+    it('should return 400 if request body contains user provisioned fields', function(done) {
+      const userModule = helpers.requireBackend('core/user');
+      const User = mongoose.model('User');
+
+      User.findOne({ _id: foouser._id }).exec()
+        .then(user => userModule.metadata(user).set('profileProvisionedFields', ['firstname']))
+        .then(() => {
+          helpers.api.loginAsUser(app, foouser.emails[0], password, (error, loggedInAsUser) => {
+            if (error) return done(error);
+
+            loggedInAsUser(request(app).put('/api/user/profile'))
+              .send({ firstname: 'James' })
+              .expect(400)
+              .end((error, res) => {
+                if (error) return done(error);
+
+                expect(res.body).to.shallowDeepEqual({
+                  error: {
+                    code: 400,
+                    message: 'Bad Request',
+                    details: 'These following fields are provisioned and not editable: firstname'
+                  }
+                });
+                done();
+              });
+          });
+        })
+        .catch(done);
     });
 
     it('should update his profile and respond 200 with denormalized user', function(done) {
@@ -486,6 +514,40 @@ describe('The profile API', function() {
             done();
           }));
       });
+    });
+
+    it('should return 400 if request body contains user provisioned fields', function(done) {
+      const userModule = helpers.requireBackend('core/user');
+      const User = mongoose.model('User');
+
+      User.findOne({ _id: userDomainMember._id }).exec()
+        .then(domainMember => userModule.metadata(domainMember).set('profileProvisionedFields', ['firstname']))
+        .then(() => {
+          helpers.api.loginAsUser(app, userDomainAdmin.emails[0], password, (error, loggedInAsUser) => {
+            if (error) return done(error);
+
+            loggedInAsUser(
+              request(app)
+                .put(`${USERS_API_PATH}/${userDomainMember._id}`)
+                .query(`domain_id=${domain_id}`)
+            )
+              .send({ firstname: 'James' })
+              .expect(400)
+              .end((error, res) => {
+                if (error) return done(error);
+
+                expect(res.body).to.shallowDeepEqual({
+                  error: {
+                    code: 400,
+                    message: 'Bad Request',
+                    details: 'These following fields are provisioned and not editable: firstname'
+                  }
+                });
+                done();
+              });
+          });
+        })
+        .catch(done);
     });
 
     it('should update profile and respond 200 with denormalized user', function(done) {
