@@ -174,6 +174,7 @@ module.exports = function(router) {
    *       - $ref: "#/parameters/av_mimetype"
    *       - $ref: "#/parameters/av_size"
    *       - $ref: "#/parameters/ct_raw_data"
+   *       - $ref: "#/parameters/dm_id_in_query"
    *     responses:
    *       200:
    *         $ref: "#/responses/ct_avatar"
