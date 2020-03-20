@@ -159,13 +159,13 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /domains/{domain_id}/members:
+   * /api/domains/{domain_id}/members:
    *   post:
    *     tags:
    *      - Domain
    *     description: |
-   *       Create member for domain
-   *       Only the domain manager is able to create people to join a domain.
+   *       Create a member for a specific domain.
+   *       Only the domain manager has permission to create.
    *     parameters:
    *       - $ref: "#/parameters/dm_id"
    *       - $ref: "#/parameters/dm_member"
