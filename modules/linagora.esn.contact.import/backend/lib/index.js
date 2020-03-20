@@ -33,7 +33,9 @@ module.exports = dependencies => {
     importerRegistry.add(importer);
     logger.debug('Adding the %s importer', importer.name);
 
-    webserverWrapper.injectAngularModules('contact.import.' + importer.name, importer.frontend.modules, importer.frontend.moduleName, ['esn']);
+    webserverWrapper.injectAngularModules('contact.import.' + importer.name, importer.frontend.jsFileURIs, [importer.frontend.moduleName], ['esn'], {
+      localJsFiles: importer.frontend.jsFileFullPaths
+    });
     webserverWrapper.addApp('contact.import.' + importer.name, webserver.getStaticApp(importer.frontend.staticPath));
   }
 };
