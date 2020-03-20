@@ -1,8 +1,8 @@
 /**
   * @swagger
   * parameter:
-  *   av_type:
-  *     name: type
+  *   av_object_type:
+  *     name: objectType
   *     in: query
   *     description: The resource type to retrieve avatar from.
   *     required: true
