@@ -44,10 +44,10 @@ function isMemberOfDomain(user, domain) {
   if (!domain) {
     throw new Error('Domain must not be null');
   }
+
   var domainId = domain._id || domain;
-  return user.domains.some(function(d) {
-    return d.domain_id.equals(domainId);
-  });
+  return Array.isArray(user.domains) &&
+    user.domains.some(domain => domain.domain_id && domain.domain_id.equals(domainId));
 }
 
 function getUserDomains(user, callback) {
