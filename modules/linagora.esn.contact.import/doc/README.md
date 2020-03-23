@@ -11,10 +11,18 @@ The importer object to register is defined as:
 
 ```javascript
 
-// the frontend angular modules
-var frontendModules = ['app.js', 'constants.js', 'services.js', 'directives.js'];
+const FRONTEND_JS_PATH = __dirname + '/frontend/js/';
 
-var lib = {
+// the frontend angular modules
+const frontendJsFileFullPaths = glob.sync([
+  FRONTEND_JS_PATH + '*.js'
+]);
+
+const frontendJsFileURIs = frontendJsFileFullPaths.map(function(filepath) {
+  return filepath.replace(FRONTEND_JS_PATH, '');
+});
+
+const lib = {
   importer: function(dependencies) {
     return function importContact() {
       // ...
@@ -28,14 +36,15 @@ var lib = {
   }
 };
 
-var importer = {
+const importer = {
   ns: 'contact.import.twitter',
   name: 'twitter',
   lib: lib,
   frontend: {
     // where to get frontend assets (less, templates, js)
     staticPath: path.normalize(__dirname + '/frontend'),
-    modules: frontendModules,
+    jsFileFullPaths: frontendJsFileFullPaths,
+    jsFileURIs: frontendJsFileURIs,
     // angular module name
     moduleName: 'linagora.esn.contact.import.twitter'
   }
