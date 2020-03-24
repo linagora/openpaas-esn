@@ -1,6 +1,7 @@
 'use strict';
 
 const q = require('q');
+const { promisify } = require('util');
 const composableMw = require('composable-middleware');
 const platformadminsMW = require('./platformadmins');
 const helperMW = require('./helper');
@@ -10,6 +11,12 @@ const logger = require('../../core/logger');
 const rights = require('../../core/esn-config/rights');
 const validator = require('../../core/esn-config/validator');
 const { SCOPE } = require('../../core/esn-config/constants');
+const domainModule = require('../../core/domain');
+const userModule = require('../../core/user');
+
+const checkUserIsDomainAdministrator = promisify(domainModule.userIsDomainAdministrator);
+const getDomainById = promisify(domainModule.load);
+const getUserById = promisify(userModule.get);
 
 module.exports = {
   qualifyScopeQueries,
@@ -17,7 +24,8 @@ module.exports = {
   checkReadPermission,
   checkWritePermission,
   ensureWellformedBody,
-  validateWriteBody
+  validateWriteBody,
+  qualifyTargetUser
 };
 
 function qualifyScopeQueries(req, res, next) {
@@ -29,7 +37,6 @@ function qualifyScopeQueries(req, res, next) {
   } else if (scope === SCOPE.domain) {
     delete req.query.user_id;
   } else if (scope === SCOPE.user) {
-    req.query.user_id = req.user.id;
     req.query.domain_id = req.user.preferredDomainId;
   } else {
     return res.status(400).json({
@@ -344,4 +351,67 @@ function canReadPlatformConfig(req, res, next) {
   }
 
   next();
+}
+
+function qualifyTargetUser(req, res, next) {
+  if (req.query.scope !== SCOPE.user) {
+    return next();
+  }
+
+  if (!req.query.user_id) {
+    req.query.user_id = req.user.id;
+
+    return next();
+  }
+
+  const domainId = req.query.domain_id;
+
+  return getDomainById(domainId)
+    .then(domain => checkUserIsDomainAdministrator(req.user, domain))
+    .then(isDomainAdministrator => {
+      if (!isDomainAdministrator) {
+        return res.status(403).json({
+          error: {
+            code: 403,
+            message: 'Forbidden',
+            details: 'Domain administrator role is required to do this action'
+          }
+        });
+      }
+
+      return getUserById(req.query.user_id);
+    })
+    .then(user => {
+      if (!user) {
+        return res.status(404).json({
+          error: {
+            code: 404,
+            message: 'Not Found',
+            details: 'Target user not found'
+          }
+        });
+      }
+
+      if (!userModule.domain.isMemberOfDomain(user, domainId)) {
+        return res.status(403).json({
+          error: {
+            code: 403,
+            message: 'Forbidden',
+            details: 'Target user must be a member of the domain'
+          }
+        });
+      }
+      next();
+    })
+    .catch(err => {
+      logger.error('Error while checking target user', err);
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details: 'Error while checking target user'
+        }
+      });
+    });
 }

@@ -3,6 +3,7 @@ const dbHelper = require('../../helpers').db;
 
 module.exports = {
   checkIdInParams,
+  checkIdInQuery,
   requireBody,
   requireBodyAsArray,
   requireInQuery,
@@ -92,6 +93,30 @@ function requirePositiveIntegersInQuery(queryParams, customMessage) {
 function checkIdInParams(idKey, modelName, customMessage) {
   return (req, res, next) => {
     if (!dbHelper.isValidObjectId(req.params[idKey])) {
+      return res.status(404).json({
+        error: {
+          code: 404,
+          message: 'Not Found',
+          details: customMessage || `${modelName} not found`
+        }
+      });
+    }
+
+    next();
+  };
+}
+
+/**
+ * Middleware to check if value of ID in query parameters is valid.
+ * Return 404 HTTP code and message if ID is invalid. Otherwise, go to next middleware.
+ *
+ * @param  {String} idKey         Key of ID in req.query object.
+ * @param  {String} modelName     Database model name. Just used for response message.
+ * @param  {String} customMessage Response message when ID is invalid.
+ */
+function checkIdInQuery(idKey, modelName, customMessage) {
+  return (req, res, next) => {
+    if (!dbHelper.isValidObjectId(req.query[idKey])) {
       return res.status(404).json({
         error: {
           code: 404,
