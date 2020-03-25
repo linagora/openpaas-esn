@@ -1,13 +1,10 @@
-'use strict';
-
-var expect = require('chai').expect;
-var mockery = require('mockery');
-var sinon = require('sinon');
-var q = require('q');
+const { expect } = require('chai');
+const mockery = require('mockery');
+const sinon = require('sinon');
 
 describe('The ldap core module', function() {
-
   let getModule, coreUserMock;
+  let connectionManagerMock;
 
   beforeEach(function() {
     coreUserMock = {
@@ -18,21 +15,22 @@ describe('The ldap core module', function() {
       }
     };
 
+    connectionManagerMock = {};
+
+    mockery.registerMock('./connection-manager', connectionManagerMock);
     mockery.registerMock('../user', coreUserMock);
 
     getModule = () => this.helpers.requireBackend('core/ldap');
   });
 
-  describe('The findLDAPForUser fn', function() {
-
-    var ldap;
+  describe('The findLDAPForUser method', function() {
     var esnConfigMock, ldapConfigsMock;
 
     beforeEach(function() {
       ldapConfigsMock = [];
       esnConfigMock = {
         getFromAllDomains: sinon.spy(function() {
-          return q(ldapConfigsMock);
+          return Promise.resolve(ldapConfigsMock);
         })
       };
 
@@ -41,33 +39,30 @@ describe('The ldap core module', function() {
 
         return esnConfigMock;
       });
-      mockery.registerMock('ldapauth-fork', function(ldap) {
-        return {
-          on: function() {},
-          close: sinon.spy(),
-          _findUser: function(email, callback) {
-            if (ldap.include === true) {
-              return callback(null, {});
-            }
 
-            return callback();
+      connectionManagerMock.get = ldapConf => ({
+        on: function() {},
+        _findUser: function(email, callback) {
+          if (ldapConf.include === true) {
+            return callback(null, {});
           }
-        };
+
+          return callback();
+        }
       });
-      ldap = this.helpers.requireBackend('core/ldap');
     });
 
     it('should send back error if it fails to get LDAP configuration', function(done) {
-      esnConfigMock.getFromAllDomains = () => q.reject(new Error('an_error'));
+      esnConfigMock.getFromAllDomains = () => Promise.reject(new Error('an_error'));
 
-      ldap.findLDAPForUser('foo@bar.com', function(err) {
+      getModule().findLDAPForUser('foo@bar.com', function(err) {
         expect(err.message).to.equal('an_error');
         done();
       });
     });
 
     it('should send back error if LDAP configuration is empty', function(done) {
-      ldap.findLDAPForUser('foo@bar.com', function(err) {
+      getModule().findLDAPForUser('foo@bar.com', function(err) {
         expect(err).to.exist;
         expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
         done();
@@ -77,7 +72,7 @@ describe('The ldap core module', function() {
     it('should send back error if LDAP configuration is null', function(done) {
       ldapConfigsMock = null;
 
-      ldap.findLDAPForUser('foo@bar.com', function(err) {
+      getModule().findLDAPForUser('foo@bar.com', function(err) {
         expect(err).to.exist;
         expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
         done();
@@ -92,7 +87,7 @@ describe('The ldap core module', function() {
         }]
       }];
 
-      ldap.findLDAPForUser('foo@bar.com', function(err) {
+      getModule().findLDAPForUser('foo@bar.com', function(err) {
         expect(err.message).to.equal('No LDAP configured for authentication');
         expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
         done();
@@ -104,21 +99,30 @@ describe('The ldap core module', function() {
         config: [{
           name: 'LDAP1',
           usage: { auth: false },
-          configuration: { include: true }
+          configuration: {
+            url: 'ldap1',
+            include: true
+          }
         }]
       }, {
         config: [{
           name: 'LDAP2.1',
           usage: { auth: true },
-          configuration: { include: true }
+          configuration: {
+            url: 'ldap2.1',
+            include: true
+          }
         }, {
           name: 'LDAP2.2',
           usage: { auth: true },
-          configuration: { include: false }
+          configuration: {
+            url: 'ldap2.2',
+            include: false
+          }
         }]
       }];
 
-      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
+      getModule().findLDAPForUser('foo@bar.com', function(err, ldaps) {
         expect(err).to.not.exist;
         expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
         expect(ldaps).to.shallowDeepEqual([ldapConfigsMock[1].config[0]]);
@@ -132,25 +136,35 @@ describe('The ldap core module', function() {
         config: {
           name: 'LDAP1',
           usage: { auth: true },
-          configuration: { include: false }
+          configuration: {
+            url: 'ldap1',
+            include: false
+          }
         }
       }, {
         config: {
           name: 'LDAP2',
           usage: { auth: true },
-          configuration: { include: true }
+          configuration: {
+            url: 'ldap2',
+            include: true
+          }
         }
       }, {
         name: 'LDAP3',
         usage: { auth: false },
         config: {
-          configuration: { include: true }
+          configuration: {
+            url: 'ldap3',
+            include: true
+          }
         }
       }];
 
-      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
+      getModule().findLDAPForUser('foo@bar.com', function(err, ldaps) {
         expect(err).to.not.exist;
         expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
+
         expect(ldaps).to.shallowDeepEqual([ldapConfigsMock[1].config]);
 
         done();
@@ -167,17 +181,23 @@ describe('The ldap core module', function() {
         config: {
           name: 'config2',
           usage: { auth: true },
-          configuration: { include: true }
+          configuration: {
+            url: 'ldap2',
+            include: true
+          }
         }
       }, {
         config: {
           name: 'config3',
           usage: { auth: true },
-          configuration: { include: true }
+          configuration: {
+            url: 'ldap3',
+            include: true
+          }
         }
       }];
 
-      ldap.findLDAPForUser('foo@bar.com', (err, ldaps) => {
+      getModule().findLDAPForUser('foo@bar.com', (err, ldaps) => {
         expect(err).to.not.exist;
         expect(ldaps).to.shallowDeepEqual([ldapConfigsMock[1].config, ldapConfigsMock[2].config]);
         done();
@@ -185,19 +205,16 @@ describe('The ldap core module', function() {
     });
   });
 
-  describe('The emailExists fn', function() {
-
+  describe('The emailExists method', function() {
     let ldapAuthMock;
 
     beforeEach(function() {
       ldapAuthMock = {
-        on: function() {},
-        close: sinon.spy()
+        on: () => {}
       };
-      mockery.registerMock('ldapauth-fork', function() {
-        Object.assign(this, ldapAuthMock);
-      });
 
+      connectionManagerMock.get = sinon.stub().returns(ldapAuthMock);
+      connectionManagerMock.close = sinon.spy();
     });
 
     it('should send back error if email is not set', function() {
@@ -208,7 +225,7 @@ describe('The ldap core module', function() {
       expect(callbackSpy).to.have.been.calledWith(sinon.match.instanceOf(Error));
     });
 
-    it('should send back error if ldap is not set', function() {
+    it('should send back error if ldap config is not set', function() {
       const callbackSpy = sinon.spy();
 
       getModule().emailExists('foo@bar.com', null, callbackSpy);
@@ -216,73 +233,89 @@ describe('The ldap core module', function() {
       expect(callbackSpy).to.have.been.calledWith(sinon.match.instanceOf(Error));
     });
 
+    it('should send back error if failed to get cached ldap connection', function() {
+      const callbackSpy = sinon.spy();
+      const ldapConf = { url: 'bar' };
+      const error = new Error('something wrong');
+
+      connectionManagerMock.get = sinon.spy(() => {
+        throw error;
+      });
+
+      getModule().emailExists('foo@bar.com', ldapConf, callbackSpy);
+
+      expect(connectionManagerMock.get).to.have.been.calledWith(ldapConf);
+      expect(callbackSpy).to.have.been.calledWith(error);
+    });
+
     it('should call the callback with data when find user successfully', function() {
       const callbackSpy = sinon.spy();
-      const user = {};
+      const user = { _id: '123' };
+      const ldapConf = { url: 'foo' };
 
       ldapAuthMock._findUser = (email, callback) => callback(null, user);
 
-      getModule().emailExists('foo@bar.com', {}, callbackSpy);
+      getModule().emailExists('foo@bar.com', ldapConf, callbackSpy);
 
+      expect(connectionManagerMock.get).to.have.been.calledWith(ldapConf);
       expect(callbackSpy).to.have.been.calledWith(null, user);
     });
 
     it('should handle error of _findUser function by calling callback with error object', function() {
       const callbackSpy = sinon.spy();
+      const ldapConf = { url: 'foo' };
 
       ldapAuthMock._findUser = (email, callback) => callback(new Error());
 
-      getModule().emailExists('foo@bar.com', {}, callbackSpy);
+      getModule().emailExists('foo@bar.com', ldapConf, callbackSpy);
 
+      expect(connectionManagerMock.get).to.have.been.calledWith(ldapConf);
       expect(callbackSpy).to.have.been.calledWith(sinon.match.instanceOf(Error));
     });
 
     it('should handle error event of the LdapAuth by calling callback with error object', function() {
       const callbackSpy = sinon.spy();
+      const ldapConf = { url: 'foo' };
 
       ldapAuthMock._findUser = function() {};
       ldapAuthMock.on = (evt, listener) => listener(new Error());
 
-      getModule().emailExists('foo@bar.com', {}, callbackSpy);
+      getModule().emailExists('foo@bar.com', ldapConf, callbackSpy);
 
+      expect(connectionManagerMock.get).to.have.been.calledWith(ldapConf);
+      expect(connectionManagerMock.close).to.have.been.calledWith(ldapConf.url);
       expect(callbackSpy).to.have.been.calledWith(sinon.match.instanceOf(Error));
     });
 
     it('should call callback only once even when error event is fired more than one time', function() {
       const callbackSpy = sinon.spy();
+      const ldapConf = { url: 'foo' };
       let listener;
 
       ldapAuthMock._findUser = function() {};
       ldapAuthMock.on = (evt, _listener) => { listener = _listener; };
 
-      getModule().emailExists('foo@bar.com', {}, callbackSpy);
+      getModule().emailExists('foo@bar.com', ldapConf, callbackSpy);
 
       listener();
       listener();
       listener();
 
+      expect(connectionManagerMock.get).to.have.been.calledWith(ldapConf);
+      expect(connectionManagerMock.close).to.have.been.calledOnce;
+      expect(connectionManagerMock.close).to.have.been.calledWith(ldapConf.url);
       expect(callbackSpy).to.have.been.calledOnce;
     });
-
-    it('should close the LDAP connection on success', function() {
-      ldapAuthMock._findUser = (email, callback) => callback(null, {});
-
-      getModule().emailExists('foo@bar.com', {}, () => {});
-
-      expect(ldapAuthMock.close).to.have.been.calledWith();
-    });
-
-    it('should close the LDAP connection on error', function() {
-      ldapAuthMock._findUser = (email, callback) => callback(new Error('Failure'));
-
-      getModule().emailExists('foo@bar.com', {}, () => {});
-
-      expect(ldapAuthMock.close).to.have.been.calledWith();
-    });
-
   });
 
-  describe('authenticate fn', function() {
+  describe('authenticate method', function() {
+    let ldapAuthMock;
+
+    beforeEach(function() {
+      ldapAuthMock = {};
+      connectionManagerMock.get = sinon.stub().returns(ldapAuthMock);
+      connectionManagerMock.close = sinon.spy();
+    });
 
     it('should send back error if email is not set', function(done) {
       getModule().authenticate(null, 'secret', {}, function(err) {
@@ -298,98 +331,85 @@ describe('The ldap core module', function() {
       });
     });
 
-    it('should send back error if ldap is not set', function(done) {
+    it('should send back error if ldap config is not set', function(done) {
       getModule().authenticate('me', 'secret', null, function(err) {
         expect(err).to.exist;
         done();
       });
     });
 
+    it('should send back error if failed to get ldap connection', function(done) {
+      const error = new Error('something wrong');
+      const ldapConf = { url: 'bar' };
+
+      connectionManagerMock.get = sinon.spy(() => {
+        throw error;
+      });
+
+      getModule().authenticate('me', 'secret', ldapConf, function(err) {
+        expect(err).to.exist;
+        expect(connectionManagerMock.get).to.have.been.calledWith(ldapConf);
+        done();
+      });
+    });
+
     it('should send back the user if auth is OK', function(done) {
-      const ldapauth = {
-        authenticate: function(email, password, callback) {
-          return callback(null, {_id: 123});
-        },
-        close: sinon.spy()
-      };
-      const ldapmock = function() { return ldapauth; };
+      const user = { _id: 123 };
+      const ldapConf = { url: 'foo' };
 
-      mockery.registerMock('ldapauth-fork', ldapmock);
+      ldapAuthMock.authenticate = (email, password, callback) => callback(null, user);
 
-      getModule().authenticate('me', 'secret', {}, function(err, user) {
+      getModule().authenticate('me', 'secret', ldapConf, function(err, authenticatedUser) {
         expect(err).to.not.exist;
-        expect(user).to.exist;
-
-        expect(ldapauth.close).to.have.been.calledWith();
-
+        expect(authenticatedUser).to.deep.equal(user);
+        expect(connectionManagerMock.get).to.have.been.calledWith(ldapConf);
         done();
       });
     });
 
     it('should send back error if auth fails', function(done) {
-      const ldapauth = {
-        authenticate: function(email, password, callback) {
-          return callback(new Error());
-        },
-        close: sinon.spy()
-      };
-      const ldapmock = function() { return ldapauth; };
+      const ldapConf = { url: 'foo' };
 
-      mockery.registerMock('ldapauth-fork', ldapmock);
+      ldapAuthMock.authenticate = (email, password, callback) => callback(new Error());
 
-      getModule().authenticate('me', 'secret', {}, function(err, user) {
+      getModule().authenticate('me', 'secret', ldapConf, function(err, user) {
         expect(err).to.exist;
         expect(user).to.not.exist;
-
-        expect(ldapauth.close).to.have.been.calledWith();
-
+        expect(connectionManagerMock.get).to.have.been.calledWith(ldapConf);
         done();
       });
     });
 
     it('should not send back error if auth does not return user', function(done) {
-      var ldapmock = function() {
-        return {
-          authenticate: function(email, password, callback) {
-            return callback();
-          },
-          close: function() {}
-        };
-      };
+      const ldapConf = { url: 'foo' };
 
-      mockery.registerMock('ldapauth-fork', ldapmock);
+      ldapAuthMock.authenticate = (email, password, callback) => callback();
 
-      getModule().authenticate('me', 'secret', {}, function(err, user) {
+      getModule().authenticate('me', 'secret', ldapConf, function(err, user) {
         expect(err).to.not.exist;
         expect(user).to.not.exist;
+        expect(connectionManagerMock.get).to.have.been.calledWith(ldapConf);
         done();
       });
     });
 
     it('should send back null user if auth fails because of invalid credentials', function(done) {
       const error = new Error();
-      const ldapauth = {
-        authenticate: function(email, password, callback) {
-          return callback(error);
-        },
-        close: sinon.spy()
-      };
-      const ldapmock = function() { return ldapauth; };
+      const ldapConf = { url: 'foo' };
 
-      mockery.registerMock('ldapauth-fork', ldapmock);
+      ldapAuthMock.authenticate = (email, password, callback) => callback(error);
       error.name = 'InvalidCredentialsError';
 
-      getModule().authenticate('me', 'secret', {}, function(err, user) {
+      getModule().authenticate('me', 'secret', ldapConf, function(err, user) {
         expect(err).to.not.exist;
         expect(user).to.not.exist;
-        expect(ldapauth.close).to.have.been.calledWith();
-
+        expect(connectionManagerMock.get).to.have.been.calledWith(ldapConf);
         done();
       });
     });
   });
 
-  describe('The translate fn', function() {
+  describe('The translate method', function() {
     it('should use the core/user to translate LDAP payload to OP user', function() {
       const payload = {
         username: 'user@email',
@@ -419,12 +439,13 @@ describe('The ldap core module', function() {
     });
   });
 
-  describe('The search fn', function() {
-    var user, ldapUsersMock, ldapAuthCloseMock;
-    var esnConfigMock, ldapConfigsMock;
+  describe('The search method', function() {
+    let user, ldapUsersMock;
+    let esnConfigMock, ldapConfigsMock;
+
+    let ldapAuthMock;
 
     beforeEach(function() {
-      ldapAuthCloseMock = sinon.spy();
       ldapConfigsMock = [
         {
           name: 'linagora',
@@ -466,7 +487,7 @@ describe('The ldap core module', function() {
       });
 
       esnConfigMock = {
-        get: sinon.stub().returns(q.when(ldapConfigsMock))
+        get: sinon.stub().returns(Promise.resolve(ldapConfigsMock))
       };
 
       esnConfigMock.forUser = sinon.stub().returns(esnConfigMock);
@@ -476,22 +497,25 @@ describe('The ldap core module', function() {
 
         return esnConfigMock;
       });
-      mockery.registerMock('ldapauth-fork', function(ldapConf) {
-        return {
-          opts: ldapConf,
-          mapping: ldapConf.mapping,
-          _search: function(searchBase, opts, callback) {
-            return callback(null, ldapUsersMock);
-          },
-          on: function() {},
-          close: ldapAuthCloseMock
-        };
-      });
       user = { _id: '123', preferredDomainId: '123456' };
+
+      ldapAuthMock = {
+        _search: function(searchBase, opts, callback) {
+          return callback(null, ldapUsersMock);
+        },
+        on: function() {}
+      };
+
+      connectionManagerMock.get = sinon.spy(ldapConf => {
+        ldapAuthMock.opts = ldapConf;
+
+        return ldapAuthMock;
+      });
+      connectionManagerMock.close = sinon.spy();
     });
 
     it('should return an empty list if there is no LDAP configuration', function(done) {
-      esnConfigMock.get = sinon.stub().returns(q.when());
+      esnConfigMock.get = sinon.stub().returns(Promise.resolve());
 
       const query = {search: 'abc', limit: 20};
       const expectResult = {
@@ -520,17 +544,9 @@ describe('The ldap core module', function() {
       });
     });
 
-    it('should only return an empty array when all the searchs failed', function(done) {
-      mockery.registerMock('ldapauth-fork', function(ldapConf) {
-        return {
-          opts: ldapConf,
-          mapping: ldapConf.mapping,
-          _search: function(searchBase, opts, callback) {
-            return callback(new Error('something error'));
-          },
-          on: function() {},
-          close: ldapAuthCloseMock
-        };
+    it('should resolve an empty array when failed to get cached connections', function(done) {
+      connectionManagerMock.get = sinon.spy(() => {
+        throw new Error('something wrong');
       });
 
       const query = {search: 'abc', limit: 20};
@@ -541,8 +557,21 @@ describe('The ldap core module', function() {
 
       getModule().search(user, query).then(result => {
         expect(result).to.deep.equal(expectResult);
-        expect(ldapAuthCloseMock).to.have.been.calledWith();
+        done();
+      }, err => done(err || 'should resolve'));
+    });
 
+    it('should only return an empty array when all the searchs failed', function(done) {
+      ldapAuthMock._search = (searchBase, opts, callback) => callback(new Error('something error'));
+
+      const query = {search: 'abc', limit: 20};
+      const expectResult = {
+        total_count: 0,
+        list: []
+      };
+
+      getModule().search(user, query).then(result => {
+        expect(result).to.deep.equal(expectResult);
         done();
       }, err => done(err || 'should resolve'));
     });
@@ -587,10 +616,8 @@ describe('The ldap core module', function() {
 
       getModule().search(user, query).then(result => {
         expect(result).to.deep.equal(expectResult);
-        expect(ldapAuthCloseMock).to.have.been.calledWith();
-
         done();
-      });
+      }, err => done(err || 'should resolve'));
     });
 
     it('should send back correct number of user limit by query.limit', function(done) {
@@ -618,10 +645,8 @@ describe('The ldap core module', function() {
 
       getModule().search(user, query).then(result => {
         expect(result).to.deep.equal(expectResult);
-        expect(ldapAuthCloseMock).to.have.been.calledWith();
-
         done();
-      });
+      }, err => done(err || 'should resolve'));
     });
   });
 });
