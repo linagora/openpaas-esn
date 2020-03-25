@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const { logger, user } = require('../../core');
 const composableMw = require('composable-middleware');
 const platformadminsMW = require('../middleware/platformadmins');
@@ -216,9 +217,12 @@ function validateUserUpdateOnReq(property) {
 
     user.metadata(targetUser).get('profileProvisionedFields')
       .then((fields = []) => {
-        const bodyContainsProvisionedFields = fields.some(field => !!(req.body[field]));
+        const isValidUpdatedProvisionedFields = fields.every(field => (field === 'email' ?
+          _.isEqual(req.body.emails, targetUser.accounts[0].emails) :
+          req.body[field] === targetUser[field])
+        );
 
-        if (bodyContainsProvisionedFields) {
+        if (!isValidUpdatedProvisionedFields) {
           return res.status(400).json({
             error: {
               code: 400,
