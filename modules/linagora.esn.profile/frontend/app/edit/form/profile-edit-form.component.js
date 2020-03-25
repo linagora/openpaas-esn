@@ -6,7 +6,8 @@
       templateUrl: '/profile/app/edit/form/profile-edit-form.html',
       bindings: {
         user: '=',
-        canEditEmails: '<'
+        canEditEmails: '<',
+        provisionedFields: '<'
       }
     });
 })(angular);

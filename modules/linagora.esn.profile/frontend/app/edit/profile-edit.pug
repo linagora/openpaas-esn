@@ -1,11 +1,23 @@
 sub-header
   profile-edit-subheader(on-save-btn-click="$ctrl.onSaveBtnClick()", form="form")
 
+.text-center.m-t-20(
+  ng-if="$ctrl.status === 'loading'"
+  openpaas-logo-spinner
+  spinner-start-active='1'
+  spinner-size='0.5'
+)
+
+.profile-edit-error(ng-if="$ctrl.status === 'error'")
+  i.mdi.mdi-alert-circle
+  .message #{__('A problem occurred while getting data, try refreshing this page!')}
+
 form(name="form")
   .all-centered
     .col-md-9.col-xl-8.col-xs-12.no-padding-xs
       profile-edit-form.m-t-30(
-        ng-if="$ctrl.mutableUser",
+        ng-if="$ctrl.mutableUser && $ctrl.status === 'loaded'",
         user="$ctrl.mutableUser",
-        can-edit-emails="$ctrl.canEditEmails"
+        can-edit-emails="$ctrl.canEditEmails",
+        provisioned-fields="$ctrl.provisionedFields",
       )
