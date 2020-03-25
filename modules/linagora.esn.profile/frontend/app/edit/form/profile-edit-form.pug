@@ -4,21 +4,54 @@
   .card-body.card-padding
     ng-form(name="form")
       esn-form-group(label=__('First Name'))
-        input.form-control(type='text', ng-model='$ctrl.user.firstname')
+        input.form-control(
+          type='text'
+          ng-model='$ctrl.user.firstname'
+          ng-disabled="$ctrl.provisionedFields.indexOf('firstname') !== -1"
+        )
       esn-form-group(label=__('Last Name'))
-        input.form-control(type='text', ng-model='$ctrl.user.lastname')
+        input.form-control(
+          type='text'
+          ng-model='$ctrl.user.lastname'
+          ng-disabled="$ctrl.provisionedFields.indexOf('lastname') !== -1"
+        )
       esn-form-group(label=__('Job Title'))
-        input.form-control(type='text', ng-model='$ctrl.user.job_title')
+        input.form-control(
+          type='text'
+          ng-model='$ctrl.user.job_title'
+          ng-disabled="$ctrl.provisionedFields.indexOf('job_title') !== -1"
+        )
       esn-form-group(label=__('Service'))
-        input.form-control(type='text', ng-model='$ctrl.user.service')
+        input.form-control(
+          type='text'
+          ng-model='$ctrl.user.service'
+          ng-disabled="$ctrl.provisionedFields.indexOf('service') !== -1"
+        )
       esn-form-group(label=__('Building Location'))
-        input.form-control(type='text', ng-model='$ctrl.user.building_location')
+        input.form-control(
+          type='text'
+          ng-model='$ctrl.user.building_location'
+          ng-disabled="$ctrl.provisionedFields.indexOf('building_location') !== -1"
+        )
       esn-form-group(label=__('Office Location'))
-        input.form-control(type='text', ng-model='$ctrl.user.office_location')
+        input.form-control(
+          type='text'
+          ng-model='$ctrl.user.office_location'
+          ng-disabled="$ctrl.provisionedFields.indexOf('office_location') !== -1"
+        )
       esn-form-group(label=__('Main Phone'))
-        input.form-control(type='text', ng-model='$ctrl.user.main_phone')
+        input.form-control(
+          type='text'
+          ng-model='$ctrl.user.main_phone'
+          ng-disabled="$ctrl.provisionedFields.indexOf('main_phone') !== -1"
+        )
       esn-form-group(label=__('Bio'))
-        textarea.form-control(rows="3", type='text', ng-model='$ctrl.user.description')
+        textarea.form-control(
+          rows="3"
+          type='text'
+          ng-model='$ctrl.user.description'
+          ng-disabled="$ctrl.provisionedFields.indexOf('description') !== -1"
+        )
 .card(ng-if="$ctrl.canEditEmails")
   .card-header
     h2 #{__('Emails')}

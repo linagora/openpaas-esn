@@ -71,10 +71,14 @@
       return getConfigurations(configsToGet, params);
     }
 
-    function getUserConfigurations(configsToGet) {
+    function getUserConfigurations(configsToGet, userId) {
       var params = {
         scope: ESN_CONFIG_SCOPE.user
       };
+
+      if (userId) {
+        params.user_id = userId;
+      }
 
       return getConfigurations(configsToGet, params);
     }

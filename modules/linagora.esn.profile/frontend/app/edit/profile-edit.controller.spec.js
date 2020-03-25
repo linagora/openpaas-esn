@@ -6,17 +6,33 @@
 var expect = chai.expect;
 
 describe('The profileEditController', function() {
-  var $rootScope, $controller, esnConfigApi;
+  var $rootScope, $controller, $state, $q, esnConfigApi;
+  var esnConfigMock, esnUserConfigurationServiceMock;
+  var profileProvisionedFields = ['a'];
 
   beforeEach(function() {
-    angular.mock.module('linagora.esn.profile');
+    esnUserConfigurationServiceMock = { get: function() {} };
+    esnConfigMock = function() {
+      return $q.when({ profileProvisionedFields: profileProvisionedFields });
+    };
 
-    inject(function(_$rootScope_, _$controller_, _esnConfigApi_) {
+    module('linagora.esn.profile', function($provide) {
+      $provide.value('esnConfig', esnConfigMock);
+      $provide.value('esnUserConfigurationService', esnUserConfigurationServiceMock);
+    });
+
+    inject(function(_$rootScope_, _$controller_, _$q_, _$state_, _esnConfigApi_) {
       $rootScope = _$rootScope_;
       $controller = _$controller_;
+      $q = _$q_;
+      $state = _$state_;
       esnConfigApi = _esnConfigApi_;
     });
 
+    $state.params.user_id = 'a';
+    esnUserConfigurationServiceMock.get = sinon.stub().returns($q.when([
+      { value: { profileProvisionedFields: profileProvisionedFields }}
+    ]));
     esnConfigApi.getDomainConfigurations = sinon.stub().returns($q.when([{
       name: 'core',
       configurations: [{
@@ -85,6 +101,42 @@ describe('The profileEditController', function() {
 
       controller.mutableUser.name = 'Bob';
       expect(controller.mutableUser).to.not.deep.equal(user);
+    });
+
+    it('should set provisionedFields from session user if there is no specific target user', function() {
+      delete $state.params.user_id;
+
+      var controller = initController();
+
+      expect(controller.provisionedFields).to.deep.equals(profileProvisionedFields);
+    });
+
+    it('should set provisionedFields from target user if user state is existed', function() {
+      var controller = initController();
+
+      expect(controller.provisionedFields).to.deep.equals(profileProvisionedFields);
+    });
+
+    it('should set status to error if fail to determine user can edit emails', function() {
+      esnConfigApi.getDomainConfigurations = sinon.stub().returns($q.reject('something wrong'));
+
+      var controller = initController();
+
+      expect(controller.status).to.deep.equals('error');
+    });
+
+    it('should set status to error if fail to get target user configuration', function() {
+      esnUserConfigurationServiceMock.get = sinon.stub().returns($q.reject('something wrong'));
+
+      var controller = initController();
+
+      expect(controller.status).to.deep.equals('error');
+    });
+
+    it('should set status to loaded if there is no error while loading profile user form', function() {
+      var controller = initController();
+
+      expect(controller.status).to.deep.equals('loaded');
     });
   });
 

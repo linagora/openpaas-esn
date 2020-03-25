@@ -499,5 +499,6 @@
   "Requests": "Demandes",
   "Modified": "Modifié",
   "Home page": "Page d'accueil",
-  "Set the default page to load after login": "Définissez la page par défaut à charger après la connexion"
+  "Set the default page to load after login": "Définissez la page par défaut à charger après la connexion",
+  "A problem occurred while getting data, try refreshing this page!": "Un problème s'est produit lors du chargement de certaines données, essayez de recharger la page!"
 }
