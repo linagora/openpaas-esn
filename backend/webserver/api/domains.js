@@ -130,7 +130,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /domains/{domain_id}/members:
+   * /api/domains/{domain_id}/members:
    *   get:
    *     tags:
    *      - Domain

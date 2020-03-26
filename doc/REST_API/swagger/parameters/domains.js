@@ -118,6 +118,6 @@
  *   dm_search_includes_disabled_searchable:
  *     name: includesDisabledSearchable
  *     in: query
- *     description: Includes desabled searchable members when searching members
- *     type: string
+ *     description: Includes disabled searchable members when searching members
+ *     type: boolean
  */
