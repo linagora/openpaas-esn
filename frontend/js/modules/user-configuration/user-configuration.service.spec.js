@@ -64,6 +64,30 @@ describe('The esnUserConfigurationService factory', function() {
 
       $rootScope.$digest();
     });
+
+    it('should call esnConfigApi to get config of a specific user', function(done) {
+      var module = 'linagora.esn.my-module';
+      var keys = ['a config key'];
+      var userId = 'a';
+
+      esnConfigApi.getUserConfigurations = sinon.stub().returns($q.when([{
+        name: module,
+        configurations: []
+      }]));
+
+      esnUserConfigurationService
+        .get(keys, module, userId)
+        .then(function(configurations) {
+          expect(configurations).to.deep.equal([]);
+          expect(esnConfigApi.getUserConfigurations).to.have.been.calledWith([{
+            name: module,
+            keys: keys
+          }], userId);
+          done();
+        });
+
+      $rootScope.$digest();
+    });
   });
 
   describe('The set fn', function() {

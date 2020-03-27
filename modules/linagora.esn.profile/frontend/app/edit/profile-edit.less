@@ -1,0 +1,25 @@
+.profile-edit-error {
+  .flex-column;
+  .all-centered;
+
+  color: @secondaryTextColor;
+  height: 60vh;
+
+  .mdi {
+    color: @accentColor;
+    font-size: 5em;
+    opacity: 0.7;
+    margin-bottom: 10px;
+  }
+
+  .message {
+    font-size: 1.4em;
+    text-align: center;
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .profile-edit-error {
+    height: 50vh;
+  }
+}

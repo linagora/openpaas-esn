@@ -499,5 +499,6 @@
   "Requests": "Requests",
   "Modified": "Modified",
   "Home page": "Home page",
-  "Set the default page to load after login": "Set the default page to load after login"
+  "Set the default page to load after login": "Set the default page to load after login",
+  "A problem occurred while getting data, try refreshing this page!": "A problem occurred while getting data, try refreshing this page!"
 }

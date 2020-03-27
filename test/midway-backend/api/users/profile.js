@@ -173,12 +173,11 @@ describe('The profile API', function() {
   });
 
   describe('PUT /api/user/profile', function() {
-
     it('should return 401 if not authenticated', function(done) {
       helpers.api.requireLogin(app, 'put', '/api/user/profile', done);
     });
 
-    it('should return 400 if request body contains user provisioned fields', function(done) {
+    it('should return 400 if the provisioned fields has changed', function(done) {
       const userModule = helpers.requireBackend('core/user');
       const User = mongoose.model('User');
 
@@ -199,6 +198,36 @@ describe('The profile API', function() {
                     code: 400,
                     message: 'Bad Request',
                     details: 'These following fields are provisioned and not editable: firstname'
+                  }
+                });
+                done();
+              });
+          });
+        })
+        .catch(done);
+    });
+
+    it('should return 400 if email field has changed', function(done) {
+      const userModule = helpers.requireBackend('core/user');
+      const User = mongoose.model('User');
+
+      User.findOne({ _id: foouser._id }).exec()
+        .then(user => userModule.metadata(user).set('profileProvisionedFields', ['email']))
+        .then(() => {
+          helpers.api.loginAsUser(app, foouser.emails[0], password, (error, loggedInAsUser) => {
+            if (error) return done(error);
+
+            loggedInAsUser(request(app).put('/api/user/profile'))
+              .send({ emails: ['isnotJohn@open-paas.org'] })
+              .expect(400)
+              .end((error, res) => {
+                if (error) return done(error);
+
+                expect(res.body).to.shallowDeepEqual({
+                  error: {
+                    code: 400,
+                    message: 'Bad Request',
+                    details: 'These following fields are provisioned and not editable: email'
                   }
                 });
                 done();

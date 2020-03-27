@@ -499,5 +499,6 @@
   "Requests": "Запросы",
   "Modified": "Изменено",
   "Home page": "Главная страница",
-  "Set the default page to load after login": "Установить страницу по умолчанию для загрузки после входа в систему"
+  "Set the default page to load after login": "Установить страницу по умолчанию для загрузки после входа в систему",
+  "A problem occurred while getting data, try refreshing this page!": "Возникла проблема при получении данных, попробуйте обновить эту страницу!"
 }

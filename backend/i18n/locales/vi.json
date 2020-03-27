@@ -499,5 +499,6 @@
   "Requests": "Yêu cầu",
   "Modified": "Ngày sửa",
   "Home page": "Trang chủ",
-  "Set the default page to load after login": "Chọn trang mặc định tải sau khi đăng nhập"
+  "Set the default page to load after login": "Chọn trang mặc định tải sau khi đăng nhập",
+  "A problem occurred while getting data, try refreshing this page!": "Có lỗi xảy ra, hãy thử tải lại trình duyệt!"
 }

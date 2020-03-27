@@ -8,6 +8,8 @@
     $q,
     $state,
     esnConfigApi,
+    esnConfig,
+    esnUserConfigurationService,
     _,
     session,
     userAPI,
@@ -15,6 +17,7 @@
     asyncAction
   ) {
     var self = this;
+    var stateUserId = $state.params.user_id;
     var notificationMessages = {
       progressing: 'Updating profile...',
       success: 'Profile updated',
@@ -36,13 +39,35 @@
 
     function $onInit() {
       self.mutableUser = _.cloneDeep(self.user);
+      self.status = 'loading';
 
-      canEditEmails().then(function(canEdit) {
-        self.canEditEmails = canEdit;
-      });
+      return $q.all([_canEditEmails(), _getProfileProvisionedFields()])
+        .then(function(results) {
+          self.status = 'loaded';
+          self.canEditEmails = results[0];
+          self.provisionedFields = results[1];
+        })
+        .catch(function() {
+          self.status = 'error';
+        });
+
     }
 
-    function canEditEmails() {
+    function _getProfileProvisionedFields() {
+      if (!stateUserId) {
+        return esnConfig('core.userMetadata', false)
+          .then(function(config) {
+            return config && config.profileProvisionedFields;
+          });
+      }
+
+      return esnUserConfigurationService.get(['userMetadata'], 'core', stateUserId)
+        .then(function(config) {
+          return config && config[0] && config[0].value && config[0].value.profileProvisionedFields;
+        });
+    }
+
+    function _canEditEmails() {
       if (!session.userIsDomainAdministrator()) return $q.when(false);
 
       return esnConfigApi.getDomainConfigurations(session.domain._id, [{
