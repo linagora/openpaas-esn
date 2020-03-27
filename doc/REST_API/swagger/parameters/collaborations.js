@@ -84,7 +84,7 @@
   *       Search the people "firstname", "lastname" and "email" fields in case insensitive and accent agnostic way.
   *       Note that when there are more than one word in the search string (separated by one or more spaces), the search will become an AND.
   *       For example: 'search=foo bar' will search members where firstname, lastname and email contain foo AND bar.
-  *     required: true
+  *     required: false
   *     type: string
   *   cl_withoutInvite:
   *     name: withoutInvite
