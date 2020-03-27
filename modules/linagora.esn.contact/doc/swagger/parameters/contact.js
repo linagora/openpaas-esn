@@ -23,7 +23,7 @@
   *     name: size
   *     in: query
   *     description: Size of avatar in pixel, default value is 256.
-  *     required: true
+  *     required: false
   *     type: string
   *   contact_user_id:
   *     name: userId
