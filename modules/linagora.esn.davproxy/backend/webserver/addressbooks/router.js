@@ -148,20 +148,24 @@ module.exports = function(dependencies) {
 
   /**
    * @swagger
-   * /addressbooks/{bookHome}/{bookName}/{contactId}.vcf:
+   * /dav/api/addressbooks/{bookHome}/{bookName}/{contactId}.vcf:
    *   delete:
    *     tags:
    *       - Davproxy
-   *     description: Deletes a contact in book
+   *     description: Delete a contact in a specific address book
    *     parameters:
    *       - $ref: "#/parameters/davproxy_addressbook_book_home"
    *       - $ref: "#/parameters/davproxy_addressbook_book_name"
    *       - $ref: "#/parameters/davproxy_addressbook_contact_id"
    *     responses:
-   *       200:
-   *         $ref: "#/responses/cm_200"
+   *       204:
+   *         $ref: "#/responses/cm_204"
    *       401:
    *         $ref: "#/responses/cm_401"
+   *       403:
+   *         $ref: "#/responses/cm_403"
+   *       404:
+   *         $ref: "#/responses/cm_404"
    *       500:
    *         $ref: "#/responses/cm_500"
    */
