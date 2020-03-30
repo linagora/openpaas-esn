@@ -37,6 +37,7 @@ function qualifyScopeQueries(req, res, next) {
   } else if (scope === SCOPE.domain) {
     delete req.query.user_id;
   } else if (scope === SCOPE.user) {
+    req.query.user_id = req.query.user_id || req.user.id;
     req.query.domain_id = req.user.preferredDomainId;
   } else {
     return res.status(400).json({
@@ -358,9 +359,7 @@ function qualifyTargetUser(req, res, next) {
     return next();
   }
 
-  if (!req.query.user_id) {
-    req.query.user_id = req.user.id;
-
+  if (String(req.query.user_id) === String(req.user.id)) {
     return next();
   }
 

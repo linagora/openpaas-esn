@@ -23,7 +23,7 @@ describe('The configurations API', function() {
           userAlice = user;
           core['esn-config'](TEST_CONFIG.name)
             .inModule(TEST_MODULE)
-            .forUser(userAlice)
+            .forUser(userAlice, true)
             .store(TEST_CONFIG.value, done);
         }));
     });
@@ -190,8 +190,6 @@ describe('The configurations API', function() {
         let userDomainAdmin, userDomainMember1, userDomainMember2, userOtherDomain;
 
         beforeEach(function(done) {
-          registerTestConfig('user', 'r');
-
           helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
             expect(err).to.not.exist;
             userDomainAdmin = models.users[0];
@@ -204,6 +202,15 @@ describe('The configurations API', function() {
               done();
             });
           });
+        });
+
+        beforeEach(function(done) {
+          registerTestConfig('user', 'r');
+
+          core['esn-config'](TEST_CONFIG.name)
+            .inModule(TEST_MODULE)
+            .forUser(userDomainAdmin)
+            .store(TEST_CONFIG.value, done);
         });
 
         it('should send back 403 if user is not admin of domain', function(done) {
@@ -294,7 +301,26 @@ describe('The configurations API', function() {
           });
         });
 
-        it('should send back 200 if success to get user configuration', function(done) {
+        it('should send back 200 and get the requester configuration if the user id is not given', function(done) {
+          sendRequestAsUser(userDomainMember1, loggedInAsUser => {
+            loggedInAsUser(
+              request(webserver.application)
+                .post(API_ENDPOINT)
+                .query({ scope: 'user', user_id: userDomainMember1._id.toString() })
+                .send([{ name: TEST_MODULE, keys: [TEST_CONFIG.name] }])
+            )
+              .expect(200)
+              .end(helpers.callbacks.noErrorAnd(res => {
+                expect(res.body).to.deep.equal([{
+                  name: TEST_MODULE,
+                  configurations: [TEST_CONFIG]
+                }]);
+                done();
+              }));
+          });
+        });
+
+        it('should send back 200 if a domain admin successes to get configuration of a his domain member', function(done) {
           sendRequestAsUser(userDomainAdmin, loggedInAsUser => {
             loggedInAsUser(
               request(webserver.application)
@@ -326,6 +352,13 @@ describe('The configurations API', function() {
           domain = models.domain;
           done();
         });
+      });
+
+      beforeEach(function(done) {
+        core['esn-config'](TEST_CONFIG.name)
+          .inModule(TEST_MODULE)
+          .forUser(userDomainAdmin)
+          .store(TEST_CONFIG.value, done);
       });
 
       it('should send back 400 if domain_id is missing', function(done) {
@@ -479,6 +512,12 @@ describe('The configurations API', function() {
         }));
       });
 
+      beforeEach(function(done) {
+        core['esn-config'](TEST_CONFIG.name)
+          .inModule(TEST_MODULE)
+          .store(TEST_CONFIG.value, done);
+      });
+
       it('should send back 403 if current user is not a platform admin', function(done) {
         sendRequestAsUser(userAlice, loggedInAsUser => {
           loggedInAsUser(
@@ -554,6 +593,13 @@ describe('The configurations API', function() {
           userDomainMember = models.users[1];
           done();
         });
+      });
+
+      beforeEach(function(done) {
+        core['esn-config'](TEST_CONFIG.name)
+          .inModule(TEST_MODULE)
+          .forUser(userDomainMember)
+          .store(TEST_CONFIG.value, done);
       });
 
       it('should get all readable configurations', function(done) {
