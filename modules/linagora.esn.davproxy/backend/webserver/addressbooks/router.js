@@ -207,15 +207,13 @@ module.exports = function(dependencies) {
    *   get:
    *     tags:
    *       - Davproxy
-   *     description: Gets all contacts in book name
+   *     description: List contacts of an addressbook
    *     parameters:
    *       - $ref: "#/parameters/davproxy_addressbook_book_home"
    *       - $ref: "#/parameters/davproxy_addressbook_book_name"
-   *       - $ref: "#/parameters/davproxy_addressbook_contact_id"
-   *       - $ref: "#/parameters/davproxy_addressbook_user_id"
    *       - $ref: "#/parameters/cm_search"
    *       - $ref: "#/parameters/cm_limit"
-   *       - $ref: "#/parameters/cm_pages"
+   *       - $ref: "#/parameters/cm_page"
    *     responses:
    *       200:
    *         $ref: "#/responses/davproxy_addressbook_contact"
@@ -253,7 +251,7 @@ module.exports = function(dependencies) {
    *       - $ref: "#/parameters/davproxy_addressbook_user_id"
    *       - $ref: "#/parameters/cm_search"
    *       - $ref: "#/parameters/cm_limit"
-   *       - $ref: "#/parameters/cm_pages"
+   *       - $ref: "#/parameters/cm_page"
    *     responses:
    *       200:
    *         $ref: "#/responses/davproxy_addressbook_address_books"
