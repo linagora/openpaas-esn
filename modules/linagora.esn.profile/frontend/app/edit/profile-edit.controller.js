@@ -45,7 +45,7 @@
         .then(function(results) {
           self.status = 'loaded';
           self.canEditEmails = results[0];
-          self.provisionedFields = results[1];
+          self.provisionedFields = results[1] || [];
         })
         .catch(function() {
           self.status = 'error';

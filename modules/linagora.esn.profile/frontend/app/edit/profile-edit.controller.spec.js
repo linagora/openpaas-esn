@@ -12,9 +12,7 @@ describe('The profileEditController', function() {
 
   beforeEach(function() {
     esnUserConfigurationServiceMock = { get: function() {} };
-    esnConfigMock = function() {
-      return $q.when({ profileProvisionedFields: profileProvisionedFields });
-    };
+    esnConfigMock = sinon.stub();
 
     module('linagora.esn.profile', function($provide) {
       $provide.value('esnConfig', esnConfigMock);
@@ -30,6 +28,7 @@ describe('The profileEditController', function() {
     });
 
     $state.params.user_id = 'a';
+    esnConfigMock.returns($q.when({ profileProvisionedFields: profileProvisionedFields }));
     esnUserConfigurationServiceMock.get = sinon.stub().returns($q.when([
       { value: { profileProvisionedFields: profileProvisionedFields }}
     ]));
@@ -111,6 +110,22 @@ describe('The profileEditController', function() {
       expect(controller.provisionedFields).to.deep.equals(profileProvisionedFields);
     });
 
+    it('should set provisionedFields to an empty array if there is no provisioned fields', function() {
+      esnUserConfigurationServiceMock.get = sinon.stub().returns($q.when({}));
+
+      var controller = initController();
+
+      expect(controller.provisionedFields).to.be.empty;
+    });
+
+    it('should set provisionedFields as an empty list if there is no provisioned fields when there is no specific target user', function() {
+      delete $state.params.user_id;
+      esnConfigMock.returns($q.when({}));
+      var controller = initController();
+
+      expect(controller.provisionedFields).to.be.empty;
+    });
+
     it('should set provisionedFields from target user if user state is existed', function() {
       var controller = initController();
 
@@ -122,7 +137,15 @@ describe('The profileEditController', function() {
 
       var controller = initController();
 
-      expect(controller.status).to.deep.equals('error');
+      expect(controller.status).to.equals('error');
+    });
+
+    it('should set status to error if fail to get user configurations when there is no specific target user', function() {
+      delete $state.params.user_id;
+      esnConfigMock.returns($q.reject('something wrong'));
+      var controller = initController();
+
+      expect(controller.status).to.equals('error');
     });
 
     it('should set status to error if fail to get target user configuration', function() {
@@ -130,13 +153,13 @@ describe('The profileEditController', function() {
 
       var controller = initController();
 
-      expect(controller.status).to.deep.equals('error');
+      expect(controller.status).to.equals('error');
     });
 
     it('should set status to loaded if there is no error while loading profile user form', function() {
       var controller = initController();
 
-      expect(controller.status).to.deep.equals('loaded');
+      expect(controller.status).to.equals('loaded');
     });
   });
 
