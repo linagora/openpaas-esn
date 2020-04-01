@@ -6,17 +6,32 @@
 var expect = chai.expect;
 
 describe('The profileEditController', function() {
-  var $rootScope, $controller, esnConfigApi;
+  var $rootScope, $controller, $state, $q, esnConfigApi;
+  var esnConfigMock, esnUserConfigurationServiceMock;
+  var profileProvisionedFields = ['a'];
 
   beforeEach(function() {
-    angular.mock.module('linagora.esn.profile');
+    esnUserConfigurationServiceMock = { get: function() {} };
+    esnConfigMock = sinon.stub();
 
-    inject(function(_$rootScope_, _$controller_, _esnConfigApi_) {
+    module('linagora.esn.profile', function($provide) {
+      $provide.value('esnConfig', esnConfigMock);
+      $provide.value('esnUserConfigurationService', esnUserConfigurationServiceMock);
+    });
+
+    inject(function(_$rootScope_, _$controller_, _$q_, _$state_, _esnConfigApi_) {
       $rootScope = _$rootScope_;
       $controller = _$controller_;
+      $q = _$q_;
+      $state = _$state_;
       esnConfigApi = _esnConfigApi_;
     });
 
+    $state.params.user_id = 'a';
+    esnConfigMock.returns($q.when({ profileProvisionedFields: profileProvisionedFields }));
+    esnUserConfigurationServiceMock.get = sinon.stub().returns($q.when([
+      { value: { profileProvisionedFields: profileProvisionedFields }}
+    ]));
     esnConfigApi.getDomainConfigurations = sinon.stub().returns($q.when([{
       name: 'core',
       configurations: [{
@@ -85,6 +100,66 @@ describe('The profileEditController', function() {
 
       controller.mutableUser.name = 'Bob';
       expect(controller.mutableUser).to.not.deep.equal(user);
+    });
+
+    it('should set provisionedFields from session user if there is no specific target user', function() {
+      delete $state.params.user_id;
+
+      var controller = initController();
+
+      expect(controller.provisionedFields).to.deep.equals(profileProvisionedFields);
+    });
+
+    it('should set provisionedFields to an empty array if there is no provisioned fields', function() {
+      esnUserConfigurationServiceMock.get = sinon.stub().returns($q.when({}));
+
+      var controller = initController();
+
+      expect(controller.provisionedFields).to.be.empty;
+    });
+
+    it('should set provisionedFields as an empty list if there is no provisioned fields when there is no specific target user', function() {
+      delete $state.params.user_id;
+      esnConfigMock.returns($q.when({}));
+      var controller = initController();
+
+      expect(controller.provisionedFields).to.be.empty;
+    });
+
+    it('should set provisionedFields from target user if user state is existed', function() {
+      var controller = initController();
+
+      expect(controller.provisionedFields).to.deep.equals(profileProvisionedFields);
+    });
+
+    it('should set status to error if fail to determine user can edit emails', function() {
+      esnConfigApi.getDomainConfigurations = sinon.stub().returns($q.reject('something wrong'));
+
+      var controller = initController();
+
+      expect(controller.status).to.equals('error');
+    });
+
+    it('should set status to error if fail to get user configurations when there is no specific target user', function() {
+      delete $state.params.user_id;
+      esnConfigMock.returns($q.reject('something wrong'));
+      var controller = initController();
+
+      expect(controller.status).to.equals('error');
+    });
+
+    it('should set status to error if fail to get target user configuration', function() {
+      esnUserConfigurationServiceMock.get = sinon.stub().returns($q.reject('something wrong'));
+
+      var controller = initController();
+
+      expect(controller.status).to.equals('error');
+    });
+
+    it('should set status to loaded if there is no error while loading profile user form', function() {
+      var controller = initController();
+
+      expect(controller.status).to.equals('loaded');
     });
   });
 

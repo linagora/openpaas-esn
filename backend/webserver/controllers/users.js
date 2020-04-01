@@ -1,3 +1,4 @@
+const { promisify } = require('util');
 const Q = require('q');
 const userModule = require('../../core').user;
 const imageModule = require('../../core').image;
@@ -5,6 +6,8 @@ const logger = require('../../core').logger;
 const ObjectId = require('mongoose').Types.ObjectId;
 const denormalizeUser = require('../denormalize/user').denormalize;
 const userSearch = require('../../core/user/search');
+
+const updateUserProfile = promisify(userModule.updateProfile);
 
 module.exports = {
   getProfileAvatar,
@@ -16,11 +19,10 @@ module.exports = {
   profile,
   provision,
   updatePassword,
-  updateProfile,
   updateTargetUserAvatar,
   updateTargetUserEmails,
-  updateTargetUserProfile,
   updateStates,
+  updateUserProfileOnReq,
   user
 };
 
@@ -134,40 +136,6 @@ function getProfilesByQuery(req, res) {
     });
 }
 
-/**
- * Update a parameter value in the current user profile
- *
- * @param {Request} req
- * @param {Response} res
- */
-
-function updateProfile(req, res) {
-  if (!req.user) {
-    return res.status(404).json({error: 404, message: 'Not found', details: 'User not found'});
-  }
-
-  if (!req.body) {
-    return res.status(400).json({error: 400, message: 'Bad Request', details: 'No value defined'});
-  }
-
-  Q.denodeify(userModule.updateProfile)(req.user, _buildNewProfile(req.body))
-    .then(updatedUser => denormalizeUser(updatedUser))
-    .then(denormalizedUser => res.status(200).json(denormalizedUser))
-    .catch(err => {
-      const details = `Error while updating profile of user ${req.user.id}`;
-
-      logger.error(details, err);
-
-      res.status(500).json({
-        error: {
-          code: 500,
-          message: 'Server Error',
-          details
-        }
-      });
-    });
-}
-
 function updateTargetUserAvatar(req, res) {
   // assign our domain object to "domain" property of request object (by load domain middleware)
   // causes error "domain.enter is not a function" when process data stream (imageModule.recordAvatar function) on nodejs 8.
@@ -232,40 +200,33 @@ function updateTargetUserAvatar(req, res) {
       });
     });
 }
-
 /**
- * Update profile of a specific user {req.targetUser}.
+ * Return a handler of updating user profile
  *
- * @param {Request} req   - Request object contains targetUser
- * @param {Response} res  - Response object
+ * @param {String} property define the property that stores the target user on request
+ * @returns {Function}
  */
-function updateTargetUserProfile(req, res) {
-  if (!req.body) {
-    return res.status(400).json({
-      error: {
-        code: 400,
-        message: 'Bad Request',
-        details: 'No value defined'
-      }
-    });
-  }
+function updateUserProfileOnReq(property) {
+  return (req, res) => {
+    const targetUser = req[property];
 
-  Q.denodeify(userModule.updateProfile)(req.targetUser, _buildNewProfile(req.body))
-    .then(updatedUser => denormalizeUser(updatedUser))
-    .then(denormalizedUser => res.status(200).json(denormalizedUser))
-    .catch(err => {
-      const details = `Error while updating profile of user ${req.targetUser.id}`;
+    updateUserProfile(targetUser, _buildNewProfile(req.body))
+      .then(updatedUser => denormalizeUser(updatedUser))
+      .then(denormalizedUser => res.status(200).json(denormalizedUser))
+      .catch(err => {
+        const details = `Error while updating profile of user ${targetUser.id}`;
 
-      logger.error(details, err);
+        logger.error(details, err);
 
-      res.status(500).json({
-        error: {
-          code: 500,
-          message: 'Server Error',
-          details
-        }
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details
+          }
+        });
       });
-    });
+  };
 }
 
 function _buildNewProfile(data) {

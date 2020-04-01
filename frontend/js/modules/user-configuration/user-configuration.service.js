@@ -10,14 +10,14 @@
         set: set
       };
 
-      function get(keys, module) {
+      function get(keys, module, userId) {
         module = module || ESN_USER_CONFIGURATION_DEFAULT_MODULE;
 
         return esnConfigApi
           .getUserConfigurations([{
             name: module,
             keys: keys
-          }])
+          }], userId)
           .then(function(data) {
             return (_.find(data, { name: module }) || {}).configurations;
           });

@@ -23,7 +23,7 @@ describe('The configurations API', function() {
           userAlice = user;
           core['esn-config'](TEST_CONFIG.name)
             .inModule(TEST_MODULE)
-            .forUser(userAlice)
+            .forUser(userAlice, true)
             .store(TEST_CONFIG.value, done);
         }));
     });
@@ -185,6 +185,160 @@ describe('The configurations API', function() {
             }));
         });
       });
+
+      describe('get configuration for a specific user', function() {
+        let userDomainAdmin, userDomainMember1, userDomainMember2, userOtherDomain;
+
+        beforeEach(function(done) {
+          helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
+            expect(err).to.not.exist;
+            userDomainAdmin = models.users[0];
+            userDomainMember1 = models.users[1];
+            userDomainMember2 = models.users[2];
+
+            helpers.api.applyDomainDeployment('linagora_test_domain2', function(err, models) {
+              expect(err).to.not.exist;
+              userOtherDomain = models.users[1];
+              done();
+            });
+          });
+        });
+
+        beforeEach(function(done) {
+          registerTestConfig('user', 'r');
+
+          core['esn-config'](TEST_CONFIG.name)
+            .inModule(TEST_MODULE)
+            .forUser(userDomainAdmin)
+            .store(TEST_CONFIG.value, done);
+        });
+
+        it('should send back 403 if user is not admin of domain', function(done) {
+          sendRequestAsUser(userDomainMember1, loggedInAsUser => {
+            loggedInAsUser(
+              request(webserver.application)
+                .post(API_ENDPOINT)
+                .query({ scope: 'user', user_id: userDomainMember2._id.toString() })
+                .send([{ name: TEST_MODULE, keys: [TEST_CONFIG.name] }])
+            )
+              .expect(403)
+              .end(helpers.callbacks.noErrorAnd(res => {
+                expect(res.body).to.deep.equal({
+                  error: {
+                    code: 403,
+                    message: 'Forbidden',
+                    details: 'Domain administrator role is required to do this action'
+                  }
+                });
+                done();
+              }));
+          });
+        });
+
+        it('should send back 404 if target user id is not an objectID', function(done) {
+          sendRequestAsUser(userDomainAdmin, loggedInAsUser => {
+            loggedInAsUser(
+              request(webserver.application)
+                .post(API_ENDPOINT)
+                .query({ scope: 'user', user_id: 'a'})
+                .send([{ name: TEST_MODULE, keys: [TEST_CONFIG.name] }])
+            )
+              .expect(404)
+              .end(helpers.callbacks.noErrorAnd(res => {
+                expect(res.body).to.deep.equal({
+                  error: {
+                    code: 404,
+                    message: 'Not Found',
+                    details: 'Target user not found'
+                  }
+                });
+                done();
+              }));
+          });
+        });
+
+        it('should send back 404 if target user id is not found', function(done) {
+          sendRequestAsUser(userDomainAdmin, loggedInAsUser => {
+            loggedInAsUser(
+              request(webserver.application)
+                .post(API_ENDPOINT)
+                .query({ scope: 'user', user_id: '58e522df9ea18136135c02a7'})
+                .send([{ name: TEST_MODULE, keys: [TEST_CONFIG.name] }])
+            )
+              .expect(404)
+              .end(helpers.callbacks.noErrorAnd(res => {
+                expect(res.body).to.deep.equal({
+                  error: {
+                    code: 404,
+                    message: 'Not Found',
+                    details: 'Target user not found'
+                  }
+                });
+                done();
+              }));
+          });
+        });
+
+        it('should send back 403 if target user doesn\'t belong to the domain', function(done) {
+          sendRequestAsUser(userDomainAdmin, loggedInAsUser => {
+            loggedInAsUser(
+              request(webserver.application)
+                .post(API_ENDPOINT)
+                .query({ scope: 'user', user_id: userOtherDomain._id.toString() })
+                .send([{ name: TEST_MODULE, keys: [TEST_CONFIG.name] }])
+            )
+              .expect(403)
+              .end(helpers.callbacks.noErrorAnd(res => {
+                expect(res.body).to.deep.equal({
+                  error: {
+                    code: 403,
+                    message: 'Forbidden',
+                    details: 'Target user must be a member of the domain'
+                  }
+                });
+                done();
+              }));
+          });
+        });
+
+        it('should send back 200 and get the requester configuration if the user id is not given', function(done) {
+          sendRequestAsUser(userDomainMember1, loggedInAsUser => {
+            loggedInAsUser(
+              request(webserver.application)
+                .post(API_ENDPOINT)
+                .query({ scope: 'user', user_id: userDomainMember1._id.toString() })
+                .send([{ name: TEST_MODULE, keys: [TEST_CONFIG.name] }])
+            )
+              .expect(200)
+              .end(helpers.callbacks.noErrorAnd(res => {
+                expect(res.body).to.deep.equal([{
+                  name: TEST_MODULE,
+                  configurations: [TEST_CONFIG]
+                }]);
+                done();
+              }));
+          });
+        });
+
+        it('should send back 200 if a domain admin successes to get configuration of a his domain member', function(done) {
+          sendRequestAsUser(userDomainAdmin, loggedInAsUser => {
+            loggedInAsUser(
+              request(webserver.application)
+                .post(API_ENDPOINT)
+                .query({ scope: 'user', user_id: userDomainMember1._id.toString() })
+                .send([{ name: TEST_MODULE, keys: [TEST_CONFIG.name] }])
+            )
+              .expect(200)
+              .end(helpers.callbacks.noErrorAnd(res => {
+                expect(res.body).to.deep.equal([{
+                  name: TEST_MODULE,
+                  configurations: [TEST_CONFIG]
+                }]);
+                done();
+              }));
+          });
+        });
+      });
     });
 
     describe('when scope is domain', function() {
@@ -198,6 +352,13 @@ describe('The configurations API', function() {
           domain = models.domain;
           done();
         });
+      });
+
+      beforeEach(function(done) {
+        core['esn-config'](TEST_CONFIG.name)
+          .inModule(TEST_MODULE)
+          .forUser(userDomainAdmin)
+          .store(TEST_CONFIG.value, done);
       });
 
       it('should send back 400 if domain_id is missing', function(done) {
@@ -351,6 +512,12 @@ describe('The configurations API', function() {
         }));
       });
 
+      beforeEach(function(done) {
+        core['esn-config'](TEST_CONFIG.name)
+          .inModule(TEST_MODULE)
+          .store(TEST_CONFIG.value, done);
+      });
+
       it('should send back 403 if current user is not a platform admin', function(done) {
         sendRequestAsUser(userAlice, loggedInAsUser => {
           loggedInAsUser(
@@ -426,6 +593,13 @@ describe('The configurations API', function() {
           userDomainMember = models.users[1];
           done();
         });
+      });
+
+      beforeEach(function(done) {
+        core['esn-config'](TEST_CONFIG.name)
+          .inModule(TEST_MODULE)
+          .forUser(userDomainMember)
+          .store(TEST_CONFIG.value, done);
       });
 
       it('should get all readable configurations', function(done) {

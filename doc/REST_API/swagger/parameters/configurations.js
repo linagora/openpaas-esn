@@ -32,6 +32,11 @@
  *     in: query
  *     description: The domain ID you want to get configuration of, required when scope is domain.
  *     type: string
+ *   cf_user_id:
+ *     name: user_id
+ *     in: query
+ *     description: The user ID you want to get configuration of, required when scope is user.
+ *     type: string
  *   cf_modules_inspect:
  *     name: inspect
  *     in: query

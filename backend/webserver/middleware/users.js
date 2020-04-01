@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const { logger, user } = require('../../core');
 const composableMw = require('composable-middleware');
 const platformadminsMW = require('../middleware/platformadmins');
@@ -11,7 +12,8 @@ module.exports = {
   requireProfilesQueryParams,
   requirePreferredEmail,
   validateUserStates,
-  validateUsersProvision
+  validateUsersProvision,
+  validateUserUpdateOnReq
 };
 
 function canManageUserEmails(req, res, next) {
@@ -197,4 +199,51 @@ function validateUsersProvision(req, res, next) {
         }
       });
     });
+}
+
+function validateUserUpdateOnReq(property) {
+  return (req, res, next) => {
+    const targetUser = req[property];
+
+    if (!req.body) {
+      return res.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: 'Request body is required when updating a user'
+        }
+      });
+    }
+
+    user.metadata(targetUser).get('profileProvisionedFields')
+      .then((fields = []) => {
+        const isValidUpdatedProvisionedFields = fields.every(field => (field === 'email' ?
+          _.isEqual(req.body.emails, targetUser.accounts[0].emails) :
+          req.body[field] === targetUser[field])
+        );
+
+        if (!isValidUpdatedProvisionedFields) {
+          return res.status(400).json({
+            error: {
+              code: 400,
+              message: 'Bad Request',
+              details: `These following fields are provisioned and not editable: ${fields.join(', ')}`
+            }
+          });
+        }
+        next();
+      })
+      .catch(error => {
+        const details = 'Unable to get user metadata while updating user';
+
+        logger.error(details, error);
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details
+          }
+        });
+      });
+  };
 }

@@ -499,5 +499,6 @@
   "Your request to join the community has been declined": "您的社区加入请求被拒绝",
   "Your request to join the project has been declined": "您的项目加入请求被拒绝",
   "Your vote": "您的投票",
-  "Zip": "邮编"
+  "Zip": "邮编",
+  "A problem occurred while getting data, try refreshing this page!": "获取数据出现问题，尝试刷新页面！"
 }

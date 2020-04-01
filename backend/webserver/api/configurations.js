@@ -19,6 +19,7 @@ module.exports = function(router) {
    *       - $ref: "#/parameters/cf_modules_scope"
    *       - $ref: "#/parameters/cf_modules_inspect"
    *       - $ref: "#/parameters/cf_modules_domain_id"
+   *       - $ref: "#/parameters/cf_user_id"
    *       - $ref: "#/parameters/cf_modules_with_keys"
    *     responses:
    *       200:
@@ -29,6 +30,8 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_401"
    *       403:
    *         $ref: "#/responses/cm_403"
+   *       404:
+   *         $ref: "#/responses/cm_404"
    *       500:
    *         $ref: "#/responses/cm_500"
    */
@@ -36,6 +39,8 @@ module.exports = function(router) {
     authorizationMW.requiresAPILogin,
     helperMW.requireInQuery('scope'),
     configurationMW.qualifyScopeQueries,
+    helperMW.checkIdInQuery('user_id', 'User', 'Target user not found'),
+    configurationMW.qualifyTargetUser,
     helperMW.requireBodyAsArray,
     configurationMW.ensureWellformedBody,
     configurationMW.checkAuthorizedRole,

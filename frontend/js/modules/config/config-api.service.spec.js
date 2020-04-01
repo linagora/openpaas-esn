@@ -48,6 +48,21 @@ describe('The esnConfigApi service', function() {
 
       $httpBackend.flush();
     });
+
+    it('should send POST request to a specific user', function(done) {
+      $httpBackend
+        .expectPOST('/api/configurations?scope=user&user_id=a', CONFIGS_TO_GET)
+        .respond(TEST_RESPONSE);
+
+      esnConfigApi
+        .getUserConfigurations(CONFIGS_TO_GET, 'a')
+        .then(function(configurations) {
+          expect(configurations).to.deep.equal(TEST_RESPONSE);
+          done();
+        });
+
+        $httpBackend.flush();
+    });
   });
 
   describe('The setUserConfigurations fn', function() {
