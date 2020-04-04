@@ -76,7 +76,7 @@
   *           ]
   *         ]
   *   davproxy_addressbook_create:
-  *     description: OK. with content of addressbook
+  *     description: Created. With content of addressbook
   *     examples:
   *       application/json:
   *         {

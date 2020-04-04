@@ -46,8 +46,13 @@
   *          type: string
   *        description:
   *          type: string
+  *        id:
+  *          type: string
   *        type:
   *          type: string
+  *          enum:
+  *           - user
+  *           - group
   *   davproxy_addressbook_update:
   *     name: addressbook
   *     in: body

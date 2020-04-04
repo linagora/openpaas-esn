@@ -13,7 +13,7 @@ module.exports = function(dependencies) {
 
   /**
    * @swagger
-   * /addressbooks/{bookHome}.json:
+   * /dav/api/addressbooks/{bookHome}.json:
    *   post:
    *     tags:
    *       - Davproxy
