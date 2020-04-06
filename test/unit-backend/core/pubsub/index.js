@@ -1,9 +1,6 @@
-'use strict';
-
-var chai = require('chai');
-var expect = chai.expect;
-var mockery = require('mockery');
-var sinon = require('sinon');
+const { expect } = require('chai');
+const mockery = require('mockery');
+const sinon = require('sinon');
 
 describe('The pubsub module', function() {
   it('should initialize module pubsubs', function() {
@@ -14,7 +11,6 @@ describe('The pubsub module', function() {
     const esSpy = {init: sinon.spy()};
     const tSpy = {init: sinon.spy()};
     const uSpy = {init: sinon.spy()};
-    const evsSpy = {init: sinon.spy()};
     const themeSpy = {init: sinon.spy()};
 
     mockery.registerMock('../activitystreams/pubsub', asSpy);
@@ -25,7 +21,6 @@ describe('The pubsub module', function() {
     mockery.registerMock('../themes/pubsub', themeSpy);
     mockery.registerMock('../timeline', tSpy);
     mockery.registerMock('../user', uSpy);
-    mockery.registerMock('../eventsourcing', evsSpy);
 
     const module = this.helpers.requireBackend('core/pubsub');
 
@@ -38,7 +33,6 @@ describe('The pubsub module', function() {
     expect(rSpy.init).to.have.been.called;
     expect(tSpy.init).to.have.been.called;
     expect(uSpy.init).to.have.been.called;
-    expect(evsSpy.init).to.have.been.called;
     expect(themeSpy.init).to.have.been.called;
   });
 });

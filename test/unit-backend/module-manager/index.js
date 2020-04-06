@@ -68,7 +68,6 @@ describe('The module manager', function() {
         'linagora.esn.core.elasticsearch',
         'linagora.esn.core.email',
         'linagora.esn.core.esn-config',
-        'linagora.esn.core.eventsourcing',
         'linagora.esn.core.features',
         'linagora.esn.core.feedback',
         'linagora.esn.core.filestore',
