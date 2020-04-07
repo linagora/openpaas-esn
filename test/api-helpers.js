@@ -1,14 +1,15 @@
-'use strict';
-
-var extend = require('extend');
-var q = require('q');
-var request = require('supertest');
+const extend = require('extend');
+const { promisify } = require('util');
+const request = require('supertest');
+const async = require('async');
 
 module.exports = function(mixin, testEnv) {
-  var api = {};
+  const api = {};
+
   mixin.api = api;
   api.getStreamData = function(stream, callback) {
-    var data = [];
+    const data = [];
+
     stream.on('data', function(chunk) {
       data.push(chunk);
     });
@@ -20,9 +21,7 @@ module.exports = function(mixin, testEnv) {
   api.cleanDomainDeployment = function(models, callback) {
     require(testEnv.basePath + '/backend/core').db.mongo;
 
-    var async = require('async');
-
-    var userJobs = models.users.map(function(user) {
+    const userJobs = models.users.map(function(user) {
       return function(then) {
         user.remove(function() {
           then();
@@ -39,9 +38,10 @@ module.exports = function(mixin, testEnv) {
   };
 
   api.createUser = function(user) {
-    var User = require('mongoose').model('User');
-    var userHelper = require('../backend/core/user/helpers');
-    return q.ninvoke(userHelper, 'saveAndIndexUser', new User(user));
+    const User = require('mongoose').model('User');
+    const userHelper = require('../backend/core/user/helpers');
+
+    return promisify(userHelper.saveAndIndexUser)(new User(user));
   };
 
   /**
@@ -58,109 +58,118 @@ module.exports = function(mixin, testEnv) {
       callback = options;
       options = {};
     }
-    var fixturesPath = options.fixtures ? options.fixtures : testEnv.fixtures + '/deployments';
-    var fixtures = require(fixturesPath);
+    const fixturesPath = options.fixtures ? options.fixtures : testEnv.fixtures + '/deployments';
+    const fixtures = require(fixturesPath);
+
     if (!(name in fixtures)) {
       return callback(new Error('Unknown fixture name ' + name));
     }
-    var deployment = fixtures[name]();
+    const deployment = fixtures[name]();
+
     require(testEnv.basePath + '/backend/core').db.mongo;
-    var self = this;
+    const self = this;
+
     require('mongoose').model('User');
-    var Community = require('mongoose').model('Community');
-    var Domain = require('mongoose').model('Domain');
-    var helpers = require('../backend/core/db/mongo/plugins/helpers');
+    const Community = require('mongoose').model('Community');
+    const Domain = require('mongoose').model('Domain');
+    const helpers = require('../backend/core/db/mongo/plugins/helpers');
+
     helpers.applyCommunityPlugins();
     helpers.patchFindOneAndUpdate();
 
     deployment.models = {};
 
-    var fillCollaboration = {
+    const fillCollaboration = {
       user: function(models, collaboration, member) {
         if (member.objectType !== 'user') {
           return;
         }
 
-        var user = models.users.filter(function(u) { return u.emails.indexOf(member.id) >= 0; });
-        if (!user.length) {
+        const users = models.users.filter(function(user) { return user.emails.indexOf(member.id) >= 0; });
+
+        if (!users.length) {
           return;
         }
-        collaboration.members.push({member: {objectType: 'user', id: user[0]._id}});
+        collaboration.members.push({member: {objectType: 'user', id: users[0]._id}});
       },
 
       community: function(models, collaboration, member) {
         if (member.objectType !== 'community') {
           return;
         }
-        var community = models.communities.filter(function(c) {
-          return c.title.indexOf(member.id) >= 0;
+        const communities = models.communities.filter(function(community) {
+          return community.title.indexOf(member.id) >= 0;
         });
 
-        if (!community.length) {
+        if (!communities.length) {
           throw new Error('Could not find ' + member.id);
         }
-        collaboration.members.push({member: {objectType: 'community', id: community[0]._id}});
+        collaboration.members.push({member: {objectType: 'community', id: communities[0]._id}});
       }
     };
 
-    function saveCollaboration(Model, models, c) {
-      var collaboration = extend(true, {}, c);
-      var creator = models.users.filter(function(u) { return u.emails.indexOf(collaboration.creator) >= 0; });
+    function saveCollaboration(Model, models, collaboration) {
+      const collaborationToSave = extend(true, {}, collaboration);
+      const creator = models.users.filter(function(user) { return user.emails.indexOf(collaborationToSave.creator) >= 0; });
+
       if (!creator.length) {
-        return q.reject(new Error('Creator ', collaboration.creator, 'cannot be found in domain users'));
+        return Promise.reject(new Error('Creator ', collaborationToSave.creator, 'cannot be found in domain users'));
       }
-      collaboration.creator = creator[0]._id;
-      collaboration.domain_ids = [models.domain._id];
-      collaboration.members = [{member: {objectType: 'user', id: creator[0]._id}}];
+      collaborationToSave.creator = creator[0]._id;
+      collaborationToSave.domain_ids = [models.domain._id];
+      collaborationToSave.members = [{member: {objectType: 'user', id: creator[0]._id}}];
       try {
-        c.members.forEach(function(m) {
-          fillCollaboration[m.objectType](models, collaboration, m);
+        collaboration.members.forEach(function(member) {
+          fillCollaboration[member.objectType](models, collaborationToSave, member);
         });
       } catch (err) {
-        return q.reject(err);
+        return Promise.reject(err);
       }
 
-      return q.npost(new Model(collaboration), 'save').then(function(collab) {
-        return collab;
-      });
+      const collaborationInstance = new Model(collaborationToSave);
+
+      return collaborationInstance.save();
     }
 
     function createDomain() {
-      var domain = extend(true, {}, deployment.domain);
+      const domain = extend(true, {}, deployment.domain);
+
       delete domain.administrators;
 
-      return q.npost(new Domain(domain), 'save').then(function(domain) {
+      const domainInstance = new Domain(domain);
+
+      return domainInstance.save().then(function(domain) {
         deployment.models.domain = domain;
       });
     }
 
     function updateDomainAdministrator() {
       // set the first user as domain administrator
-      var domain = deployment.models.domain;
+      const domain = deployment.models.domain;
 
       if (deployment.models.users.length === 0) {
-        return q();
+        return Promise.resolve();
       }
 
       domain.administrators = [{ user_id: deployment.models.users[0]._id }];
 
-      return q.npost(domain, 'save').then(function(domain) {
+      return domain.save().then(function(domain) {
         deployment.models.domain = domain;
       });
     }
 
     function createUsers() {
-      var domainModule = require('../backend/core/user/domain');
+      const domainModule = require('../backend/core/user/domain');
 
-      return q.all(deployment.users.map(function(user) {
+      return Promise.all(deployment.users.map(function(user) {
         return self.createUser(user);
       }))
       .then(function(users) {
-        return q.all(
+        return Promise.all(
           users.map(function(user) {
-            return q.ninvoke(domainModule, 'joinDomain', user, deployment.models.domain)
+            return promisify(domainModule.joinDomain)(user, deployment.models.domain)
               .then(function() {
-                return q(user);
+                return Promise.resolve(user);
               });
           })
         );
@@ -168,7 +177,7 @@ module.exports = function(mixin, testEnv) {
       .then(function(users) {
         deployment.models.users = users;
 
-        return q(deployment);
+        return Promise.resolve(deployment);
       });
     }
 
@@ -176,42 +185,37 @@ module.exports = function(mixin, testEnv) {
       deployment.communities = deployment.communities || [];
       deployment.models.communities = deployment.models.communities || [];
 
-      return deployment.communities.reduce(function(sofar, c) {
+      return deployment.communities.reduce(function(sofar, community) {
         return sofar.then(function() {
-          return saveCollaboration(Community, deployment.models, c);
+          return saveCollaboration(Community, deployment.models, community);
         }).then(function(collab) {
           deployment.models.communities.push(collab);
         });
-      }, q(true));
+      }, Promise.resolve(true));
     }
 
     function createProjects() {
       deployment.projects = deployment.projects || [];
       deployment.models.projects = deployment.models.projects || [];
 
-      return deployment.projects.reduce(function(sofar, p) {
+      return deployment.projects.reduce(function(sofar, project) {
         return sofar.then(function() {
-          var Project = require('mongoose').model('Project');
-          return saveCollaboration(Project, deployment.models, p);
+          const Project = require('mongoose').model('Project');
+
+          return saveCollaboration(Project, deployment.models, project);
         }).then(function(collab) {
           deployment.models.projects.push(collab);
         });
-      }, q(true));
+      }, Promise.resolve(true));
     }
 
     function setupConfiguration() {
-      var defer = q.defer();
       if (!testEnv.serversConfig.elasticsearch) {
-        defer.resolve(true);
-      } else {
-        mixin.elasticsearch.saveTestConfiguration(function(err) {
-          if (err) {
-            return defer.reject(err);
-          }
-          return defer.resolve(true);
-        });
+        return Promise.resolve(true);
       }
-      return defer.promise;
+
+      return promisify(mixin.elasticsearch.saveTestConfiguration)()
+        .then(() => true);
     }
 
     setupConfiguration()
@@ -220,12 +224,13 @@ module.exports = function(mixin, testEnv) {
       .then(updateDomainAdministrator)
       .then(createCommunities)
       .then(createProjects)
-      .then(function() { return q(deployment.models); })
-      .nodeify(callback);
+      .then(() => callback(null, deployment.models))
+      .catch(callback);
   };
 
   api.getCommunity = function(id, done) {
-    var Community = require('mongoose').model('Community');
+    const Community = require('mongoose').model('Community');
+
     Community.findOne({_id: id}, done);
   };
 
@@ -235,9 +240,9 @@ module.exports = function(mixin, testEnv) {
       done = opts;
       opts = null;
     }
-    var Community = require('mongoose').model('Community');
-    var creatorId = creator._id || creator;
-    var json = {
+    const Community = require('mongoose').model('Community');
+    const creatorId = creator._id || creator;
+    let json = {
       title: title,
       type: 'open',
       creator: creatorId,
@@ -246,6 +251,7 @@ module.exports = function(mixin, testEnv) {
       {member: {id: creatorId, objectType: 'user'}}
       ]
     };
+
     if (opts) {
       if (typeof opts === 'function') {
         json = opts(json);
@@ -253,13 +259,14 @@ module.exports = function(mixin, testEnv) {
         extend(true, json, opts);
       }
     }
-    var community = new Community(json);
+    const community = new Community(json);
+
     return community.save(done);
   };
 
   api.addUsersInCommunity = function(community, users, done) {
-    var Community = require('mongoose').model('Community');
-    var async = require('async');
+    const Community = require('mongoose').model('Community');
+
     async.each(users, function(user, callback) {
       Community.update({
         _id: community._id || community
@@ -278,14 +285,15 @@ module.exports = function(mixin, testEnv) {
       if (err) { return done(err); }
       Community.findOne({_id: community._id || community}, function(err, result) {
         if (err) { return done(err); }
+
         return done(null, result);
       });
     });
   };
 
   api.addMembersInCommunity = function(community, tuples, done) {
-    var Community = require('mongoose').model('Community');
-    var async = require('async');
+    const Community = require('mongoose').model('Community');
+
     async.each(tuples, function(tuple, callback) {
       Community.update({
         _id: community._id || community
@@ -304,6 +312,7 @@ module.exports = function(mixin, testEnv) {
       if (err) { return done(err); }
       Community.findOne({_id: community._id || community}, function(err, result) {
         if (err) { return done(err); }
+
         return done(null, result);
       });
     });
@@ -321,7 +330,8 @@ module.exports = function(mixin, testEnv) {
   *
   */
   api.loginAsUser = function(app, email, password, done) {
-    var request = require('supertest');
+    const request = require('supertest');
+
     request(app)
     .post('/api/login')
     .send({username: email, password: password, rememberme: false})
@@ -330,13 +340,16 @@ module.exports = function(mixin, testEnv) {
       if (err) {
         return done(err);
       }
-      var cookies = res.headers['set-cookie'].pop().split(';').shift();
+      const cookies = res.headers['set-cookie'].pop().split(';').shift();
+
       function requestWithSessionCookie(cookies) {
         return function(r) {
           r.cookies = cookies;
+
           return r;
         };
       }
+
       return done(null, requestWithSessionCookie(cookies));
     });
   };
@@ -353,13 +366,12 @@ module.exports = function(mixin, testEnv) {
   */
   api.applyMultipleTimelineEntries = function(activityStreamUuid, count, verb, callback) {
     require(testEnv.basePath + '/backend/core').db.mongo;
-    var mongoose = require('mongoose');
-    var async = require('async'),
-    TimelineEntry = mongoose.model('TimelineEntry');
+    const mongoose = require('mongoose');
+    const TimelineEntry = mongoose.model('TimelineEntry');
 
     function createTimelineEntry(domain, callback) {
-      var e = new TimelineEntry({
-        verb: verb,     // "post" or "remove"
+      const timelineEntry = new TimelineEntry({
+        verb: verb, // "post" or "remove"
         language: 'en',
         actor: {
           objectType: 'user',
@@ -378,9 +390,11 @@ module.exports = function(mixin, testEnv) {
         }
         ]
       });
-      e.save(function(err) {
+
+      timelineEntry.save(function(err) {
         if (err) { return callback(err); }
-        return callback(null, e);
+
+        return callback(null, timelineEntry);
       });
     }
 
@@ -388,12 +402,14 @@ module.exports = function(mixin, testEnv) {
       createTimelineEntry(activityStreamUuid, callback);
     }
 
-    var arrayJobs = [];
-    for (var i = 0; i < count; i++) {
+    const arrayJobs = [];
+
+    for (let i = 0; i < count; i++) {
       arrayJobs.push(createTimelineEntryJob);
     }
 
-    var models = {};
+    const models = {};
+
     models.activityStreamUuid = activityStreamUuid;
 
     async.parallel(arrayJobs, function(err, timelineEntries) {
@@ -401,20 +417,20 @@ module.exports = function(mixin, testEnv) {
         return callback(err);
       }
       models.timelineEntries = timelineEntries;
+
       return callback(null, models);
     });
   };
 
   api.applyMultipleTimelineEntriesWithReplies = function(activityStreamUuid, replies, callback) {
     require(testEnv.basePath + '/backend/core').db.mongo;
-    var mongoose = require('mongoose');
-    var async = require('async'),
-      TimelineEntry = mongoose.model('TimelineEntry');
+    const mongoose = require('mongoose');
+    const TimelineEntry = mongoose.model('TimelineEntry');
 
-    var inReplyToMessageId = mongoose.Types.ObjectId();
+    const inReplyToMessageId = mongoose.Types.ObjectId();
 
     function createTimelineEntry(callback) {
-      var timelineEntry = {
+      const timelineEntry = {
         verb: 'post',
         language: 'en',
         actor: {
@@ -440,9 +456,11 @@ module.exports = function(mixin, testEnv) {
         timelineEntry.inReplyTo = [{objectType: 'whatsup', _id: inReplyToMessageId}];
       }
 
-      var e = new TimelineEntry(timelineEntry);
+      const e = new TimelineEntry(timelineEntry);
+
       e.save(function(err) {
         if (err) { return callback(err); }
+
         return callback(null, e);
       });
     }
@@ -451,13 +469,14 @@ module.exports = function(mixin, testEnv) {
       createTimelineEntry(callback);
     }
 
-    var arrayJobs = [];
+    const arrayJobs = [];
 
-    for (var i = 0; i < replies; i++) {
+    for (let i = 0; i < replies; i++) {
       arrayJobs.push(createTimelineEntryJob);
     }
 
-    var models = {};
+    const models = {};
+
     models.activityStreamUuid = activityStreamUuid;
     models.inReplyToMessageId = inReplyToMessageId;
 
@@ -466,29 +485,32 @@ module.exports = function(mixin, testEnv) {
         return callback(err);
       }
       models.timelineEntries = timelineEntries;
+
       return callback(null, models);
     });
   };
 
   api.recordNextTimelineEntry = function(entry, verb, callback) {
     require(testEnv.basePath + '/backend/core').db.mongo;
-    var mongoose = require('mongoose');
-    var TimelineEntry = mongoose.model('TimelineEntry');
+    const mongoose = require('mongoose');
+    const TimelineEntry = mongoose.model('TimelineEntry');
+
     entry = entry.toJSON();
-    var e = new TimelineEntry({
+
+    const timelineEntry = new TimelineEntry({
       verb: verb,
       language: 'en',
       actor: entry.actor,
       object: entry.object,
       target: entry.target
     });
-    e.save(callback);
+
+    timelineEntry.save(callback);
   };
 
   api.createMessage = function(type, content, author, activitystreams, callback) {
-    var module = require(testEnv.basePath + '/backend/core/message');
-
-    var message = {
+    const module = require(testEnv.basePath + '/backend/core/message');
+    const message = {
       content: content,
       objectType: type,
       author: author,
@@ -499,11 +521,13 @@ module.exports = function(mixin, testEnv) {
         };
       })
     };
+
     return module.getInstance(type, message).save(callback);
   };
 
   api.loadMessage = function(id, callback) {
-    var module = require(testEnv.basePath + '/backend/core/message');
+    const module = require(testEnv.basePath + '/backend/core/message');
+
     return module.get(id, callback);
   };
 
