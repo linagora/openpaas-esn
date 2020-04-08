@@ -194,21 +194,6 @@ module.exports = function(mixin, testEnv) {
       }, Promise.resolve(true));
     }
 
-    function createProjects() {
-      deployment.projects = deployment.projects || [];
-      deployment.models.projects = deployment.models.projects || [];
-
-      return deployment.projects.reduce(function(sofar, project) {
-        return sofar.then(function() {
-          const Project = require('mongoose').model('Project');
-
-          return saveCollaboration(Project, deployment.models, project);
-        }).then(function(collab) {
-          deployment.models.projects.push(collab);
-        });
-      }, Promise.resolve(true));
-    }
-
     function setupConfiguration() {
       if (!testEnv.serversConfig.elasticsearch) {
         return Promise.resolve(true);
@@ -223,7 +208,6 @@ module.exports = function(mixin, testEnv) {
       .then(createUsers)
       .then(updateDomainAdministrator)
       .then(createCommunities)
-      .then(createProjects)
       .then(() => callback(null, deployment.models))
       .catch(callback);
   };
