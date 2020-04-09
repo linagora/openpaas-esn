@@ -112,6 +112,20 @@ function get(req, res) {
     async.filter(timelineEntriesFound, function(timelineEntry, callback) {
       activitystreams.permission.canRead(timelineEntry, {objectType: 'user', id: req.user._id}, callback);
     }, function(err, timelineEntriesReadable) {
+      if (err) {
+        const details = `Failed to get activity stream ${req.params.uuid}`;
+
+        logger.error(details, err);
+
+        return res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details
+          }
+        });
+      }
+
       res.json(timelineEntriesReadable);
       updateTracker(req, timelineEntriesReadable);
     });
