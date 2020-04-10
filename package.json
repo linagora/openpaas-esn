@@ -128,6 +128,7 @@
     "@linagora/grunt-i18n-checker": "2.0.5",
     "@linagora/grunt-lint-pattern": "0.1.4",
     "@linagora/grunt-run-grunt": "0.1.4",
+    "grunt-swagger-checker": "linagora/grunt-swagger-checker",
     "@linagora/i18n-checker": "2.0.3",
     "@linagora/karma-ng-jade2module-preprocessor": "0.5.3",
     "chai": "3.5.0",
