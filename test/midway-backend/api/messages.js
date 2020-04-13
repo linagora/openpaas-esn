@@ -1,41 +1,42 @@
-'use strict';
-
-var request = require('supertest'),
-  expect = require('chai').expect,
-  async = require('async'),
-  q = require('q'),
-  uuidV4 = require('uuid/v4');
+const request = require('supertest');
+const { expect } = require('chai');
+const async = require('async');
+const q = require('q');
+const uuidV4 = require('uuid/v4');
 
 describe.skip('The messages API', function() {
-  var app;
-  var testuser;
-  var restrictedUser;
-  var userNotInPrivateCommunity;
-  var userExternal;
-  var userExternal1;
-  var userExternal2;
-  var community;
-  var restrictedCommunity;
-  var privateCommunity;
-  var openCommunity;
-  var password = 'secret';
-  var email;
-  var restrictedEmail;
-  var message1, message2, message3, message4, message5, message6, comment, messageOnOpenCommunity;
+  let app, helpers, mongoose;
+  let testuser;
+  let restrictedUser;
+  let userNotInPrivateCollaboration;
+  let userExternal;
+  let userExternal1;
+  let userExternal2;
+  let collaboration;
+  let restrictedCollaboration;
+  let privateCollaboration;
+  let openCollaboration;
+  const password = 'secret';
+  let email;
+  let restrictedEmail;
+  let message1, message2, message3, message4, message5, message6, comment, messageOnOpenCommunity;
 
   beforeEach(function(done) {
     var self = this;
+
+    helpers = this.helpers;
     this.testEnv.initCore(function() {
       app = self.helpers.requireBackend('webserver/application');
-      self.mongoose = require('mongoose');
-      var Whatsup = self.helpers.requireBackend('core/db/mongo/models/whatsup');
+      mongoose = require('mongoose');
+      const Whatsup = self.helpers.requireBackend('core/db/mongo/models/whatsup');
 
-      function saveMessage(message, cb) {
+      function saveMessage(message, callback) {
         message.save(function(err, saved) {
           if (saved) {
             message._id = saved._id;
           }
-          return cb(err, saved);
+
+          return callback(err, saved);
         });
       }
 
@@ -45,14 +46,14 @@ describe.skip('The messages API', function() {
         }
         testuser = models.users[0];
         restrictedUser = models.users[1];
-        userNotInPrivateCommunity = models.users[2];
+        userNotInPrivateCollaboration = models.users[2];
         userExternal = models.users[3];
         userExternal1 = models.users[5];
         userExternal2 = models.users[6];
-        community = models.communities[0];
-        privateCommunity = models.communities[1];
-        restrictedCommunity = models.communities[2];
-        openCommunity = models.communities[3];
+        collaboration = models.simulatedCollaborations[0];
+        privateCollaboration = models.simulatedCollaborations[1];
+        restrictedCollaboration = models.simulatedCollaborations[2];
+        openCollaboration = models.simulatedCollaborations[3];
         email = testuser.emails[0];
         restrictedEmail = restrictedUser.emails[0];
 
@@ -60,7 +61,7 @@ describe.skip('The messages API', function() {
           content: 'message 1',
           shares: [{
             objectType: 'activitystream',
-            id: community.activity_stream.uuid
+            id: collaboration.activity_stream.uuid
           }]
         });
 
@@ -68,7 +69,7 @@ describe.skip('The messages API', function() {
           content: 'message 2',
           shares: [{
             objectType: 'activitystream',
-            id: community.activity_stream.uuid
+            id: collaboration.activity_stream.uuid
           }]
         });
 
@@ -91,7 +92,7 @@ describe.skip('The messages API', function() {
           content: 'message 5',
           shares: [{
             objectType: 'activitystream',
-            id: privateCommunity.activity_stream.uuid
+            id: privateCollaboration.activity_stream.uuid
           }]
         });
 
@@ -105,15 +106,15 @@ describe.skip('The messages API', function() {
           responses: [comment],
           shares: [{
             objectType: 'activitystream',
-            id: privateCommunity.activity_stream.uuid
+            id: privateCollaboration.activity_stream.uuid
           }]
         });
 
         messageOnOpenCommunity = new Whatsup({
-          content: 'message on open community',
+          content: 'message on open collaboration',
           shares: [{
             objectType: 'activitystream',
-            id: openCommunity.activity_stream.uuid
+            id: openCollaboration.activity_stream.uuid
           }]
         });
 
@@ -147,26 +148,26 @@ describe.skip('The messages API', function() {
               saveMessage(messageOnOpenCommunity, callback);
             },
             function(callback) {
-              restrictedCommunity.members.splice(0, 1);
-              restrictedCommunity.markModified('members');
-              restrictedCommunity.save(function(err, saved) {
+              restrictedCollaboration.members.splice(0, 1);
+              restrictedCollaboration.markModified('members');
+              restrictedCollaboration.save(function(err, saved) {
                 if (err) {
                   return done(err);
                 }
-                restrictedCommunity = saved;
+                restrictedCollaboration = saved;
                 return callback(null, saved);
               });
             },
             function(callback) {
-              community.members.push({member: {objectType: 'user', id: userExternal._id}});
-              community.members.push({member: {objectType: 'user', id: userExternal1._id}});
-              community.members.push({member: {objectType: 'user', id: userExternal2._id}});
-              community.markModified('members');
-              community.save(function(err, saved) {
+              collaboration.members.push({member: {objectType: 'user', id: userExternal._id}});
+              collaboration.members.push({member: {objectType: 'user', id: userExternal1._id}});
+              collaboration.members.push({member: {objectType: 'user', id: userExternal2._id}});
+              collaboration.markModified('members');
+              collaboration.save(function(err, saved) {
                 if (err) {
                   return done(err);
                 }
-                community = saved;
+                collaboration = saved;
                 return callback(null, saved);
               });
             }
@@ -179,7 +180,7 @@ describe.skip('The messages API', function() {
   });
 
   afterEach(function(done) {
-    this.helpers.mongo.dropDatabase(done);
+    helpers.mongo.dropDatabase(done);
   });
 
   it('should not be able to post a whatsup message without being authenticated', function(done) {
@@ -216,7 +217,7 @@ describe.skip('The messages API', function() {
   it('should not be able to post a whatsup message when message is not well formed', function(done) {
     var target = {
       objectType: 'activitystream',
-      id: community.activity_stream.uuid
+      id: collaboration.activity_stream.uuid
     };
 
     request(app)
@@ -279,7 +280,7 @@ describe.skip('The messages API', function() {
     };
     var target = {
       objectType: 'activitystream',
-      id: community.activity_stream.uuid
+      id: collaboration.activity_stream.uuid
     };
     request(app)
       .post('/api/login')
@@ -304,11 +305,11 @@ describe.skip('The messages API', function() {
       });
   });
 
-  it('should be able to post a whatsup message on an open community', function(done) {
+  it('should be able to post a whatsup message on an open collaboration', function(done) {
     var message = 'Hey Oh, let\'s go!';
     var target = {
       objectType: 'activitystream',
-      id: community.activity_stream.uuid
+      id: collaboration.activity_stream.uuid
     };
     request(app)
       .post('/api/login')
@@ -335,13 +336,13 @@ describe.skip('The messages API', function() {
       });
   });
 
-  it('should create a timelineentry when posting a new whatsup message to a community', function(done) {
+  it('should create a timelineentry when posting a new whatsup message to a collaboration', function(done) {
     var message = 'Hey Oh, let\'s go!';
     var target = {
       objectType: 'activitystream',
-      id: community.activity_stream.uuid
+      id: collaboration.activity_stream.uuid
     };
-    var TimelineEntry = this.mongoose.model('TimelineEntry');
+    var TimelineEntry = mongoose.model('TimelineEntry');
 
     request(app)
       .post('/api/login')
@@ -373,7 +374,7 @@ describe.skip('The messages API', function() {
                 expect(results[0].target).to.exist;
                 expect(results[0].target.length).to.equal(1);
                 expect(results[0].target[0].objectType).to.equal('activitystream');
-                expect(results[0].target[0]._id).to.equal(community.activity_stream.uuid);
+                expect(results[0].target[0]._id).to.equal(collaboration.activity_stream.uuid);
                 expect(results[0].object).to.exist;
                 expect(results[0].object.objectType).to.equal('whatsup');
                 expect(results[0].object.id).to.equal(res.body._id);
@@ -390,7 +391,7 @@ describe.skip('The messages API', function() {
   it('should be able to post a comment to a whatsup message', function(done) {
     var target = {
       objectType: 'activitystream',
-      id: community.activity_stream.uuid
+      id: collaboration.activity_stream.uuid
     };
     var cookies = {};
     request(app)
@@ -434,11 +435,11 @@ describe.skip('The messages API', function() {
       });
   });
 
-  it('should be able to post a whatsup message on an open community', function(done) {
+  it('should be able to post a whatsup message on an open collaboration', function(done) {
     var message = 'Hey Oh, let\'s go!';
     var target = {
       objectType: 'activitystream',
-      id: community.activity_stream.uuid
+      id: collaboration.activity_stream.uuid
     };
     request(app)
       .post('/api/login')
@@ -465,13 +466,13 @@ describe.skip('The messages API', function() {
       });
   });
 
-  it('should create a timelineentry when posting a new whatsup message to a community', function(done) {
+  it('should create a timelineentry when posting a new whatsup message to a collaboration', function(done) {
     var message = 'Hey Oh, let\'s go!';
     var target = {
       objectType: 'activitystream',
-      id: community.activity_stream.uuid
+      id: collaboration.activity_stream.uuid
     };
-    var TimelineEntry = this.mongoose.model('TimelineEntry');
+    var TimelineEntry = mongoose.model('TimelineEntry');
 
     request(app)
       .post('/api/login')
@@ -503,7 +504,7 @@ describe.skip('The messages API', function() {
                 expect(results[0].target).to.exist;
                 expect(results[0].target.length).to.equal(1);
                 expect(results[0].target[0].objectType).to.equal('activitystream');
-                expect(results[0].target[0]._id).to.equal(community.activity_stream.uuid);
+                expect(results[0].target[0]._id).to.equal(collaboration.activity_stream.uuid);
                 expect(results[0].object).to.exist;
                 expect(results[0].object.objectType).to.equal('whatsup');
                 expect(results[0].object.id).to.equal(res.body._id);
@@ -517,13 +518,13 @@ describe.skip('The messages API', function() {
       });
   });
 
-  it('should not be able to post a whatsup message on a restricted community', function(done) {
-    var TimelineEntry = this.mongoose.model('TimelineEntry');
+  it('should not be able to post a whatsup message on a restricted collaboration', function(done) {
+    var TimelineEntry = mongoose.model('TimelineEntry');
 
     var message = 'Hey Oh, let\'s go!';
     var target = {
       objectType: 'activitystream',
-      id: restrictedCommunity.activity_stream.uuid
+      id: restrictedCollaboration.activity_stream.uuid
     };
     request(app)
       .post('/api/login')
@@ -555,18 +556,18 @@ describe.skip('The messages API', function() {
       });
   });
 
-  it('should not be able to reply to a message posted in a restricted community the current user is not member of', function(done) {
+  it('should not be able to reply to a message posted in a restricted collaboration the current user is not member of', function(done) {
 
-    var Whatsup = this.mongoose.model('Whatsup');
+    var Whatsup = mongoose.model('Whatsup');
 
     var self = this;
-    var message = 'Post a message to a restricted community';
+    var message = 'Post a message to a restricted collaboration';
     var target = {
       objectType: 'activitystream',
-      id: restrictedCommunity.activity_stream.uuid
+      id: restrictedCollaboration.activity_stream.uuid
     };
 
-    this.helpers.api.loginAsUser(app, restrictedEmail, password, function(err, loggedInAsRestrictedUser) {
+    helpers.api.loginAsUser(app, restrictedEmail, password, function(err, loggedInAsRestrictedUser) {
       if (err) {
         return done(err);
       }
@@ -626,7 +627,7 @@ describe.skip('The messages API', function() {
   it('should return 404 when retrieving multiple non-existent messages', function(done) {
     var ObjectId = require('bson').ObjectId;
 
-    this.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, function(err, loggedInAsUser) {
+    helpers.api.loginAsUser(app, userNotInPrivateCollaboration.emails[0], password, function(err, loggedInAsUser) {
       if (err) { return done(err); }
 
       var req = loggedInAsUser(request(app).get('/api/messages?ids[]=' + new ObjectId() + '&ids[]=' + new ObjectId()));
@@ -645,7 +646,7 @@ describe.skip('The messages API', function() {
   });
 
   it('should expand authors when retrieving multiple messages', function(done) {
-    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+    helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
       if (err) { return done(err); }
 
       var req = loggedInAsUser(request(app).get('/api/messages?ids[]=' + message1._id + '&ids[]=' + message2._id));
@@ -664,7 +665,7 @@ describe.skip('The messages API', function() {
   });
 
   it('should expand authors when retrieving a single message', function(done) {
-    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+    helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
       if (err) { return done(err); }
 
       var req = loggedInAsUser(request(app).get('/api/messages/' + message1._id));
@@ -680,7 +681,7 @@ describe.skip('The messages API', function() {
   });
 
   it('should be able to retrieve a message which is a response from its id', function(done) {
-    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+    helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
       if (err) { return done(err); }
 
       var req = loggedInAsUser(request(app).get('/api/messages/' + comment._id));
@@ -696,7 +697,7 @@ describe.skip('The messages API', function() {
   });
 
   it('should retrieve multiple messages and responses from their ids', function(done) {
-    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+    helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
       if (err) { return done(err); }
 
       var req = loggedInAsUser(request(app).get('/api/messages?ids[]=' + message1._id + '&ids[]=' + comment._id));
@@ -712,8 +713,8 @@ describe.skip('The messages API', function() {
     });
   });
 
-  it('should return 200 with a 403 object error when retrieving multiple messages with one in private community', function(done) {
-    this.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, function(err, loggedInAsUser) {
+  it('should return 200 with a 403 object error when retrieving multiple messages with one in private collaboration', function(done) {
+    helpers.api.loginAsUser(app, userNotInPrivateCollaboration.emails[0], password, function(err, loggedInAsUser) {
       if (err) { return done(err); }
 
       var req = loggedInAsUser(request(app).get('/api/messages?ids[]=' + message1._id + '&ids[]=' + message5._id));
@@ -733,14 +734,14 @@ describe.skip('The messages API', function() {
 
   describe('POST /api/messages/:id/shares', function() {
     it('should return 400 if target is missing', function(done) {
-      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message1._id + '/shares'));
         req.send({
-          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid }
+          resource: {objectType: 'activitystream', id: openCollaboration.activity_stream.uuid }
         });
         req.expect(400);
         req.end(done);
@@ -748,7 +749,7 @@ describe.skip('The messages API', function() {
     });
 
     it('should return 400 if resource is missing', function(done) {
-      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -765,7 +766,7 @@ describe.skip('The messages API', function() {
     });
 
     it('should return 404 if resource does not exists', function(done) {
-      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -789,14 +790,14 @@ describe.skip('The messages API', function() {
     });
 
     it('should return 403 if user can not read resource', function(done) {
-      this.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, userNotInPrivateCollaboration.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message1._id + '/shares'));
         req.send({
-          resource: {objectType: 'activitystream', id: privateCommunity.activity_stream.uuid},
+          resource: {objectType: 'activitystream', id: privateCollaboration.activity_stream.uuid},
           target: [
             {objectType: 'activitystream', id: uuidV4()}
           ]
@@ -813,7 +814,7 @@ describe.skip('The messages API', function() {
     });
 
     it('should return 404 the message does not exists', function(done) {
-      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -822,9 +823,9 @@ describe.skip('The messages API', function() {
         var id = new ObjectId();
         var req = loggedInAsUser(request(app).post('/api/messages/' + id + '/shares'));
         req.send({
-          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid},
+          resource: {objectType: 'activitystream', id: openCollaboration.activity_stream.uuid},
           target: [
-            {objectType: 'activitystream', id: community.activity_stream.uuid}
+            {objectType: 'activitystream', id: collaboration.activity_stream.uuid}
           ]
         });
         req.expect(404);
@@ -839,16 +840,16 @@ describe.skip('The messages API', function() {
     });
 
     it('should return 400 resource is not a valid tuple', function(done) {
-      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + messageOnOpenCommunity._id + '/shares'));
         req.send({
-          resource: {id: openCommunity.activity_stream.uuid},
+          resource: {id: openCollaboration.activity_stream.uuid},
           target: [
-            {objectType: 'activitystream', id: restrictedCommunity.activity_stream.uuid}
+            {objectType: 'activitystream', id: restrictedCollaboration.activity_stream.uuid}
           ]
         });
         req.expect(400);
@@ -863,16 +864,16 @@ describe.skip('The messages API', function() {
     });
 
     it('should return 403 when trying to share a message on a not open collaboration when user is not member of it', function(done) {
-      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + messageOnOpenCommunity._id + '/shares'));
         req.send({
-          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid},
+          resource: {objectType: 'activitystream', id: openCollaboration.activity_stream.uuid},
           target: [
-            {objectType: 'activitystream', id: restrictedCommunity.activity_stream.uuid}
+            {objectType: 'activitystream', id: restrictedCollaboration.activity_stream.uuid}
           ]
         });
         req.expect(400);
@@ -886,17 +887,17 @@ describe.skip('The messages API', function() {
       });
     });
 
-    it('should be able to share a message on a not open community the user is member of', function(done) {
-      this.helpers.api.loginAsUser(app, restrictedEmail, password, function(err, loggedInAsUser) {
+    it('should be able to share a message on a not open collaboration the user is member of', function(done) {
+      helpers.api.loginAsUser(app, restrictedEmail, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message2._id + '/shares'));
         req.send({
-          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid},
+          resource: {objectType: 'activitystream', id: openCollaboration.activity_stream.uuid},
           target: [
-            {objectType: 'activitystream', id: restrictedCommunity.activity_stream.uuid}
+            {objectType: 'activitystream', id: restrictedCollaboration.activity_stream.uuid}
           ]
         });
         req.expect(201);
@@ -905,17 +906,17 @@ describe.skip('The messages API', function() {
     });
 
     it('should duplicate message3, reset responses and return the new _id', function(done) {
-      var Whatsup = this.mongoose.model('Whatsup');
-      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      var Whatsup = mongoose.model('Whatsup');
+      helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message3._id + '/shares'));
         req.send({
-          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid},
+          resource: {objectType: 'activitystream', id: openCollaboration.activity_stream.uuid},
           target: [
-            {objectType: 'activitystream', id: community.activity_stream.uuid}
+            {objectType: 'activitystream', id: collaboration.activity_stream.uuid}
           ]
         });
         req.expect(201);
@@ -934,17 +935,17 @@ describe.skip('The messages API', function() {
     });
 
     it('should support sharing a message comment', function(done) {
-      var Whatsup = this.mongoose.model('Whatsup');
+      var Whatsup = mongoose.model('Whatsup');
       var commentId = message4.responses[0]._id;
-      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + commentId + '/shares'));
         req.send({
-          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid},
-          target: [{objectType: 'activitystream', id: community.activity_stream.uuid}]
+          resource: {objectType: 'activitystream', id: openCollaboration.activity_stream.uuid},
+          target: [{objectType: 'activitystream', id: collaboration.activity_stream.uuid}]
         });
         req.expect(201);
         req.end(function(err, res) {
@@ -963,7 +964,7 @@ describe.skip('The messages API', function() {
                 expect(original.responses[0]).to.exist;
                 expect(original.responses[0].copyOf).to.exist;
                 expect(original.responses[0].copyOf.target).to.have.length(1);
-                expect(original.responses[0].copyOf.target[0].id).to.equal(community.activity_stream.uuid);
+                expect(original.responses[0].copyOf.target[0].id).to.equal(collaboration.activity_stream.uuid);
                 expect(original.responses[0].copyOf.target[0].objectType).to.equal('activitystream');
                 done();
               });
@@ -973,21 +974,21 @@ describe.skip('The messages API', function() {
       });
     });
 
-    it('should create a new timelineentry when sharing a message to a community', function(done) {
-      var TimelineEntry = this.mongoose.model('TimelineEntry');
+    it('should create a new timelineentry when sharing a message to a collaboration', function(done) {
+      var TimelineEntry = mongoose.model('TimelineEntry');
       var target = {
         objectType: 'activitystream',
-        id: community.activity_stream.uuid
+        id: collaboration.activity_stream.uuid
       };
 
-      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message3._id + '/shares'));
         req.send({
-          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid},
+          resource: {objectType: 'activitystream', id: openCollaboration.activity_stream.uuid},
           target: [target]
         });
         req.expect(201);
@@ -1003,7 +1004,7 @@ describe.skip('The messages API', function() {
               expect(results[0].target).to.exist;
               expect(results[0].target.length).to.equal(1);
               expect(results[0].target[0].objectType).to.equal('activitystream');
-              expect(results[0].target[0]._id).to.equal(community.activity_stream.uuid);
+              expect(results[0].target[0]._id).to.equal(collaboration.activity_stream.uuid);
               expect(results[0].object).to.exist;
               expect(results[0].object.objectType).to.equal('whatsup');
               expect(results[0].object.id).to.equal(res.body._id);
@@ -1019,17 +1020,17 @@ describe.skip('The messages API', function() {
   });
 
   it('should save the attachments reference when posting a message', function(done) {
-    var Whatsup = this.mongoose.model('Whatsup');
-    var ObjectId = this.mongoose.Types.ObjectId;
+    var Whatsup = mongoose.model('Whatsup');
+    var ObjectId = mongoose.Types.ObjectId;
     var message = 'Hey, check out these files!';
     var target = {
       objectType: 'activitystream',
-      id: community.activity_stream.uuid
+      id: collaboration.activity_stream.uuid
     };
     var attachmentId = new ObjectId();
     var attachment = {_id: attachmentId, name: 'chuck.png', contentType: 'image/png', length: 988288};
 
-    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+    helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
       if (err) {
         return done(err);
       }
@@ -1065,15 +1066,15 @@ describe.skip('The messages API', function() {
   });
 
   it('should update the attachment references when posting a message with existing attachments', function(done) {
-    var ObjectId = this.mongoose.Types.ObjectId;
-    var Whatsup = this.mongoose.model('Whatsup');
-    var filestore = this.helpers.requireBackend('core/filestore');
+    var ObjectId = mongoose.Types.ObjectId;
+    var Whatsup = mongoose.model('Whatsup');
+    var filestore = helpers.requireBackend('core/filestore');
     var self = this;
 
     var message = 'Hey, check out these files!';
     var target = {
       objectType: 'activitystream',
-      id: community.activity_stream.uuid
+      id: collaboration.activity_stream.uuid
     };
 
     var text = 'hello world';
@@ -1138,15 +1139,15 @@ describe.skip('The messages API', function() {
   });
 
   it('should be able to post a whatsup message with a parser', function(done) {
-    var Whatsup = this.mongoose.model('Whatsup');
+    var Whatsup = mongoose.model('Whatsup');
 
     var message = 'Hey Oh, let\'s go!';
     var target = {
       objectType: 'activitystream',
-      id: community.activity_stream.uuid
+      id: collaboration.activity_stream.uuid
     };
 
-    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+    helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
       if (err) {
         return done(err);
       }
@@ -1299,11 +1300,11 @@ describe.skip('The messages API', function() {
         var self = this;
         var link = {
           type: 'like',
-          source: {objectType: 'user', id: String(userNotInPrivateCommunity._id)},
+          source: {objectType: 'user', id: String(userNotInPrivateCollaboration._id)},
           target: {objectType: 'esn.message', id: String(message5._id)}
         };
 
-        self.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+        self.helpers.api.loginAsUser(app, userNotInPrivateCollaboration.emails[0], password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
           loggedInAsUser(request(app)
             .post(ENDPOINT))
             .send(link)
@@ -1340,7 +1341,7 @@ describe.skip('The messages API', function() {
         var link = {
           type: 'like',
           source: {objectType: 'user', id: String(testuser._id)},
-          target: {objectType: 'esn.message', id: String(self.mongoose.Types.ObjectId())}
+          target: {objectType: 'esn.message', id: String(mongoose.Types.ObjectId())}
         };
 
         self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
@@ -1391,7 +1392,7 @@ describe.skip('The messages API', function() {
             targetId: String(message1._id),
             targetObjectType: 'esn.message'
           };
-          self.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+          self.helpers.api.loginAsUser(app, userNotInPrivateCollaboration.emails[0], password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
             loggedInAsUser(request(app)
               .delete('/api/resource-links'))
               .send(link)
@@ -1410,7 +1411,7 @@ describe.skip('The messages API', function() {
     describe('When messages are liked', function() {
 
       beforeEach(function() {
-        var likeModule = this.helpers.requireBackend('core/like');
+        var likeModule = helpers.requireBackend('core/like');
         this.likeMessage = function(user, message) {
           return likeModule.like({objectType: 'user', id: String(user._id)}, {objectType: 'esn.message', id: String(message._id)});
         };

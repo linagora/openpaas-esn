@@ -16,7 +16,7 @@ describe('The activity streams core module', function() {
       });
     });
 
-    it('should not fail when domain.getUserDomains and community.getUserCommunities fail', function(done) {
+    it('should not fail when domain.getUserDomains and collaboration.getStreamsForUser fail', function(done) {
       this.helpers.mock.models({});
       mockery.registerMock('../user/domain', {
         getUserDomains: function(user, cb) {

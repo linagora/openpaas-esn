@@ -5,7 +5,6 @@ const sinon = require('sinon');
 const mockery = require('mockery');
 
 describe('The collaboration module', function() {
-
   beforeEach(function() {
     mockery.registerMock('./usernotification', function() {});
     mockery.registerMock('../../user', {});
@@ -25,46 +24,46 @@ describe('The collaboration module', function() {
     });
 
     it('should call mongoose#find even when query is undefined', function(done) {
-      const objectType = 'community';
-      const CommunityModel = {
-        find: sinon.spy(function(q, callback) {
+      const objectType = 'collaboration';
+      const CollaborationModel = {
+        find: sinon.spy(function(query, callback) {
           callback();
         })
       };
 
       this.helpers.mock.models({
-        Community: CommunityModel
+        Collaboration: CollaborationModel
       });
 
       const collaboration = this.getModule();
 
-      collaboration.registerCollaborationModel(objectType, 'Community');
+      collaboration.registerCollaborationModel(objectType, 'Collaboration');
 
       collaboration.query(objectType, null, function() {
-        expect(CommunityModel.find).to.have.been.called;
+        expect(CollaborationModel.find).to.have.been.called;
         done();
       });
     });
 
     it('should call mongoose#find with query', function(done) {
       const query = 'fo bar';
-      const objectType = 'community';
-      const CommunityModel = {
-        find: sinon.spy(function(q, callback) {
+      const objectType = 'collaboration';
+      const CollaborationModel = {
+        find: sinon.spy(function(query, callback) {
           callback();
         })
       };
 
       this.helpers.mock.models({
-        Community: CommunityModel
+        Collaboration: CollaborationModel
       });
 
       const collaboration = this.getModule();
 
-      collaboration.registerCollaborationModel(objectType, 'Community');
+      collaboration.registerCollaborationModel(objectType, 'Collaboration');
 
       collaboration.query(objectType, query, function() {
-        expect(CommunityModel.find).to.have.been.calledWith(query);
+        expect(CollaborationModel.find).to.have.been.calledWith(query);
         done();
       });
     });
@@ -110,7 +109,7 @@ describe('The collaboration module', function() {
     it('should return nothing if no collaboration lib has a getCollaborationsForUser function', function(done) {
       const collaborationModule = this.getModule();
 
-      collaborationModule.registerCollaborationLib('community', {});
+      collaborationModule.registerCollaborationLib('collaboration', {});
       collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
         expect(err).to.not.exist;
         expect(collaborations).to.deep.equal([]);
@@ -127,11 +126,11 @@ describe('The collaboration module', function() {
       };
       const collaborationModule = this.getModule();
 
-      collaborationModule.registerCollaborationLib('community', {
+      collaborationModule.registerCollaborationLib('collaboration', {
         getCollaborationsForUser: function(id, options, callback) {
           expect(id).to.equal(userId);
           expect(options).to.deep.equal(testOptions);
-          libCalled.push('community');
+          libCalled.push('collaboration');
           callback(null, null);
         }
       });
@@ -148,19 +147,19 @@ describe('The collaboration module', function() {
       collaborationModule.getCollaborationsForUser(userId, testOptions, function(err, collaborations) {
         expect(err).to.not.exist;
         expect(collaborations).to.deep.equal([]);
-        expect(libCalled).to.deep.equal(['community', 'otherLib']);
+        expect(libCalled).to.deep.equal(['collaboration', 'otherLib']);
         done();
       });
     });
 
     it('should return the aggregated results of libs getCollaborationsForUser', function(done) {
-      const communities = [{_id: 'comm1'}, {_id: 'comm2'}];
+      const collaborations = [{_id: 'collaboration1'}, {_id: 'collaboration2'}];
       const otherCollaborations = [{_id: 'other1'}, {_id: 'other2'}];
       const collaborationModule = this.getModule();
 
-      collaborationModule.registerCollaborationLib('community', {
+      collaborationModule.registerCollaborationLib('collaboration', {
         getCollaborationsForUser: function(id, options, callback) {
-          callback(null, communities);
+          callback(null, collaborations);
         }
       });
 
@@ -172,8 +171,8 @@ describe('The collaboration module', function() {
 
       collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
         expect(err).to.not.exist;
-        communities.forEach(function(comm) {
-          expect(collaborations).to.contain(comm);
+        collaborations.forEach(function(collaboration) {
+          expect(collaborations).to.contain(collaboration);
         });
         otherCollaborations.forEach(function(other) {
           expect(collaborations).to.contain(other);
@@ -186,7 +185,7 @@ describe('The collaboration module', function() {
       const collaborationModule = this.getModule();
       const otherCollaborations = [{_id: 'other1'}, {_id: 'other2'}];
 
-      collaborationModule.registerCollaborationLib('community', {
+      collaborationModule.registerCollaborationLib('collaboration', {
         getCollaborationsForUser: function(id, options, callback) {
           callback(null, null);
         }
@@ -206,12 +205,12 @@ describe('The collaboration module', function() {
     });
 
     it('should return the aggregated results of libs getCollaborationsForUser even if some are empty', function(done) {
-      const communities = [{_id: 'comm1'}, {_id: 'comm2'}];
+      const collaborations = [{_id: 'collaboration1'}, {_id: 'collaboration2'}];
       const collaborationModule = this.getModule();
 
-      collaborationModule.registerCollaborationLib('community', {
+      collaborationModule.registerCollaborationLib('collaboration', {
         getCollaborationsForUser: function(id, options, callback) {
-          callback(null, communities);
+          callback(null, collaborations);
         }
       });
 
@@ -223,19 +222,19 @@ describe('The collaboration module', function() {
 
       collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
         expect(err).to.not.exist;
-        expect(collaborations).to.deep.equal(communities);
+        expect(collaborations).to.deep.equal(collaborations);
         done();
       });
     });
 
     it('should return if there are errors in libs getCollaborationsForUser', function(done) {
-      const communities = [{_id: 'comm1'}, {_id: 'comm2'}];
+      const collaborations = [{_id: 'collaboration1'}, {_id: 'collaboration2'}];
       const errorInOther = new Error('error in other');
       const collaborationModule = this.getModule();
 
-      collaborationModule.registerCollaborationLib('community', {
+      collaborationModule.registerCollaborationLib('collaboration', {
         getCollaborationsForUser: function(id, options, callback) {
-          callback(null, communities);
+          callback(null, collaborations);
         }
       });
 

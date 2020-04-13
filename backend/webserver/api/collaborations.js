@@ -56,14 +56,14 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /collaborations/{object_type}/{community_id}/invitablepeople :
+   * /collaborations/{object_type}/{collaboration_id}/invitablepeople :
    *   post:
    *     tags:
    *       - Collaboration
    *     description: Get the list of peoples (for now only users of the ESN) who can be invited in the {type}.
    *     parameters:
    *       - $ref: "#/parameters/cl_invitable_object_type"
-   *       - $ref: "#/parameters/cl_community_id"
+   *       - $ref: "#/parameters/cl_collaboration_id"
    *       - $ref: "#/parameters/cl_invitable_limit"
    *       - $ref: "#/parameters/cl_search"
    *     responses:
@@ -303,7 +303,7 @@ module.exports = function(router) {
    *
    *       Only private and restricted {objectType} support membership requests.
    *
-   *       According to the workflow property and if the user is a manager of the community:
+   *       According to the workflow property and if the user is a manager of the collaboration:
    *        -----------------------------------------------------------
    *
    *        (workflow = INVITATION and isCommunityManager = yes)
@@ -317,7 +317,7 @@ module.exports = function(router) {
    *        -----------------------------------------------------------
    *
    *        (workflow = REQUEST and isCommunityManager = yes)
-   *        manager refuses the user's request to enter the community
+   *        manager refuses the user's request to enter the collaboration
    *
    *        -----------------------------------------------------------
    *

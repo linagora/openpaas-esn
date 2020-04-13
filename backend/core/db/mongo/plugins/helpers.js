@@ -1,36 +1,30 @@
-'use strict';
+const mongoose = require('mongoose');
+const User = mongoose.model('User');
+const esPlugin = require('./elasticsearch');
+const userListener = require('../../../user/listener');
+const elasticSearch = require('../../../elasticsearch/listeners');
+const logger = require('../../../logger');
 
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
-var Community = mongoose.model('Community');
-var esPlugin = require('./elasticsearch');
-var userListener = require('../../../user/listener');
-var communityListener = require('../../../community/listener');
-var elasticSearch = require('../../../elasticsearch/listeners');
-var logger = require('../../../logger');
+module.exports = {
+  applyPlugins,
+  applyUserPlugins,
+  patchFindOneAndUpdate
+};
 
 function applyUserPlugins() {
   User.schema.plugin(esPlugin(userListener.getOptions()));
 }
-module.exports.applyUserPlugins = applyUserPlugins;
-
-function applyCommunityPlugins() {
-  Community.schema.plugin(esPlugin(communityListener.getOptions()));
-}
-module.exports.applyCommunityPlugins = applyCommunityPlugins;
 
 function applyPlugins() {
   applyUserPlugins();
-  applyCommunityPlugins();
 }
-module.exports.applyPlugins = applyPlugins;
 
 function patchFindOneAndUpdate() {
-  var find = User.findOneAndUpdate;
+  const find = User.findOneAndUpdate;
 
   User.findOneAndUpdate = function() {
-    var callback = arguments[arguments.length - 1];
-    var cb = function(err, result) {
+    const callback = arguments[arguments.length - 1];
+    const cb = function(err, result) {
       if (err) {
         return callback(err);
       }
@@ -47,8 +41,8 @@ function patchFindOneAndUpdate() {
         callback(err, result);
       });
     };
+
     arguments[arguments.length - 1] = cb;
     find.apply(this, arguments);
   };
 }
-module.exports.patchFindOneAndUpdate = patchFindOneAndUpdate;

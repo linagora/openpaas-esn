@@ -1,6 +1,6 @@
 const async = require('async');
 const SimulatedCollaboration = require('mongoose').model('SimulatedCollaboration');
-const collaborationPermission = require('../../../../backend/core/collaboration/permission');
+const { permission: collaborationPermission } = require('../../../../backend/core/collaboration');
 const { OBJECT_TYPE } = require('../constants');
 const {
   addStreamResourceFinder,

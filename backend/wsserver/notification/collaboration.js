@@ -29,7 +29,8 @@ function notifyRoom(io, uuid, event, msg) {
 
 function init(io) {
   if (initialized) {
-    logger.warn('The notification community service is already initialized');
+    logger.warn('The notification collaboration service is already initialized');
+
     return;
   }
 

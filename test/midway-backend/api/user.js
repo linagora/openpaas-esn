@@ -152,9 +152,9 @@ describe('User API', function() {
 
     it('should return 200 with an array or collaboration streams filtered by name', function(done) {
       async.parallel([
-        createSimulatedCollaboration('open', models1.users[0]._id, models1.domain._id, models2.users[1]._id, 'community1'),
-        createSimulatedCollaboration('open', models1.users[0]._id, models1.domain._id, models2.users[1]._id, 'community2'),
-        createSimulatedCollaboration('open', models1.users[0]._id, models1.domain._id, models2.users[1]._id, 'community3'),
+        createSimulatedCollaboration('open', models1.users[0]._id, models1.domain._id, models2.users[1]._id, 'collaboration1'),
+        createSimulatedCollaboration('open', models1.users[0]._id, models1.domain._id, models2.users[1]._id, 'collaboration2'),
+        createSimulatedCollaboration('open', models1.users[0]._id, models1.domain._id, models2.users[1]._id, 'collaboration3'),
         createSimulatedCollaboration('open', models1.users[0]._id, models1.domain._id, models2.users[1]._id, 'Node')
       ], function(err, collaborations) {
         if (err) {
@@ -171,7 +171,7 @@ describe('User API', function() {
           if (err) {
             return done(err);
           }
-          const req = loggedInAsUser(request(app).get('/api/user/activitystreams?name=commu'));
+          const req = loggedInAsUser(request(app).get('/api/user/activitystreams?name=colla'));
 
           req.expect(200);
           req.end(function(err, res) {
@@ -187,7 +187,7 @@ describe('User API', function() {
       });
     });
 
-    it('should return 200 with an array of community streams with only the community streams in specific domain', function(done) {
+    it('should return 200 with an array of collaboration streams with only the collaboration streams in specific domain', function(done) {
       helpers.api.createSimulatedCollaboration(models2.users[1]._id, models1.domain._id, {}, function(err) {
         if (err) {
           return done(err);
@@ -216,7 +216,7 @@ describe('User API', function() {
         });
       });
 
-      it('should return 200 with an array of community streams in all domains', function(done) {
+      it('should return 200 with an array of collaboration streams in all domains', function(done) {
         helpers.api.createSimulatedCollaboration(models2.users[1]._id, models1.domain._id, {}, function(err, collaboration) {
           if (err) {
             return done(err);

@@ -114,7 +114,7 @@ describe('The collaborations membership API', function() {
     });
 
     describe('when the current user is a collaboration manager', function() {
-      it('should return 200 with the community containing a new invitation', function(done) {
+      it('should return 200 with the collaboration containing a new invitation', function(done) {
         helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
           if (err) {
             return done(err);
@@ -200,7 +200,7 @@ describe('The collaborations membership API', function() {
       });
     });
 
-    describe('When community manager', function() {
+    describe('When collaboration manager', function() {
       it('should return the membership request list', function(done) {
         privateSimulatedCollaboration.membershipRequests.push({ user: user2._id, workflow: 'request' });
         privateSimulatedCollaboration.save(err => {
@@ -227,7 +227,7 @@ describe('The collaborations membership API', function() {
         });
       });
 
-      it('should return number of community membership requests in the header', function(done) {
+      it('should return number of collaboration membership requests in the header', function(done) {
         privateSimulatedCollaboration.membershipRequests = [
           { user: user2._id, workflow: 'request' },
           { user: user3._id, workflow: 'request' }
@@ -423,7 +423,7 @@ describe('The collaborations membership API', function() {
       });
 
       describe('when the workflow is request', function() {
-        it('should return 204 and remove the membershipRequest of the community', function(done) {
+        it('should return 204 and remove the membershipRequest of the collaboration', function(done) {
           helpers.api.loginAsUser(app, user3.emails[0], password, function(err, loggedInAsUser) {
             if (err) { return done(err); }
             const req = loggedInAsUser(
@@ -544,7 +544,7 @@ describe('The collaborations membership API', function() {
       });
 
       describe('and workflow = request', function() {
-        it('should return 204 and remove the membershipRequest of the community', function(done) {
+        it('should return 204 and remove the membershipRequest of the collaboration', function(done) {
           helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
             if (err) { return done(err); }
             const req = loggedInAsUser(

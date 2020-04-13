@@ -8,11 +8,9 @@ describe('The messages middleware', function() {
   describe('The canReplyTo fn', function() {
 
     beforeEach(function() {
-      mockery.registerMock('../community', {});
       mockery.registerMock('../../core/collaboration', {});
       mockery.registerMock('../../core/message/permission', {});
       mockery.registerMock('../../core/message', {});
-      mockery.registerMock('../../core/community', {});
     });
 
     it('should call next if req.body.replyTo is undefined', function(done) {
@@ -233,11 +231,11 @@ describe('The messages middleware', function() {
   describe('The canShareTo function', function() {
 
     beforeEach(function() {
-      mockery.registerMock('../community', {});
-      mockery.registerMock('../../core/collaboration', {});
+      mockery.registerMock('../../core/collaboration', {
+        permission: {}
+      });
       mockery.registerMock('../../core/message/permission', {});
       mockery.registerMock('../../core/message', {});
-      mockery.registerMock('../../core/community', {});
     });
 
     it('should send back 400 when target is undefined', function(done) {
@@ -273,14 +271,14 @@ describe('The messages middleware', function() {
     });
 
     it('should send back 400 when target is empty after checking rights', function(done) {
-      mockery.registerMock('../../core/collaboration/permission', {
-        canWrite: function(collaboration, tuple, callback) {
-          return callback(null, false);
-        }
-      });
       mockery.registerMock('../../core/collaboration', {
         findCollaborationFromActivityStreamID: function(id, callback) {
           callback(null, [{_id: 1}]);
+        },
+        permission: {
+          canWrite: function(collaboration, tuple, callback) {
+            return callback(null, false);
+          }
         }
       });
 
@@ -311,14 +309,14 @@ describe('The messages middleware', function() {
         {objectType: 'activitystream', id: 2}
       ];
 
-      mockery.registerMock('../../core/collaboration/permission', {
-        canWrite: function(collaboration, tuple, callback) {
-          return callback(null, collaboration === target[0].id);
-        }
-      });
       mockery.registerMock('../../core/collaboration', {
         findCollaborationFromActivityStreamID: function(id, callback) {
           callback(null, [id]);
+        },
+        permission: {
+          canWrite: function(collaboration, tuple, callback) {
+            return callback(null, collaboration === target[0].id);
+          }
         }
       });
 
@@ -345,11 +343,11 @@ describe('The messages middleware', function() {
   describe('The canShareFrom function', function() {
 
     beforeEach(function() {
-      mockery.registerMock('../community', {});
-      mockery.registerMock('../../core/collaboration', {});
-      mockery.registerMock('../../core/message/permission', {});
+      mockery.registerMock('../../core/collaboration', {
+        permission: {}
+      });
       mockery.registerMock('../../core/message', {});
-      mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/message/permission', {});
     });
 
     it('should send back 400 when resource is undefined', function(done) {
@@ -390,7 +388,8 @@ describe('The messages middleware', function() {
       mockery.registerMock('../../core/collaboration', {
         findCollaborationFromActivityStreamID: function(id, callback) {
           callback(new Error());
-        }
+        },
+        permission: {}
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/message').canShareFrom;
       var req = {
@@ -414,7 +413,8 @@ describe('The messages middleware', function() {
       mockery.registerMock('../../core/collaboration', {
         findCollaborationFromActivityStreamID: function(id, callback) {
           callback();
-        }
+        },
+        permission: {}
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/message').canShareFrom;
       var req = {
@@ -439,11 +439,11 @@ describe('The messages middleware', function() {
       mockery.registerMock('../../core/collaboration', {
         findCollaborationFromActivityStreamID: function(id, callback) {
           callback(null, [1]);
-        }
-      });
-      mockery.registerMock('../../core/collaboration/permission', {
-        canRead: function(collaboration, tuple, callback) {
-          return callback(new Error());
+        },
+        permission: {
+          canRead: function(collaboration, tuple, callback) {
+            return callback(new Error());
+          }
         }
       });
 
@@ -470,11 +470,11 @@ describe('The messages middleware', function() {
       mockery.registerMock('../../core/collaboration', {
         findCollaborationFromActivityStreamID: function(id, callback) {
           callback(null, [1]);
-        }
-      });
-      mockery.registerMock('../../core/collaboration/permission', {
-        canRead: function(collaboration, tuple, callback) {
-          return callback(null, false);
+        },
+        permission: {
+          canRead: function(collaboration, tuple, callback) {
+            return callback(null, false);
+          }
         }
       });
 
@@ -501,11 +501,11 @@ describe('The messages middleware', function() {
       mockery.registerMock('../../core/collaboration', {
         findCollaborationFromActivityStreamID: function(id, callback) {
           callback(null, [1]);
-        }
-      });
-      mockery.registerMock('../../core/collaboration/permission', {
-        canRead: function(collaboration, tuple, callback) {
-          return callback(null, true);
+        },
+        permission: {
+          canRead: function(collaboration, tuple, callback) {
+            return callback(null, true);
+          }
         }
       });
 

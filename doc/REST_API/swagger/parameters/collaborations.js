@@ -40,8 +40,8 @@
   *       Only show members of a certain object type, e.g. `user` or `community`.
   *       If prefixed with an exclamation mark, the object type query will be inverted.
   *     type: string
-  *   cl_community_id:
-  *     name: community_id
+  *   cl_collaboration_id:
+  *     name: collaboration_id
   *     in: path
   *     description: The id of the community
   *     required: true

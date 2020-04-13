@@ -20,7 +20,7 @@ module.exports = function(done) {
     .then(setEsnConfig)
     .then(populateDb)
     .then(function() {
-      console.log('Created 1 domain, 1 community, 20 users and 1 admin.');
+      console.log('Created 1 domain, 20 users and 1 admin.');
       console.log('Success ! You have a working ESN !');
       done(true);
     })

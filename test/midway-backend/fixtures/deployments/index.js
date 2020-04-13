@@ -83,13 +83,25 @@ module.exports.linagora_IT = function() {
         title: 'OpenPaaS open',
         type: 'open',
         creator: 'itadmin@lng.net',
-        members: [{objectType: 'user', id: 'jdoe@lng.net'}]
+        members: [{ objectType: 'user', id: 'jdoe@lng.net' }]
       },
       {
         title: 'OpenPaaS private',
         type: 'private',
         creator: 'itadmin@lng.net',
-        members: [{objectType: 'user', id: 'jdoe@lng.net'}]
+        members: [{ objectType: 'user', id: 'jdoe@lng.net' }]
+      },
+      {
+        title: 'OpenPaaS restricted',
+        type: 'restricted',
+        creator: 'itadmin@lng.net',
+        members: [{ objectType: 'user', id: 'jdoe@lng.net' }]
+      },
+      {
+        title: 'OpenPaaS open 2',
+        type: 'open',
+        creator: 'itadmin@lng.net',
+        members: [{ objectType: 'user', id: 'jdoe@lng.net' }]
       }
     ]
   };

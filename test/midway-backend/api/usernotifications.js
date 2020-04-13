@@ -18,7 +18,7 @@ describe('The user notification API', function() {
     const notification = new UserNotification({
       subject: {
         id: collaboration._id,
-        objectType: 'community'
+        objectType: 'simulatedCollaboration'
       },
       verb: {
         label: 'created',
@@ -26,7 +26,7 @@ describe('The user notification API', function() {
       },
       complement: {
         id: 456,
-        objectType: 'community'
+        objectType: 'simulatedCollaboration'
       },
       category: 'A category',
       read: read

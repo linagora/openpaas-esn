@@ -11,8 +11,6 @@ describe('The websockets usernotification module', function() {
   });
 
   beforeEach(function() {
-    this.helpers.requireBackend('core/db/mongo/models/community');
-    this.helpers.requireBackend('core/db/mongo/models/community-archive');
     this.helpers.requireBackend('core/db/mongo/models/domain');
     this.helpers.requireBackend('core/db/mongo/models/notification');
     this.helpers.requireBackend('core/db/mongo/models/usernotification');

@@ -1,12 +1,9 @@
-'use strict';
-
 const expect = require('chai').expect;
 const mockery = require('mockery');
 const sinon = require('sinon');
 const ObjectId = require('bson').ObjectId;
 
 describe('The collaboration member module', function() {
-
   let lib, modelMock, getModule;
 
   beforeEach(function() {
@@ -133,7 +130,7 @@ describe('The collaboration member module', function() {
     it('should send back error when userAuthor is null', function(done) {
       const collaborationModule = getModule();
 
-      collaborationModule.addMembershipRequest('community', {}, null, {}, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('collaboration', {}, null, {}, 'request', null, function(err, c) {
         expect(err.message).to.match(/Author user object is required/);
         expect(c).to.not.exist;
         done();
@@ -143,7 +140,7 @@ describe('The collaboration member module', function() {
     it('should send back error when userTarget is null', function(done) {
       const collaborationModule = getModule();
 
-      collaborationModule.addMembershipRequest('community', {}, {}, null, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('collaboration', {}, {}, null, 'request', null, function(err, c) {
         expect(err.message).to.match(/Target user object is required/);
         expect(c).to.not.exist;
         done();
@@ -153,7 +150,7 @@ describe('The collaboration member module', function() {
     it('should send back error when collaboration is null', function(done) {
       const collaborationModule = getModule();
 
-      collaborationModule.addMembershipRequest('community', null, {}, {}, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('collaboration', null, {}, {}, 'request', null, function(err, c) {
         expect(err.message).to.match(/Collaboration object is required/);
         expect(c).to.not.exist;
         done();
@@ -163,7 +160,7 @@ describe('The collaboration member module', function() {
     it('should send back error when workflow is null', function(done) {
       const collaborationModule = getModule();
 
-      collaborationModule.addMembershipRequest('community', {}, {}, {}, null, null, function(err, c) {
+      collaborationModule.addMembershipRequest('collaboration', {}, {}, {}, null, null, function(err, c) {
         expect(err.message).to.match(/Workflow string is required/);
         expect(c).to.not.exist;
         done();
@@ -173,7 +170,7 @@ describe('The collaboration member module', function() {
     it('should send back error when workflow is not "request" or "invitation"', function(done) {
       const collaborationModule = getModule();
 
-      collaborationModule.addMembershipRequest('community', {}, {}, {}, 'test', null, function(err, c) {
+      collaborationModule.addMembershipRequest('collaboration', {}, {}, {}, 'test', null, function(err, c) {
         expect(err.message).to.match(/Invalid workflow, must be/);
         expect(c).to.not.exist;
         done();
@@ -183,7 +180,7 @@ describe('The collaboration member module', function() {
     it('should send back error if collaboration type is open and workflow is request', function(done) {
       const collaborationModule = getModule();
 
-      collaborationModule.addMembershipRequest('community', {type: 'open'}, {}, {}, 'request', null, function(err) {
+      collaborationModule.addMembershipRequest('collaboration', {type: 'open'}, {}, {}, 'request', null, function(err) {
         expect(err.message).to.match(/Only Restricted and Private collaborations allow membership requests/);
         done();
       });
@@ -192,7 +189,7 @@ describe('The collaboration member module', function() {
     it('should send back error if collaboration type is confidential and workflow is request', function(done) {
       const collaborationModule = getModule();
 
-      collaborationModule.addMembershipRequest('community', {type: 'confidential'}, {}, {}, 'request', null, function(err) {
+      collaborationModule.addMembershipRequest('collaboration', {type: 'confidential'}, {}, {}, 'request', null, function(err) {
         expect(err.message).to.match(/Only Restricted and Private collaborations allow membership requests/);
         done();
       });
@@ -214,7 +211,7 @@ describe('The collaboration member module', function() {
       };
       const collaborationModule = getModule();
 
-      collaborationModule.addMembershipRequest('community', collaboration, {}, user, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('collaboration', collaboration, {}, user, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
         done();
@@ -225,7 +222,7 @@ describe('The collaboration member module', function() {
       const user = { _id: 'uid' };
       const collaborationModule = getModule();
 
-      collaborationModule.addMembershipRequest('community', null, {}, user, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('collaboration', null, {}, user, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
         done();
@@ -250,7 +247,7 @@ describe('The collaboration member module', function() {
       };
       const collaborationModule = getModule();
 
-      collaborationModule.addMembershipRequest('community', collaboration, {}, user, workflow, null, function(err, c) {
+      collaborationModule.addMembershipRequest('collaboration', collaboration, {}, user, workflow, null, function(err, c) {
         expect(err).to.not.exist;
         expect(c).to.exist;
         expect(c.membershipRequests).to.deep.equal(collaboration.membershipRequests);
@@ -282,7 +279,7 @@ describe('The collaboration member module', function() {
         callback(null, {});
       };
 
-      collaborationModule.addMembershipRequest('community', collaboration, {}, user, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('collaboration', collaboration, {}, user, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
         done();
@@ -314,7 +311,7 @@ describe('The collaboration member module', function() {
         callback(null, {});
       };
 
-      collaborationModule.addMembershipRequest('community', collaboration, {}, user, workflow, null, function(err, c) {
+      collaborationModule.addMembershipRequest('collaboration', collaboration, {}, user, workflow, null, function(err, c) {
         const newRequest = c.membershipRequests[1];
 
         expect(err).to.not.exist;
@@ -351,7 +348,7 @@ describe('The collaboration member module', function() {
         return callback(null, {});
       };
 
-      collaborationModule.addMembershipRequest('community', collaboration, {}, user, workflow, null, function(err, c) {
+      collaborationModule.addMembershipRequest('collaboration', collaboration, {}, user, workflow, null, function(err, c) {
         const newRequest = c.membershipRequests[1];
 
         expect(err).to.not.exist;
@@ -376,7 +373,7 @@ describe('The collaboration member module', function() {
 
       const collaborationModule = getModule();
 
-      collaborationModule.isManager('community', 123, 456, function(err) {
+      collaborationModule.isManager('collaboration', 123, 456, function(err) {
         expect(err.message).to.equal(error.message);
         done();
       });
@@ -389,7 +386,7 @@ describe('The collaboration member module', function() {
 
       const collaborationModule = getModule();
 
-      collaborationModule.isManager('community', 123, 456, function(err, result) {
+      collaborationModule.isManager('collaboration', 123, 456, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
         done();
@@ -403,7 +400,7 @@ describe('The collaboration member module', function() {
 
       const collaborationModule = getModule();
 
-      collaborationModule.isManager('community', 123, 456, function(err, result) {
+      collaborationModule.isManager('collaboration', 123, 456, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
         done();
@@ -422,7 +419,7 @@ describe('The collaboration member module', function() {
 
       const collaborationModule = getModule();
 
-      collaborationModule.leave('community', 123, 456, new ObjectId(), function(err) {
+      collaborationModule.leave('collaboration', 123, 456, new ObjectId(), function(err) {
         expect(err.message).to.equal(error.message);
         done();
       });
@@ -437,7 +434,7 @@ describe('The collaboration member module', function() {
 
       const collaborationModule = getModule();
 
-      collaborationModule.leave('community', 123, 456, new ObjectId(), function(err, update) {
+      collaborationModule.leave('collaboration', 123, 456, new ObjectId(), function(err, update) {
         expect(err).to.not.exist;
         expect(update).to.deep.equal(result);
         done();
@@ -457,18 +454,18 @@ describe('The collaboration member module', function() {
 
       const collaborationModule = getModule();
 
-      collaborationModule.leave('community', 123, '456', userTarget, function(err, update) {
+      collaborationModule.leave('collaboration', 123, '456', userTarget, function(err, update) {
         expect(err).to.not.exist;
         expect(update).to.deep.equal(result);
         expect(localstub.topics['collaboration:leave'].data[0]).to.deep.equal({
           author: '456',
           target: userTarget,
-          collaboration: {objectType: 'community', id: 123}
+          collaboration: {objectType: 'collaboration', id: 123}
         });
         expect(globalstub.topics['collaboration:leave'].data[0]).to.deep.equal({
           author: '456',
           target: userTarget,
-          collaboration: {objectType: 'community', id: 123}
+          collaboration: {objectType: 'collaboration', id: 123}
         });
 
         done();
@@ -493,7 +490,7 @@ describe('The collaboration member module', function() {
       const user = new ObjectId();
       const collaborationModule = getModule();
 
-      collaborationModule.join('community', comMock, user, user, 'user', function(err) {
+      collaborationModule.join('collaboration', comMock, user, user, 'user', function(err) {
         expect(err).to.exist;
         done();
       });
@@ -527,7 +524,7 @@ describe('The collaboration member module', function() {
       const user = new ObjectId();
       const collaborationModule = getModule();
 
-      collaborationModule.join('community', comMock, user, user, 'user', function(err, update) {
+      collaborationModule.join('collaboration', comMock, user, user, 'user', function(err, update) {
         expect(err).to.not.exist;
         expect(update.updated).to.be.true;
         done();
@@ -556,19 +553,19 @@ describe('The collaboration member module', function() {
 
       const collaborationModule = getModule();
 
-      collaborationModule.join('community', comMock, user, target, 'user', function(err) {
+      collaborationModule.join('collaboration', comMock, user, target, 'user', function(err) {
         expect(err).to.not.exist;
         expect(localstub.topics['collaboration:join'].data[0]).to.deep.equal({
           author: user,
           target: target,
           actor: 'user',
-          collaboration: {objectType: 'community', id: 'collaboration1'}
+          collaboration: {objectType: 'collaboration', id: 'collaboration1'}
         });
         expect(globalstub.topics['collaboration:join'].data[0]).to.deep.equal({
           author: user,
           target: target,
           actor: 'user',
-          collaboration: {objectType: 'community', id: 'collaboration1'}
+          collaboration: {objectType: 'collaboration', id: 'collaboration1'}
         });
 
         done();
@@ -636,14 +633,14 @@ describe('The collaboration member module', function() {
         const self = this;
         const collaborationModule = getModule();
 
-        collaborationModule.cancelMembershipInvitation('community', this.collaboration, this.membership, this.manager, function() {
+        collaborationModule.cancelMembershipInvitation('collaboration', this.collaboration, this.membership, this.manager, function() {
           expect(localstub.topics).to.have.property('collaboration:membership:invitation:cancel');
           expect(localstub.topics['collaboration:membership:invitation:cancel'].data).to.have.length(1);
           expect(localstub.topics['collaboration:membership:invitation:cancel'].data[0]).to.deep.equal({
             author: 'manager1',
             target: self.userId,
             membership: { user: self.userId, workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'collaboration1'}
+            collaboration: {objectType: 'collaboration', id: 'collaboration1'}
           });
           expect(globalstub.topics).to.have.property('collaboration:membership:invitation:cancel');
           expect(globalstub.topics['collaboration:membership:invitation:cancel'].data).to.have.length(1);
@@ -651,7 +648,7 @@ describe('The collaboration member module', function() {
             author: 'manager1',
             target: self.userId,
             membership: { user: self.userId, workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'collaboration1'}
+            collaboration: {objectType: 'collaboration', id: 'collaboration1'}
           });
           done();
         });
@@ -693,7 +690,7 @@ describe('The collaboration member module', function() {
           done();
         }
 
-        collaborationModule.refuseMembershipRequest('community', this.collaboration, this.membership, this.manager, onResponse);
+        collaborationModule.refuseMembershipRequest('collaboration', this.collaboration, this.membership, this.manager, onResponse);
       });
 
       it('should fire a collaboration:membership:request:refuse topic message', function(done) {
@@ -704,14 +701,14 @@ describe('The collaboration member module', function() {
           callback();
         };
 
-        collaborationModule.refuseMembershipRequest('community', this.collaboration, this.membership, this.manager, function() {
+        collaborationModule.refuseMembershipRequest('collaboration', this.collaboration, this.membership, this.manager, function() {
           expect(localstub.topics).to.have.property('collaboration:membership:request:refuse');
           expect(localstub.topics['collaboration:membership:request:refuse'].data).to.have.length(1);
           expect(localstub.topics['collaboration:membership:request:refuse'].data[0]).to.deep.equal({
             author: 'manager1',
             target: self.userId,
             membership: { user: self.userId, workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'collaboration1'}
+            collaboration: {objectType: 'collaboration', id: 'collaboration1'}
           });
           expect(globalstub.topics).to.have.property('collaboration:membership:request:refuse');
           expect(globalstub.topics['collaboration:membership:request:refuse'].data).to.have.length(1);
@@ -719,7 +716,7 @@ describe('The collaboration member module', function() {
             author: 'manager1',
             target: self.userId,
             membership: { user: self.userId, workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'collaboration1'}
+            collaboration: {objectType: 'collaboration', id: 'collaboration1'}
           });
           done();
         });
@@ -761,21 +758,21 @@ describe('The collaboration member module', function() {
           done();
         }
 
-        collaborationModule.declineMembershipInvitation('community', this.collaboration, this.membership, this.manager, onResponse);
+        collaborationModule.declineMembershipInvitation('collaboration', this.collaboration, this.membership, this.manager, onResponse);
       });
 
       it('should fire a collaboration:membership:invitation:decline topic message', function(done) {
         const self = this;
         const collaborationModule = getModule();
 
-        collaborationModule.declineMembershipInvitation('community', this.collaboration, this.membership, this.manager, function() {
+        collaborationModule.declineMembershipInvitation('collaboration', this.collaboration, this.membership, this.manager, function() {
           expect(localstub.topics).to.have.property('collaboration:membership:invitation:decline');
           expect(localstub.topics['collaboration:membership:invitation:decline'].data).to.have.length(1);
           expect(localstub.topics['collaboration:membership:invitation:decline'].data[0]).to.deep.equal({
             author: 'manager1',
             target: 'collaboration1',
             membership: { user: self.userId, workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'collaboration1'}
+            collaboration: {objectType: 'collaboration', id: 'collaboration1'}
           });
           expect(globalstub.topics).to.have.property('collaboration:membership:invitation:decline');
           expect(globalstub.topics['collaboration:membership:invitation:decline'].data).to.have.length(1);
@@ -783,7 +780,7 @@ describe('The collaboration member module', function() {
             author: 'manager1',
             target: 'collaboration1',
             membership: { user: self.userId, workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'collaboration1'}
+            collaboration: {objectType: 'collaboration', id: 'collaboration1'}
           });
           done();
         });
@@ -825,7 +822,7 @@ describe('The collaboration member module', function() {
           done();
         }
 
-        collaborationModule.cancelMembershipRequest('community', this.collaboration, this.membership, this.manager, onResponse);
+        collaborationModule.cancelMembershipRequest('collaboration', this.collaboration, this.membership, this.manager, onResponse);
       });
 
       it('should fire a collaboration:membership:request:cancel topic message', function(done) {
@@ -836,14 +833,14 @@ describe('The collaboration member module', function() {
           callback();
         };
 
-        collaborationModule.cancelMembershipRequest('community', this.collaboration, this.membership, this.manager, function() {
+        collaborationModule.cancelMembershipRequest('collaboration', this.collaboration, this.membership, this.manager, function() {
           expect(localstub.topics).to.have.property('collaboration:membership:request:cancel');
           expect(localstub.topics['collaboration:membership:request:cancel'].data).to.have.length(1);
           expect(localstub.topics['collaboration:membership:request:cancel'].data[0]).to.deep.equal({
             author: 'manager1',
             target: 'collaboration1',
             membership: { user: self.userId, workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'collaboration1'}
+            collaboration: {objectType: 'collaboration', id: 'collaboration1'}
           });
           expect(globalstub.topics).to.have.property('collaboration:membership:request:cancel');
           expect(globalstub.topics['collaboration:membership:request:cancel'].data).to.have.length(1);
@@ -851,7 +848,7 @@ describe('The collaboration member module', function() {
             author: 'manager1',
             target: 'collaboration1',
             membership: { user: self.userId, workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'collaboration1'}
+            collaboration: {objectType: 'collaboration', id: 'collaboration1'}
           });
           done();
         });
@@ -861,31 +858,31 @@ describe('The collaboration member module', function() {
 
   describe('The supportsMemberShipRequests fn', function() {
 
-    it('should return false if community is undefined', function() {
+    it('should return false if collaboration is undefined', function() {
       const collaborationModule = getModule();
 
       expect(collaborationModule.supportsMemberShipRequests(null)).to.be.false;
     });
 
-    it('should return false if community does not have type property', function() {
+    it('should return false if collaboration does not have type property', function() {
       const collaborationModule = getModule();
 
       expect(collaborationModule.supportsMemberShipRequests({foo: 'bar'})).to.be.false;
     });
 
-    it('should return false if community is not private or restricted', function() {
+    it('should return false if collaboration is not private or restricted', function() {
       const collaborationModule = getModule();
 
       expect(collaborationModule.supportsMemberShipRequests({type: 'bar'})).to.be.false;
     });
 
-    it('should return false if community is private', function() {
+    it('should return false if collaboration is private', function() {
       const collaborationModule = getModule();
 
       expect(collaborationModule.supportsMemberShipRequests({type: 'private'})).to.be.true;
     });
 
-    it('should return false if community is restricted', function() {
+    it('should return false if collaboration is restricted', function() {
       const collaborationModule = getModule();
 
       expect(collaborationModule.supportsMemberShipRequests({type: 'restricted'})).to.be.true;
