@@ -4,50 +4,52 @@ const uuidV4 = require('uuid/v4');
 const mockery = require('mockery');
 
 describe('The activitystreams API', function() {
-  let app;
+  let app, helpers, mongoose;
   const password = 'secret';
 
   before(function() {
-    this.helpers.requireBackend('core/db/mongo/models/domain');
-    this.helpers.requireBackend('core/db/mongo/models/user');
-    this.helpers.requireBackend('core/db/mongo/models/timelineentry');
+    helpers = this.helpers;
+
+    helpers.requireBackend('core/db/mongo/models/domain');
+    helpers.requireBackend('core/db/mongo/models/user');
+    helpers.requireBackend('core/db/mongo/models/timelineentry');
   });
 
   beforeEach(function() {
-    this.mongoose = require('mongoose');
+    mongoose = require('mongoose');
   });
 
   afterEach(function(done) {
-    this.helpers.mongo.dropDatabase(done);
+    helpers.mongo.dropDatabase(done);
   });
 
   describe('Tests', function() {
 
     beforeEach(function(done) {
-      const self = this;
-
       this.testEnv.initCore(function(err) {
         expect(err).to.not.exist;
-        app = self.helpers.requireBackend('webserver').webserver.application;
+        app = helpers.requireBackend('webserver').webserver.application;
         done();
       });
     });
 
     describe('Activity Stream tests', function() {
       let TimelineEntry;
-      let activitystreamId, community, privateCommunity, privateActivitystreamId;
-      let user, userNotInPrivateCommunity;
+      let activitystreamId, privateActivitystreamId, simulatedCollaboration, privateSimulatedCollaboration;
+      let user, userNotInSimulatedCollaboration;
       const email = 'itadmin@lng.net';
 
       beforeEach(function(done) {
-        TimelineEntry = this.mongoose.model('TimelineEntry');
-        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        TimelineEntry = mongoose.model('TimelineEntry');
+        helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) return done(err);
+
           user = models.users[0];
-          userNotInPrivateCommunity = models.users[2];
-          community = models.communities[0];
-          privateCommunity = models.communities[1];
-          activitystreamId = models.communities[0].activity_stream.uuid;
-          privateActivitystreamId = privateCommunity.activity_stream.uuid;
+          userNotInSimulatedCollaboration = models.users[2];
+          simulatedCollaboration = models.simulatedCollaborations[0];
+          privateSimulatedCollaboration = models.simulatedCollaborations[1];
+          activitystreamId = simulatedCollaboration.activity_stream.uuid;
+          privateActivitystreamId = privateSimulatedCollaboration.activity_stream.uuid;
           const timelineentryJSON = {
             actor: {
               objectType: 'user',
@@ -72,13 +74,13 @@ describe('The activitystreams API', function() {
       describe('GET /api/activitystreams/:uuid', function() {
 
         it('should send back 401 when not logged in', function(done) {
-          this.helpers.api.requireLogin(app, 'get', '/api/activitystreams/' + activitystreamId, done);
+          helpers.api.requireLogin(app, 'get', '/api/activitystreams/' + activitystreamId, done);
         });
 
         it('should send back 404 when the activity stream does not exist', function(done) {
           const incorrectUUID = uuidV4();
 
-          this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
             expect(err).to.not.exist;
             loggedInAsUser(request(app).get('/api/activitystreams/' + incorrectUUID))
               .expect(404, done);
@@ -86,7 +88,7 @@ describe('The activitystreams API', function() {
         });
 
         it('should send back 400 when limit parameter is incorrect', function(done) {
-          this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
             expect(err).to.not.exist;
             loggedInAsUser(request(app).get('/api/activitystreams/' + activitystreamId + '?limit=-12'))
               .expect(400, done);
@@ -97,7 +99,7 @@ describe('The activitystreams API', function() {
           const date = new Date();
 
           date.setDate(date.getDate() - 1);
-          this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
             expect(err).to.not.exist;
             loggedInAsUser(request(app).get('/api/activitystreams/' + activitystreamId + '?before=pipo'))
               .expect(400, done);
@@ -108,15 +110,14 @@ describe('The activitystreams API', function() {
           const date = new Date();
 
           date.setDate(date.getDate() - 1);
-          this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
             expect(err).to.not.exist;
             loggedInAsUser(request(app).get('/api/activitystreams/' + activitystreamId + '?after=pipo'))
               .expect(400, done);
           });
         });
 
-        it('should send back 200 when the activity stream exists but not send back timeline entries in private community', function(done) {
-          const self = this;
+        it('should send back 200 when the activity stream exists but not send back timeline entries in private collaboration', function(done) {
           const timelineentryPrivate = {
             actor: {
               objectType: 'user',
@@ -134,7 +135,7 @@ describe('The activitystreams API', function() {
           timelineEntry.save(function(err) {
             expect(err).to.not.exist;
 
-            self.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, function(err, loggedInAsUser) {
+            helpers.api.loginAsUser(app, userNotInSimulatedCollaboration.emails[0], password, function(err, loggedInAsUser) {
               expect(err).to.not.exist;
 
               const req = loggedInAsUser(request(app).get('/api/activitystreams/' + privateActivitystreamId + '?limit=10'));
@@ -154,7 +155,7 @@ describe('The activitystreams API', function() {
         });
 
         it('should send back 200 when activitystream exists with timeline entries', function(done) {
-          this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
             expect(err).to.not.exist;
             loggedInAsUser(request(app).get('/api/activitystreams/' + activitystreamId + '?limit=10'))
               .expect(200).end(function(err, res) {
@@ -186,13 +187,13 @@ describe('The activitystreams API', function() {
       describe('GET /api/activitystreams/:uuid/resource', function() {
 
         it('should send back 401 when not logged in', function(done) {
-          this.helpers.api.requireLogin(app, 'get', '/api/activitystreams/' + activitystreamId + '/resource', done);
+          helpers.api.requireLogin(app, 'get', '/api/activitystreams/' + activitystreamId + '/resource', done);
         });
 
         it('should send back 404 when the activity stream does not exist', function(done) {
           const incorrectUUID = uuidV4();
 
-          this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
             expect(err).to.not.exist;
             loggedInAsUser(request(app).get('/api/activitystreams/' + incorrectUUID + '/resource'))
               .expect(404, done);
@@ -200,17 +201,15 @@ describe('The activitystreams API', function() {
         });
 
         it('should send back 200 with activity stream associated resource', function(done) {
-          const self = this;
-
-          this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
             expect(err).to.not.exist;
             loggedInAsUser(request(app).get('/api/activitystreams/' + activitystreamId + '/resource'))
               .expect(200).end(function(err, res) {
                 expect(err).to.not.exist;
 
                 const expectedObject = {
-                  objectType: 'community',
-                  object: self.helpers.toComparableObject(community)
+                  objectType: 'simulatedCollaboration',
+                  object: helpers.toComparableObject(simulatedCollaboration)
                 };
 
                 expect(res.body).to.shallowDeepEqual(expectedObject);
@@ -222,46 +221,39 @@ describe('The activitystreams API', function() {
     });
 
     describe('Tracker tests', function() {
-      let domain;
-      let community;
+      let simulatedCollaboration;
       let user;
       let user2;
       let activitystreamId;
 
       beforeEach(function(done) {
-        const self = this;
-
-        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
           expect(err).to.not.exist;
 
-          domain = models.domain;
           user = models.users[0];
-          user2 = models.users[1];
+          user2 = models.users[2];
 
-          self.helpers.api.createCommunity('Node', user, domain, function(err, saved) {
-            expect(err).to.not.exist;
-            activitystreamId = saved.activity_stream.uuid;
-            community = saved;
-            done();
-          });
+          simulatedCollaboration = models.simulatedCollaborations[0];
+          activitystreamId = simulatedCollaboration.activity_stream.uuid;
+
+          done();
         });
       });
 
       describe('GET /api/activitystreams/:uuid/unreadcount', function() {
-
         it('should send back 401 when not logged in', function(done) {
-          this.helpers.api.requireLogin(app, 'get', '/api/activitystreams/' + activitystreamId + '/unreadcount', done);
+          helpers.api.requireLogin(app, 'get', '/api/activitystreams/' + activitystreamId + '/unreadcount', done);
         });
 
         it('should send back 404 if the activity stream is not found', function(done) {
-          this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
             loggedInAsUser(request(app).get('/api/activitystreams/178629182-19278128/unreadcount'))
               .expect(404, done);
           });
         });
 
         it('should send back 200 with 0 unread timeline entries when get the number for the first time', function(done) {
-          this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
             const req = loggedInAsUser(request(app).get('/api/activitystreams/' + activitystreamId + '/unreadcount'));
 
             req.expect(200);
@@ -281,12 +273,10 @@ describe('The activitystreams API', function() {
       });
 
       it('should send back 200 with 3 unread timeline entries', function(done) {
-        const self = this;
-
         // Login
-        this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
+        helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
           // Add one Timeline Entry
-          self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 1, 'post', function(err) {
+          helpers.api.applyMultipleTimelineEntries(activitystreamId, 1, 'post', function(err) {
             expect(err).to.not.exist;
 
             // Get the Activity Stream (will update the last unread Timeline Entry)
@@ -297,7 +287,7 @@ describe('The activitystreams API', function() {
               expect(err).to.not.exist;
 
               // Add 3 new Timeline Entries
-              self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err) {
+              helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err) {
                 expect(err).to.not.exist;
 
                 // Get the number of unread Timeline Entries
@@ -323,12 +313,10 @@ describe('The activitystreams API', function() {
 
       describe('when there is an update timelineentry', function() {
         it('should send back 200 with 3 unread timeline entries', function(done) {
-          const self = this;
-
           // Login
-          this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
             // Add one Timeline Entry
-            self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 1, 'post', function(err) {
+            helpers.api.applyMultipleTimelineEntries(activitystreamId, 1, 'post', function(err) {
               expect(err).to.not.exist;
 
               // Get the Activity Stream (will update the last unread Timeline Entry)
@@ -339,10 +327,10 @@ describe('The activitystreams API', function() {
                 expect(err).to.not.exist;
 
                 // Add 3 new Timeline Entries
-                self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err, models) {
+                helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err, models) {
                   expect(err).to.not.exist;
                   // add an update on the second timeline entry
-                  self.helpers.api.recordNextTimelineEntry(models.timelineEntries[1], 'update', function(err) {
+                  helpers.api.recordNextTimelineEntry(models.timelineEntries[1], 'update', function(err) {
                     expect(err).to.not.exist;
                     // Get the number of unread Timeline Entries
                     req = loggedInAsUser(request(app).get(
@@ -367,51 +355,48 @@ describe('The activitystreams API', function() {
         });
       });
 
-      it('should send back 200 with 0 unread TimelineEntry for new user in community', function(done) {
-        const self = this;
+      it('should send back 200 with 0 unread TimelineEntry for new user in simulated collaboration', function(done) {
+        // Add three Timeline Entry
+        helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err) {
+          expect(err).to.not.exist;
 
-        const communityCore = this.helpers.requireBackend('core/community');
-
-        // Login
-        this.helpers.api.loginAsUser(app, user.emails[0], password, function() {
-          // Add three Timeline Entry
-          self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err) {
+          // Add the second user to the simulated collaboration
+          helpers.api.addMemberInSimulatedCollaboration({
+            collaboration: simulatedCollaboration,
+            userAuthor: user,
+            userTarget: user2,
+            actor: 'user'
+          }, (err, updatedCollaboration) => {
             expect(err).to.not.exist;
+            expect(updatedCollaboration.members).to.have.length(3);
 
-            // Add the second user to the community
-            communityCore.member.join(community, user2, user2, 'user', function(err) {
+            helpers.api.loginAsUser(app, user2.emails[0], password, function(err, loggedInAsUser) {
               expect(err).to.not.exist;
+              // Get the number of unread Timeline Entries for the second user
+              const req = loggedInAsUser(request(app).get('/api/activitystreams/' + activitystreamId + '/unreadcount'));
 
-              self.helpers.api.loginAsUser(app, user2.emails[0], password, function(err, loggedInAsUser2) {
-                // Get the number of unread Timeline Entries for the second user
-                const req = loggedInAsUser2(request(app).get('/api/activitystreams/' + activitystreamId + '/unreadcount'));
+              req.expect(200);
+              req.end(function(err, res) {
+                expect(err).to.not.exist;
 
-                req.expect(200);
-                req.end(function(err, res) {
-                  expect(err).to.not.exist;
+                const expectedObject = {
+                  _id: activitystreamId,
+                  unread_count: 0
+                };
 
-                  const expectedObject = {
-                    _id: activitystreamId,
-                    unread_count: 0
-                  };
-
-                  expect(res.body).to.shallowDeepEqual(expectedObject);
-                  done();
-                });
+                expect(res.body).to.shallowDeepEqual(expectedObject);
+                done();
               });
             });
           });
         });
       });
 
-      it('should send back 200 with 3 unread timeline entries ' +
-        'when there are 4 timeline entries but with 1 own by the user', function(done) {
-        var self = this;
-
-        var TimelineEntry = this.mongoose.model('TimelineEntry');
+      it('should send back 200 with 3 unread timeline entries when there are 4 timeline entries but with 1 own by the user', function(done) {
+        var TimelineEntry = mongoose.model('TimelineEntry');
 
         // Login
-        this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
+        helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
           // Add one Timeline Entry (helper is not used because we must set a user id)
           new TimelineEntry({
             verb: 'post',
@@ -424,7 +409,7 @@ describe('The activitystreams API', function() {
             },
             object: {
               objectType: 'message',
-              _id: self.mongoose.Types.ObjectId()
+              _id: mongoose.Types.ObjectId()
             },
             target: [
               {
@@ -436,7 +421,7 @@ describe('The activitystreams API', function() {
               expect(err).to.not.exist;
 
               // Add 3 new Timeline Entries
-              self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err) {
+              helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err) {
                 expect(err).to.not.exist;
 
                 // Get the number of unread Timeline Entries
@@ -463,7 +448,6 @@ describe('The activitystreams API', function() {
 
   describe('Mock Tests', function() {
     let user;
-    let domain;
     let tracker;
     let activitystreamId;
 
@@ -475,29 +459,23 @@ describe('The activitystreams API', function() {
       };
       mockery.registerMock('../../core/activitystreams/tracker', {getTracker: function() {return tracker;}});
 
-      const self = this;
-
       this.testEnv.initCore(function(err) {
         expect(err).to.not.exist;
-        app = self.helpers.requireBackend('webserver').webserver.application;
+        app = helpers.requireBackend('webserver').webserver.application;
 
-        self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
           expect(err).to.not.exist;
 
-          domain = models.domain;
           user = models.users[0];
+          activitystreamId = models.simulatedCollaborations[0].activity_stream.uuid;
 
-          self.helpers.api.createCommunity('Node', user, domain, function(err, saved) {
-            expect(err).to.not.exist;
-            activitystreamId = saved.activity_stream.uuid;
-            done();
-          });
+          done();
         });
       });
     });
 
     it('should send back 500 if server error', function(done) {
-      this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
         loggedInAsUser(request(app).get('/api/activitystreams/' + activitystreamId + '/unreadcount'))
           .expect(500, done);
       });

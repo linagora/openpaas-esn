@@ -1,44 +1,45 @@
-'use strict';
-
-var request = require('supertest');
-var expect = require('chai').expect;
+const request = require('supertest');
+const { expect } = require('chai');
 
 describe('The messages API', function() {
-  var app;
+  let app, helpers, models;
+  const password = 'secret';
 
   beforeEach(function(done) {
-    var self = this;
-    this.testEnv.initCore(function() {
-      app = self.helpers.requireBackend('webserver/application');
-      self.mongoose = require('mongoose');
-      self.PollMessage = self.helpers.requireBackend('core/db/mongo/models/pollmessage');
+    helpers = this.helpers;
 
-      self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+    this.testEnv.initCore(function() {
+      app = helpers.requireBackend('webserver/application');
+      helpers.requireBackend('core/db/mongo/models/pollmessage');
+
+      helpers.api.applyDomainDeployment('linagora_IT', function(err, _models) {
         if (err) {
           return done(err);
         }
-        self.models = models;
+        models = _models;
         done();
       });
     });
   });
 
   afterEach(function(done) {
-    this.helpers.mongo.dropDatabase(done);
+    helpers.mongo.dropDatabase(done);
   });
 
   describe('poll messages', function() {
     describe('POST /api/messages', function() {
       it('should allow posting poll messages', function(done) {
-        var target = {
+        const target = {
           objectType: 'activitystream',
-          id: this.models.communities[0].activity_stream.uuid
+          id: models.simulatedCollaborations[0].activity_stream.uuid
         };
-        this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+
+        helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, loggedInAsUser) {
           if (err) {
             return done(err);
           }
-          var req = loggedInAsUser(request(app).post('/api/messages'));
+          const req = loggedInAsUser(request(app).post('/api/messages'));
+
           req.send({
             object: {
               description: 'poll1',
@@ -58,15 +59,17 @@ describe('The messages API', function() {
         });
       });
       it('should not allow posting poll messages without description', function(done) {
-        var target = {
+        const target = {
           objectType: 'activitystream',
-          id: this.models.communities[0].activity_stream.uuid
+          id: models.simulatedCollaborations[0].activity_stream.uuid
         };
-        this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+
+        helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, loggedInAsUser) {
           if (err) {
             return done(err);
           }
-          var req = loggedInAsUser(request(app).post('/api/messages'));
+          const req = loggedInAsUser(request(app).post('/api/messages'));
+
           req.send({
             object: {
               objectType: 'poll',
@@ -85,15 +88,17 @@ describe('The messages API', function() {
         });
       });
       it('should not allow posting poll messages without pollChoices property', function(done) {
-        var target = {
+        const target = {
           objectType: 'activitystream',
-          id: this.models.communities[0].activity_stream.uuid
+          id: models.simulatedCollaborations[0].activity_stream.uuid
         };
-        this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+
+        helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, loggedInAsUser) {
           if (err) {
             return done(err);
           }
-          var req = loggedInAsUser(request(app).post('/api/messages'));
+          const req = loggedInAsUser(request(app).post('/api/messages'));
+
           req.send({
             object: {
               description: 'poll1',
@@ -111,15 +116,17 @@ describe('The messages API', function() {
         });
       });
       it('should not allow posting poll messages with an empty pollChoices property', function(done) {
-        var target = {
+        const target = {
           objectType: 'activitystream',
-          id: this.models.communities[0].activity_stream.uuid
+          id: models.simulatedCollaborations[0].activity_stream.uuid
         };
-        this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+
+        helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, loggedInAsUser) {
           if (err) {
             return done(err);
           }
-          var req = loggedInAsUser(request(app).post('/api/messages'));
+          const req = loggedInAsUser(request(app).post('/api/messages'));
+
           req.send({
             object: {
               description: 'poll1',
@@ -139,15 +146,17 @@ describe('The messages API', function() {
         });
       });
       it('should not allow posting poll messages with a pollChoices of invalid choices', function(done) {
-        var target = {
+        const target = {
           objectType: 'activitystream',
-          id: this.models.communities[0].activity_stream.uuid
+          id: models.simulatedCollaborations[0].activity_stream.uuid
         };
-        this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+
+        helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, loggedInAsUser) {
           if (err) {
             return done(err);
           }
-          var req = loggedInAsUser(request(app).post('/api/messages'));
+          const req = loggedInAsUser(request(app).post('/api/messages'));
+
           req.send({
             object: {
               description: 'poll1',
@@ -166,15 +175,17 @@ describe('The messages API', function() {
         });
       });
       it('should not allow posting poll messages with less than two choices', function(done) {
-        var target = {
+        const target = {
           objectType: 'activitystream',
-          id: this.models.communities[0].activity_stream.uuid
+          id: models.simulatedCollaborations[0].activity_stream.uuid
         };
-        this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+
+        helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, loggedInAsUser) {
           if (err) {
             return done(err);
           }
-          var req = loggedInAsUser(request(app).post('/api/messages'));
+          const req = loggedInAsUser(request(app).post('/api/messages'));
+
           req.send({
             object: {
               description: 'poll1',
@@ -196,17 +207,20 @@ describe('The messages API', function() {
     });
     describe('PUT /api/messages/:id/vote/:vote', function() {
       describe('when user does not have read right on the message', function() {
+        let messageId, loggedInAsUser;
+
         beforeEach(function(done) {
-          var self = this;
-          var target = {
+          const target = {
             objectType: 'activitystream',
-            id: this.models.communities[1].activity_stream.uuid
+            id: models.simulatedCollaborations[1].activity_stream.uuid
           };
-          this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+
+          helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, loggedInAsUser) {
             if (err) {
               return done(err);
             }
-            var req = loggedInAsUser(request(app).post('/api/messages'));
+            const req = loggedInAsUser(request(app).post('/api/messages'));
+
             req.send({
               object: {
                 description: 'poll1',
@@ -218,37 +232,46 @@ describe('The messages API', function() {
               targets: [target]
             }).expect(201)
               .end(function(err, res) {
-                self.messageId = res.body._id;
+                expect(err).to.not.exist;
+                messageId = res.body._id;
                 done();
               });
           });
         });
+
         beforeEach(function(done) {
-          var self = this;
-          this.helpers.api.loginAsUser(app, this.models.users[3].emails[0], 'secret', function(err, loggedInAsUser) {
-            self.loggedInAsUser = loggedInAsUser;
+          helpers.api.loginAsUser(app, models.users[3].emails[0], password, function(err, _loggedInAsUser) {
+            if (err) return done(err);
+
+            loggedInAsUser = _loggedInAsUser;
             done();
           });
         });
+
         it('should not be able to vote', function(done) {
-          var req = this.loggedInAsUser(request(app).put('/api/messages/' + this.messageId + '/vote/0'));
+          const req = loggedInAsUser(request(app).put('/api/messages/' + messageId + '/vote/0'));
+
           req.send({})
-          .expect(403)
-          .end(done);
+            .expect(403)
+            .end(done);
         });
       });
+
       describe('when user have read right on the message', function() {
+        let messageId, loggedInAsUser;
+
         beforeEach(function(done) {
-          var self = this;
-          var target = {
+          const target = {
             objectType: 'activitystream',
-            id: this.models.communities[2].activity_stream.uuid
+            id: models.simulatedCollaborations[2].activity_stream.uuid
           };
-          this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+
+          helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, loggedInAsUser) {
             if (err) {
               return done(err);
             }
-            var req = loggedInAsUser(request(app).post('/api/messages'));
+            const req = loggedInAsUser(request(app).post('/api/messages'));
+
             req.send({
               object: {
                 description: 'poll1',
@@ -260,32 +283,39 @@ describe('The messages API', function() {
               targets: [target]
             }).expect(201)
               .end(function(err, res) {
-                self.messageId = res.body._id;
+                if (err) return done(err);
+                messageId = res.body._id;
                 done();
               });
           });
         });
+
         beforeEach(function(done) {
-          var self = this;
-          this.helpers.api.loginAsUser(app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
-            self.loggedInAsUser = loggedInAsUser;
+          helpers.api.loginAsUser(app, models.users[1].emails[0], password, function(err, _loggedInAsUser) {
+            if (err) return done(err);
+
+            loggedInAsUser = _loggedInAsUser;
             done();
           });
         });
+
         it('should be able to vote', function(done) {
-          var req = this.loggedInAsUser(request(app).put('/api/messages/' + this.messageId + '/vote/0'));
+          const req = loggedInAsUser(request(app).put('/api/messages/' + messageId + '/vote/0'));
+
           req.send({});
           req.expect(200)
           .end(done);
         });
+
         it('should not be able to vote twice on the same choice', function(done) {
-          var liau = this.loggedInAsUser;
-          var messageId = this.messageId;
-          var req = liau(request(app).put('/api/messages/' + messageId + '/vote/0'));
+          const liau = loggedInAsUser;
+          const req = liau(request(app).put('/api/messages/' + messageId + '/vote/0'));
+
           req.send({})
           .expect(200)
           .end(function() {
-            var req2 = liau(request(app).put('/api/messages/' + messageId + '/vote/0'));
+            const req2 = liau(request(app).put('/api/messages/' + messageId + '/vote/0'));
+
             req2.send({})
             .expect(403)
             .end(function() {
@@ -294,13 +324,14 @@ describe('The messages API', function() {
           });
         });
         it('should not be able to vote once again, but on another choice', function(done) {
-          var liau = this.loggedInAsUser;
-          var messageId = this.messageId;
-          var req = liau(request(app).put('/api/messages/' + messageId + '/vote/0'));
+          const liau = loggedInAsUser;
+          const req = liau(request(app).put('/api/messages/' + messageId + '/vote/0'));
+
           req.send({})
           .expect(200)
           .end(function() {
-            var req2 = liau(request(app).put('/api/messages/' + messageId + '/vote/1'));
+            const req2 = liau(request(app).put('/api/messages/' + messageId + '/vote/1'));
+
             req2.send({})
             .expect(403)
             .end(function() {

@@ -38,7 +38,7 @@ describe('The activity streams core module', function() {
       });
     });
 
-    it('should send back streams from user communities', function(done) {
+    it('should send back streams from user collaborations', function(done) {
       var streams = [
         {
           uuid: 222
@@ -68,7 +68,7 @@ describe('The activity streams core module', function() {
       });
     });
 
-    it('should send back streams from communities', function(done) {
+    it('should send back streams from collaborations', function(done) {
       var streams = [
         {
           uuid: 222

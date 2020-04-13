@@ -1,89 +1,82 @@
-'use strict';
-
-var expect = require('chai').expect;
-var request = require('supertest');
-var async = require('async');
+const { expect } = require('chai');
+const request = require('supertest');
 
 describe('The collaborations API', function() {
-  var webserver;
+  let app, helpers;
+  const password = 'secret';
 
   beforeEach(function(done) {
-    var self = this;
+    helpers = this.helpers;
 
-    this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
-      webserver = self.helpers.requireBackend('webserver').webserver;
+      app = helpers.requireBackend('webserver/application');
       done();
     });
   });
 
   afterEach(function(done) {
-    this.helpers.mongo.dropDatabase(done);
+    helpers.mongo.dropDatabase(done);
   });
 
   describe('GET /api/collaborations/membersearch', function() {
+    let simulatedCollaborations, user, user2, user3;
 
     beforeEach(function(done) {
-      var self = this;
-      this.helpers.api.applyDomainDeployment('collaborationMembers', function(err, models) {
+      helpers.api.applyDomainDeployment('collaborationMembers', function(err, models) {
         if (err) { return done(err); }
-        self.domain = models.domain;
-        self.user = models.users[0];
-        self.user2 = models.users[1];
-        self.user3 = models.users[2];
-        self.models = models;
+        user = models.users[0];
+        user2 = models.users[1];
+        user3 = models.users[2];
+        simulatedCollaborations = models.simulatedCollaborations;
         done();
       });
     });
 
-    afterEach(function(done) {
-      var self = this;
-      self.helpers.api.cleanDomainDeployment(self.models, done);
-    });
-
     it('should 401 when not logged in', function(done) {
-      this.helpers.api.requireLogin(webserver.application, 'get', '/api/collaborations/membersearch?objectType=user&id=123456789', done);
+      helpers.api.requireLogin(app, 'get', '/api/collaborations/membersearch?objectType=user&id=123456789', done);
     });
 
     it('should 400 when req.query.objectType is not set', function(done) {
-      var self = this;
-      self.helpers.api.loginAsUser(webserver.application, this.user2.emails[0], 'secret', function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, user2.emails[0], password, function(err, loggedInAsUser) {
         if (err) { return done(err); }
 
-        var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/membersearch?id=' + self.user3._id));
+        const req = loggedInAsUser(request(app).get('/api/collaborations/membersearch?id=' + user3._id));
+
         req.expect(400);
         done();
       });
     });
 
     it('should 400 when req.query.id is not set', function(done) {
-      var self = this;
-      self.helpers.api.loginAsUser(webserver.application, this.user2.emails[0], 'secret', function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, user2.emails[0], password, function(err, loggedInAsUser) {
         if (err) { return done(err); }
 
-        var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/membersearch?objectType=community'));
+        const req = loggedInAsUser(request(app).get('/api/collaborations/membersearch?objectType=simulatedCollaboration'));
+
         req.expect(400);
         done();
       });
     });
 
     it('should find all the collaborations where the given tuple is a member of', function(done) {
-      const self = this;
       const tuple = {
         objectType: 'email',
         id: 'alice@email.com'
       };
 
-      self.helpers.api.addMembersInCommunity(self.models.communities[1], [tuple], err => {
+      const privateCollaboration = simulatedCollaborations[1];
+
+      privateCollaboration.members = privateCollaboration.members.concat([{ member: tuple }]);
+      privateCollaboration.save(err => {
         if (err) {
           return done(err);
         }
 
-        self.helpers.api.loginAsUser(webserver.application, self.user.emails[0], 'secret', (err, loggedInAsUser) => {
+        helpers.api.loginAsUser(app, user.emails[0], password, (err, loggedInAsUser) => {
           if (err) { return done(err); }
 
           const req = loggedInAsUser(
-            request(webserver.application)
+            request(app)
               .get(`/api/collaborations/membersearch?objectType=${tuple.objectType}&id=${tuple.id}`)
           );
 
@@ -93,7 +86,7 @@ describe('The collaborations API', function() {
             expect(res.body).to.exist;
             expect(res.body).to.be.an('array');
             expect(res.body.length).to.equal(1);
-            expect(res.body[0]._id).to.equal(self.models.communities[1].id);
+            expect(res.body[0]._id).to.equal(privateCollaboration.id);
             done();
           });
         });
@@ -101,73 +94,64 @@ describe('The collaborations API', function() {
     });
 
     it('should find all the visible collaborations where the given tuple is a member of', function(done) {
-      const self = this;
       const aliceTuple = {
         objectType: 'email',
         id: 'alice@email.com'
       };
-      const tuples = [aliceTuple];
+      const privateCollaboration = simulatedCollaborations[1];
+      const restrictedCollaboration = simulatedCollaborations[2];
 
-      function test() {
-        self.helpers.api.loginAsUser(webserver.application, self.models.users[3].emails[0], 'secret', (err, loggedInAsUser) => {
+      privateCollaboration.members = privateCollaboration.members.concat([{ member: aliceTuple }]);
+      restrictedCollaboration.members = restrictedCollaboration.members.concat([{ member: aliceTuple }]);
+
+      Promise.all([
+        privateCollaboration.save(),
+        restrictedCollaboration.save()
+      ]).then(() => {
+        helpers.api.loginAsUser(app, user3.emails[0], password, (err, loggedInAsUser) => {
           if (err) { return done(err); }
 
-          const req = loggedInAsUser(request(webserver.application).get(`/api/collaborations/membersearch?objectType=${aliceTuple.objectType}&id=${aliceTuple.id}`));
+          const req = loggedInAsUser(request(app).get(`/api/collaborations/membersearch?objectType=${aliceTuple.objectType}&id=${aliceTuple.id}`));
 
           req.expect(200);
           req.end((err, res) => {
             expect(err).to.not.exist;
             expect(res.body).to.exist;
             expect(res.body).to.be.an('array');
-            expect(res.body.length).to.equal(1);
-            expect(res.body[0]._id).to.equal(self.models.communities[2].id);
+            expect(res.body.length).to.equal(2);
+            expect([res.body[0]._id, res.body[1]._id]).to.shallowDeepEqual([privateCollaboration.id, restrictedCollaboration.id]);
             done();
           });
         });
-      }
-
-      async.parallel([
-        callback => self.helpers.api.addMembersInCommunity(self.models.communities[1], tuples, callback),
-        callback => self.helpers.api.addMembersInCommunity(self.models.communities[2], tuples, callback)
-      ], err => {
-        if (err) {
-          return done(err);
-        }
-
-        return test();
-      });
+      }).catch(err => done(err || new Error('should resolve')));
     });
   });
 
   describe('GET /api/collaborations/writable', function() {
+    let simulatedCollaborations, user2;
 
     beforeEach(function(done) {
-      var self = this;
-      this.helpers.api.applyDomainDeployment('openAndPrivateCommunities', function(err, models) {
+      helpers.api.applyDomainDeployment('openAndPrivateCollaborations', function(err, models) {
         if (err) { return done(err); }
-        self.models = models;
-        var jobs = models.users.map(function(user) {
-          return function(done) {
-            user.domains.push({domain_id: self.models.domain._id});
-            user.save(done);
-          };
-        });
-        async.parallel(jobs, done);
+        simulatedCollaborations = models.simulatedCollaborations;
+        user2 = models.users[2];
+        done();
       });
     });
 
     it('should return 401 if user is not authenticated', function(done) {
-      this.helpers.api.requireLogin(webserver.application, 'get', '/api/collaborations/writable', done);
+      helpers.api.requireLogin(app, 'get', '/api/collaborations/writable', done);
     });
 
     it('should return the list of collaborations the user can write into', function(done) {
-      var self = this;
-      var correctIds = [self.models.communities[0].id, self.models.communities[1].id, self.models.communities[3].id];
-      self.helpers.api.loginAsUser(webserver.application, self.models.users[2].emails[0], 'secret', function(err, loggedInAsUser) {
+      const correctIds = [simulatedCollaborations[0].id, simulatedCollaborations[1].id, simulatedCollaborations[3].id];
+
+      helpers.api.loginAsUser(app, user2.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/writable'));
+        const req = loggedInAsUser(request(app).get('/api/collaborations/writable'));
+
         req.expect(200);
         req.end(function(err, res) {
           expect(err).to.not.exist;

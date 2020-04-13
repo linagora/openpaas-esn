@@ -50,8 +50,6 @@ module.exports = function(mixin, testEnv) {
   * Currently it supports for each fixture the creation of one domain,
   * and users belonging to this domain.
   * The first user of the list is automatically added as the domain administrator.
-  *
-  *
   */
   api.applyDomainDeployment = function(name, options, callback) {
     if (!callback) {
@@ -70,11 +68,12 @@ module.exports = function(mixin, testEnv) {
     const self = this;
 
     require('mongoose').model('User');
-    const Community = require('mongoose').model('Community');
     const Domain = require('mongoose').model('Domain');
     const helpers = require('../backend/core/db/mongo/plugins/helpers');
+    const simulatedCollaborationModule = require('./fixtures/simulated-collaboration');
 
-    helpers.applyCommunityPlugins();
+    simulatedCollaborationModule.init();
+
     helpers.patchFindOneAndUpdate();
 
     deployment.models = {};
@@ -93,18 +92,18 @@ module.exports = function(mixin, testEnv) {
         collaboration.members.push({member: {objectType: 'user', id: users[0]._id}});
       },
 
-      community: function(models, collaboration, member) {
-        if (member.objectType !== 'community') {
+      simulatedCollaboration: function(models, collaboration, member) {
+        if (member.objectType !== 'simulatedCollaboration') {
           return;
         }
-        const communities = models.communities.filter(function(community) {
-          return community.title.indexOf(member.id) >= 0;
+        const simulatedCollaborations = models.simulatedCollaborations.filter(function(collaboration) {
+          return collaboration.title.indexOf(member.id) >= 0;
         });
 
-        if (!communities.length) {
+        if (!simulatedCollaborations.length) {
           throw new Error('Could not find ' + member.id);
         }
-        collaboration.members.push({member: {objectType: 'community', id: communities[0]._id}});
+        collaboration.members.push({ member: { objectType: 'simulatedCollaboration', id: simulatedCollaborations[0]._id } });
       }
     };
 
@@ -181,15 +180,17 @@ module.exports = function(mixin, testEnv) {
       });
     }
 
-    function createCommunities() {
-      deployment.communities = deployment.communities || [];
-      deployment.models.communities = deployment.models.communities || [];
+    function createSimulatedCollaborations() {
+      const SimulatedCollaboration = require('mongoose').model('SimulatedCollaboration');
 
-      return deployment.communities.reduce(function(sofar, community) {
+      deployment.simulatedCollaborations = deployment.simulatedCollaborations || [];
+      deployment.models.simulatedCollaborations = deployment.models.simulatedCollaborations || [];
+
+      return deployment.simulatedCollaborations.reduce(function(sofar, collaboration) {
         return sofar.then(function() {
-          return saveCollaboration(Community, deployment.models, community);
+          return saveCollaboration(SimulatedCollaboration, deployment.models, collaboration);
         }).then(function(collab) {
-          deployment.models.communities.push(collab);
+          deployment.models.simulatedCollaborations.push(collab);
         });
       }, Promise.resolve(true));
     }
@@ -207,99 +208,45 @@ module.exports = function(mixin, testEnv) {
       .then(createDomain)
       .then(createUsers)
       .then(updateDomainAdministrator)
-      .then(createCommunities)
+      .then(createSimulatedCollaborations)
       .then(() => callback(null, deployment.models))
       .catch(callback);
   };
 
-  api.getCommunity = function(id, done) {
-    const Community = require('mongoose').model('Community');
+  api.getSimulatedCollaboration = function(id, done) {
+    const simulatedCollaborationModuleLib = require('./fixtures/simulated-collaboration').lib;
 
-    Community.findOne({_id: id}, done);
+    return simulatedCollaborationModuleLib.get(id, done);
   };
 
-  api.createCommunity = function(title, creator, domain, opts, done) {
-    require(testEnv.basePath + '/backend/core/db/mongo/models/community');
-    if (opts && !done) {
-      done = opts;
-      opts = null;
-    }
-    const Community = require('mongoose').model('Community');
+  api.createSimulatedCollaboration = function(creator, domain, opts, done) {
+    const simulatedCollaborationModuleLib = require('./fixtures/simulated-collaboration').lib;
     const creatorId = creator._id || creator;
-    let json = {
-      title: title,
+
+    let collaboration = {
       type: 'open',
       creator: creatorId,
       domain_ids: [domain._id || domain],
       members: [
-      {member: {id: creatorId, objectType: 'user'}}
+        { member: { id: creatorId, objectType: 'user' } }
       ]
     };
 
     if (opts) {
       if (typeof opts === 'function') {
-        json = opts(json);
+        collaboration = opts(collaboration);
       } else {
-        extend(true, json, opts);
+        extend(true, collaboration, opts);
       }
     }
-    const community = new Community(json);
 
-    return community.save(done);
+    return simulatedCollaborationModuleLib.create(collaboration, done);
   };
 
-  api.addUsersInCommunity = function(community, users, done) {
-    const Community = require('mongoose').model('Community');
+  api.addMemberInSimulatedCollaboration = function(options, done) {
+    const simulatedCollaborationModuleLib = require('./fixtures/simulated-collaboration').lib;
 
-    async.each(users, function(user, callback) {
-      Community.update({
-        _id: community._id || community
-      }, {
-        $push: {
-          members: {
-            member: {
-              id: user._id || user,
-              objectType: 'user',
-              status: 'joined'
-            }
-          }
-        }
-      }, callback);
-    }, function(err) {
-      if (err) { return done(err); }
-      Community.findOne({_id: community._id || community}, function(err, result) {
-        if (err) { return done(err); }
-
-        return done(null, result);
-      });
-    });
-  };
-
-  api.addMembersInCommunity = function(community, tuples, done) {
-    const Community = require('mongoose').model('Community');
-
-    async.each(tuples, function(tuple, callback) {
-      Community.update({
-        _id: community._id || community
-      }, {
-        $push: {
-          members: {
-            member: {
-              id: tuple.id,
-              objectType: tuple.objectType,
-              status: 'joined'
-            }
-          }
-        }
-      }, callback);
-    }, function(err) {
-      if (err) { return done(err); }
-      Community.findOne({_id: community._id || community}, function(err, result) {
-        if (err) { return done(err); }
-
-        return done(null, result);
-      });
-    });
+    return simulatedCollaborationModuleLib.addMember(options, done);
   };
 
   /*

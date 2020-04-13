@@ -448,7 +448,7 @@ describe('The user domain module', function() {
 
   });
 
-  describe('Community tests', function() {
+  describe.skip('Community tests', function() {
     var Community;
     var domain;
     var domain2;

@@ -78,7 +78,7 @@ module.exports.linagora_IT = function() {
         }]
       }
     ],
-    communities: [
+    simulatedCollaborations: [
       {
         title: 'OpenPaaS open',
         type: 'open',
@@ -88,18 +88,6 @@ module.exports.linagora_IT = function() {
       {
         title: 'OpenPaaS private',
         type: 'private',
-        creator: 'itadmin@lng.net',
-        members: [{objectType: 'user', id: 'jdoe@lng.net'}]
-      },
-      {
-        title: 'OpenPaaS restricted',
-        type: 'restricted',
-        creator: 'itadmin@lng.net',
-        members: [{objectType: 'user', id: 'jdoe@lng.net'}]
-      },
-      {
-        title: 'OpenPaaS open 2',
-        type: 'open',
         creator: 'itadmin@lng.net',
         members: [{objectType: 'user', id: 'jdoe@lng.net'}]
       }
@@ -290,7 +278,7 @@ module.exports.collaborationMembers = function() {
         }]
       }
     ],
-    communities: [
+    simulatedCollaborations: [
       {
         title: 'OpenPaaS open',
         type: 'open',
@@ -322,17 +310,16 @@ module.exports.collaborationMembers = function() {
         members: [
           {objectType: 'user', id: 'yolo@lng.net'},
           {objectType: 'user', id: 'jhendrix@lng.net'},
-          {objectType: 'community', id: 'No members'}
+          {objectType: 'simulatedCollaboration', id: 'No members'}
         ]
       }
     ],
-    projects: [
-    ]
+    projects: []
   };
 
 };
 
-module.exports.openAndPrivateCommunities = function() {
+module.exports.openAndPrivateCollaborations = function() {
   return {
     domain: {
       name: 'IT',
@@ -380,7 +367,7 @@ module.exports.openAndPrivateCommunities = function() {
         }]
       }
     ],
-    communities: [
+    simulatedCollaborations: [
       {
         title: 'OpenPaaS open',
         type: 'open',
