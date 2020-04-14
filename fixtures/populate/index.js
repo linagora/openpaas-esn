@@ -4,10 +4,8 @@ const mongoose = require('mongoose');
 const { promisify } = require('util');
 
 require('../../backend/core/db/mongo/models/domain');
-require('../../backend/core/db/mongo/models/community');
 require('../../backend/core/db/mongo/models/user');
 const Domain = mongoose.model('Domain');
-const Community = mongoose.model('Community');
 const User = mongoose.model('User');
 const userDomainModule = require('../../backend/core/user/domain');
 const helpers = require('../../backend/core/db/mongo/plugins/helpers');
@@ -18,8 +16,7 @@ helpers.patchFindOneAndUpdate();
 const {
   ADMIN,
   USER,
-  DOMAIN,
-  COMMUNITY
+  DOMAIN
 } = require('./data/populate-objects');
 
 module.exports = {
@@ -47,7 +44,6 @@ function populateAll(host) {
     .then(_populateDomain.bind(null, null))
     .then(populateDomainConfigurationAndTechnicalUsers.bind(null, host))
     .then(_joinDomain)
-    .then(_populateCommunity)
     .then(_populateMembers);
 }
 
@@ -97,30 +93,7 @@ function _joinDomain([user, domain]) {
     .then(() => [user, domain]);
 }
 
-function _buildMember(id) {
-  return {
-    member: {
-      objectType: 'user',
-      id: id
-    },
-    status: 'joined'
-  };
-}
-
-function _populateCommunity([admin, domain]) {
-  _log('[INFO] POPULATE community');
-
-  const community = new Community({
-    creator: admin._id,
-    domain_ids: [domain._id],
-    members: [_buildMember(admin._id)],
-    ...COMMUNITY
-  });
-
-  return community.save().then(() => [community, domain]);
-}
-
-function _createUser(index, community, domain) {
+function _createUser(index, domain) {
   const userToSave = {
     firstname: USER.firstname + index,
     lastname: USER.lastname + index,
@@ -134,23 +107,15 @@ function _createUser(index, community, domain) {
   const user = new User(userToSave);
 
   return user.save()
-    .then(user => _joinDomain([user, domain]))
-    .then(([user]) =>
-      Community.update({
-        _id: community._id,
-        'members.user': {$ne: user._id}
-      }, {
-        $push: { members: _buildMember(user._id) }
-      })
-    );
+    .then(user => _joinDomain([user, domain]));
 }
 
-function _populateMembers([community, domain]) {
+function _populateMembers([, domain]) {
   _log('[INFO] POPULATE members');
   const createUsers = [];
 
   for (let i = 0; i < 20; i++) {
-    createUsers.push(_createUser(i, community, domain));
+    createUsers.push(_createUser(i, domain));
   }
 
   return q.allSettled(createUsers);
