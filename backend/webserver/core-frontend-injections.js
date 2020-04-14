@@ -199,7 +199,6 @@ const injections = [
   {angular: 'esn.oembed.gist', files: ['oembed/gist.js'], innerApps: ['esn']},
   {angular: 'esn.oembed.twitter', files: ['oembed/twitter.js'], innerApps: ['esn']},
   {angular: 'esn.oembed.image', files: ['oembed/image.js'], innerApps: ['esn']},
-  {angular: 'esn.injection', files: ['injection.js'], innerApps: ['esn']},
   {angular: 'esn.localstorage', files: ['localstorage.js'], innerApps: ['esn']},
   {angular: 'esn.profile', files: ['profile.js'], innerApps: ['esn']},
   {angular: 'esn.profile-popover-card', files: [
