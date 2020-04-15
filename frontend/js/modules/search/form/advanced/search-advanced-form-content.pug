@@ -1,9 +1,14 @@
 .search-advanced-form-content(role="dialog")
   .search-advanced-form-content-content
-    form(role="form", novalidate="true")
+    form(name="searchForm" role="form", novalidate="true")
       .search-advanced-form-content-body
         .search-advanced-form-content-form(ng-include="provider.searchTemplateUrl")
 
       .search-advanced-form-content-footer
         .actions
-          button.btn.btn-primary(type='button', title=__('Search'), ng-click="search(); $hide();") #{__('Search')}
+          button.btn.btn-primary(
+            type='button',
+            title=__('Search'),
+            ng-click="search(); $hide();",
+            ng-disabled="searchForm.$invalid || searchForm.$pristine"
+          ) #{__('Search')}
