@@ -1,15 +1,13 @@
-'use strict';
+const async = require('async');
 
-var async = require('async');
-
-var messagePermission = require('../../core/message/permission');
-var collaborationPermission = require('../../core/collaboration/permission');
-var collaborationModule = require('../../core/collaboration');
-var tupleHelper = require('../../core/tuple');
-var messageModule = require('../../core/message');
-var messageHelper = require('../../helpers/message');
-var requestMiddleware = require('./request');
-var logger = require('../../core/logger');
+const messagePermission = require('../../core/message/permission');
+const collaborationModule = require('../../core/collaboration');
+const collaborationPermission = collaborationModule.permission;
+const tupleHelper = require('../../core/tuple');
+const messageModule = require('../../core/message');
+const messageHelper = require('../../helpers/message');
+const requestMiddleware = require('./request');
+const logger = require('../../core/logger');
 
 module.exports.canReplyTo = function(req, res, next) {
   var inReplyTo = req.body.inReplyTo;

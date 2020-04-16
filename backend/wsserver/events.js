@@ -4,8 +4,7 @@ var logger = require('../core/logger'),
     activitystreams = require('./notification/activitystreams'),
     notifications = require('./notification/notifications'),
     usernotifications = require('./notification/usernotifications'),
-    collaboration = require('./notification/collaboration'),
-    community = require('./notification/community');
+    collaboration = require('./notification/collaboration');
 
 module.exports = function(io) {
   io.on('connection', function() {
@@ -15,5 +14,4 @@ module.exports = function(io) {
   notifications.init(io);
   usernotifications.init(io);
   collaboration.init(io);
-  community.init(io);
 };

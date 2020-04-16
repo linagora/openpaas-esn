@@ -36,7 +36,7 @@ module.exports.linagora_EMAILReply = function() {
         }]
       }
     ],
-    communities: [
+    simulatedCollaborations: [
       {
         title: 'Restricted Community',
         type: 'restricted',

@@ -222,7 +222,7 @@ module.exports = function(collaborationModule) {
     }
 
     const userId = user._id || user;
-    const otherUserRequests = collaboration.membershipRequests.filter(request => {
+    const otherUserRequests = Array.isArray(collaboration.membershipRequests) && collaboration.membershipRequests.filter(request => {
       const requestUserId = request.user._id || request.user;
 
       return !requestUserId.equals(userId);

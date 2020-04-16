@@ -3,7 +3,6 @@
 var pubsub = require('../../core/pubsub').global,
   logger = require('../../core/logger'),
   helper = require('../helper/socketio'),
-  community = require('../../core/community'),
   async = require('async');
 
 var initialized = false;
@@ -39,16 +38,6 @@ function init(io) {
       if (target.objectType === 'user') {
         users[target.id] = true;
         callback();
-      } else if (target.objectType === 'community') {
-        community.getMembers(target.id, null, function(err, members) {
-          if (err) {
-            return callback(err);
-          }
-          members.forEach(function(member) {
-            users[member.user] = true;
-          });
-          callback();
-        });
       }
     }, function(err) {
       if (err) {

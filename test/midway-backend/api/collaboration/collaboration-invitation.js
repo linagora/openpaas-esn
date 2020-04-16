@@ -2,65 +2,64 @@ const { expect } = require('chai');
 const request = require('supertest');
 
 describe('The collaborations members API', function() {
-  let webserver, helpers;
+  let app, helpers;
+  let user, user1, user2, user3, privateSimulatedCollaboration;
 
-  beforeEach(function() {
-    const self = this;
-
+  beforeEach(function(done) {
     helpers = this.helpers;
-    this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
-      webserver = self.helpers.requireBackend('webserver').webserver;
+      app = helpers.requireBackend('webserver/application');
+
+      helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) { return done(err); }
+
+        user = models.users[0];
+        user1 = models.users[1];
+        user2 = models.users[2];
+        user3 = models.users[3];
+
+        privateSimulatedCollaboration = models.simulatedCollaborations[1];
+        done();
+      });
     });
   });
 
   afterEach(function(done) {
-    this.helpers.mongo.dropDatabase(done);
+    helpers.mongo.dropDatabase(done);
   });
 
   describe('POST /collaborations/:objectType/:id/invitablepeople', function() {
     it('should send back 200 with user except who are current members and on pending request membership', function(done) {
-      helpers.api.applyDomainDeployment('linagora_IT', (err, models) => {
+      privateSimulatedCollaboration.membershipRequests = [
+        { user: user2._id, workflow: 'invitation' },
+        { user: user3._id, workflow: 'invitation' }
+      ];
+
+      privateSimulatedCollaboration.save(err => {
         if (err) return done(err);
 
-        const manager = models.users[0].accounts[0];
-        const community = models.communities[0];
-
-        // Add manually membershipRequests for 3rd, 4th place in user model to community. 1st, 2nd place are members in default
-        const membershipRequestsIds = [models.users[2]._id, models.users[3]._id];
-
-        membershipRequestsIds.forEach(member => {
-          const membershipObject = { user: member, workflow: 'invitation' };
-
-          community.membershipRequests.push(membershipObject);
-        });
-
-        community.save((err, community) => {
+        helpers.api.loginAsUser(app, user.emails[0], 'secret', (err, loggedInAsUser) => {
           if (err) return done(err);
 
-          helpers.api.loginAsUser(webserver.application, manager.emails[0], 'secret', (err, loggedInAsUser) => {
-            if (err) return done(err);
+          const req = loggedInAsUser(request(app).post(`/api/collaborations/simulatedCollaboration/${privateSimulatedCollaboration._id}/invitablepeople`));
 
-            const req = loggedInAsUser(request(webserver.application).post(`/api/collaborations/community/${community._id}/invitablepeople`));
+          req.expect(200);
+          req.end((err, res) => {
+            expect(err).to.not.exist;
+            expect(res.body).to.be.an.array;
+            expect(res.body.length).to.equal(3);
+            expect(res.body[0]).to.exist;
+            expect(res.body[0]._id).to.exist;
+            expect(res.body[0].password).to.be.undefined;
+            expect(res.body[0].accounts).to.be.undefined;
 
-            req.expect(200);
-            req.end((err, res) => {
-              expect(err).to.not.exist;
-              expect(res.body).to.be.an.array;
-              expect(res.body.length).to.equal(3);
-              expect(res.body[0]).to.exist;
-              expect(res.body[0]._id).to.exist;
-              expect(res.body[0].password).to.be.undefined;
-              expect(res.body[0].accounts).to.be.undefined;
+            const bodyString = JSON.stringify(res.body);
 
-              const bodyString = JSON.stringify(res.body);
-
-              expect(bodyString).to.not.contains('itadmin@lng.net'); // Creator
-              expect(bodyString).to.not.contains('jdoe@lng.net'); // Member
-              expect(bodyString).to.not.contains('jdee@lng.net'); // MembershipRequest
-              expect(bodyString).to.not.contains('kcobain@linagora.com'); // MembershipRequest
-              done();
-            });
+            expect(bodyString).to.not.contains(user.email); // Creator
+            expect(bodyString).to.not.contains(user1.email); // Member
+            expect(bodyString).to.not.contains(user2.email); // MembershipRequest
+            expect(bodyString).to.not.contains(user3.email); // MembershipRequest
+            done();
           });
         });
       });

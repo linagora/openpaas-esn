@@ -393,12 +393,12 @@ function removeMembershipRequest(req, res) {
   }
 
   /*
-   *      workflow   |   isCommunityManager   |  What does it mean ?
+   *      workflow   |   isCollaborationManager |  What does it mean ?
    *      -----------------------------------------------------------
-   *      INVITATION |           yes          | manager cancel the invitation of the user
-   *      INVITATION |            no          | attendee declines the invitation
-   *      REQUEST    |           yes          | manager refuses the user's request to enter the community
-   *      REQUEST    |            no          | user cancels her request to enter the commity
+   *      INVITATION |           yes            | manager cancel the invitation of the user
+   *      INVITATION |            no            | attendee declines the invitation
+   *      REQUEST    |           yes            | manager refuses the user's request to enter the collaboration
+   *      REQUEST    |            no            | user cancels her request to enter the commity
    */
 
   if (req.isCollaborationManager) {

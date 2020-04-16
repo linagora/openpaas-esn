@@ -108,7 +108,7 @@ function canRead(req, res, next) {
 
 function checkUserParamIsNotMember(req, res, next) {
   if (!req.collaboration) {
-    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing community'});
+    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing collaboration'});
   }
 
   if (!req.params.user_id) {
@@ -117,11 +117,11 @@ function checkUserParamIsNotMember(req, res, next) {
 
   collaborationModule.member.isMember(req.collaboration, req.params.user_id, function(err, isMember) {
     if (err) {
-      return res.status(400).json({error: 400, message: 'Bad request', details: 'Can not define the community membership : ' + err.message});
+      return res.status(400).json({error: 400, message: 'Bad request', details: 'Can not define the collaboration membership : ' + err.message});
     }
 
     if (isMember) {
-      return res.status(400).json({error: 400, message: 'Bad request', details: 'User is already member of the community.'});
+      return res.status(400).json({error: 400, message: 'Bad request', details: 'User is already member of the collaboration.'});
     }
 
     return next();

@@ -29,7 +29,7 @@ describe('The notification pubsub module', function() {
       const data = {
         author: '123',
         target: '456',
-        collaboration: {objectType: 'community', id: '789'},
+        collaboration: {objectType: 'collaboration', id: '789'},
         actor: 'manager'
       };
       const usernotificationMocked = {
@@ -51,7 +51,7 @@ describe('The notification pubsub module', function() {
         expect(datastub).to.deep.equal({
           subject: {objectType: 'user', id: '123'},
           verb: {label: 'ESN_MEMBERSHIP_ACCEPTED', text: 'accepted your request to join'},
-          complement: {objectType: 'community', id: '789'},
+          complement: {objectType: 'collaboration', id: '789'},
           context: null,
           description: null,
           icon: {objectType: 'icon', id: 'mdi-account-multiple'},
@@ -73,7 +73,7 @@ describe('The notification pubsub module', function() {
       const data = {
         author: '123',
         target: '456',
-        collaboration: {objectType: 'community', id: '789'}
+        collaboration: {objectType: 'collaboration', id: '789'}
       };
       const usernotificationMocked = {
         create: function(data, callback) {
@@ -95,7 +95,7 @@ describe('The notification pubsub module', function() {
         expect(datastub).to.deep.equal({
           subject: {objectType: 'user', id: '123'},
           verb: {label: 'ESN_MEMBERSHIP_INVITE', text: 'has invited you in'},
-          complement: {objectType: 'community', id: '789'},
+          complement: {objectType: 'collaboration', id: '789'},
           context: null,
           description: null,
           icon: {objectType: 'icon', id: 'mdi-account-multiple'},

@@ -13,7 +13,7 @@ module.exports = function(router) {
    *   post:
    *     tags:
    *       - File
-   *     description: Post a new avatar for the given community.
+   *     description: Post a new avatar.
    *     parameters:
    *       - $ref: "#/parameters/fi_name"
    *       - $ref: "#/parameters/fi_mimetype"

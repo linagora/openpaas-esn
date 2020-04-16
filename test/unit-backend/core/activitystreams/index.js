@@ -16,7 +16,7 @@ describe('The activity streams core module', function() {
       });
     });
 
-    it('should not fail when domain.getUserDomains and community.getUserCommunities fail', function(done) {
+    it('should not fail when domain.getUserDomains and collaboration.getStreamsForUser fail', function(done) {
       this.helpers.mock.models({});
       mockery.registerMock('../user/domain', {
         getUserDomains: function(user, cb) {
@@ -38,7 +38,7 @@ describe('The activity streams core module', function() {
       });
     });
 
-    it('should send back streams from user communities', function(done) {
+    it('should send back streams from user collaborations', function(done) {
       var streams = [
         {
           uuid: 222
@@ -68,7 +68,7 @@ describe('The activity streams core module', function() {
       });
     });
 
-    it('should send back streams from communities', function(done) {
+    it('should send back streams from collaborations', function(done) {
       var streams = [
         {
           uuid: 222

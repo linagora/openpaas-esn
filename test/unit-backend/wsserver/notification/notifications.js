@@ -12,8 +12,6 @@ describe('The WebSockets notification module', function() {
 
   beforeEach(function() {
     this.helpers.requireBackend('core/db/mongo/models/user');
-    this.helpers.requireBackend('core/db/mongo/models/community');
-    this.helpers.requireBackend('core/db/mongo/models/community-archive');
     this.helpers.requireBackend('core/db/mongo/models/domain');
     this.helpers.requireBackend('core/db/mongo/models/notification');
     this.helpers.requireBackend('core/db/mongo/models/usernotification');
@@ -240,68 +238,6 @@ describe('The WebSockets notification module', function() {
       expect(emittedEvents3[0]).to.deep.equal(notif);
     });
 
-    it('should emit to all community members', function() {
-      var localstub = {};
-      var globalstub = {};
-      this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
-
-      var emittedEvents1 = [];
-      var emittedEvents2 = [];
-      var socketHelper = {
-        getUserSocketsFromNamespace: function(user) {
-          if (user === 'user1') {
-            var socket1 = {
-              emit: function(event, payload) {
-                expect(event).to.equal('notification');
-                emittedEvents1.push(payload);
-              }
-            };
-            return [socket1];
-          } else if (user === 'user2') {
-            var socket2 = {
-              emit: function(event, payload) {
-                expect(event).to.equal('notification');
-                emittedEvents2.push(payload);
-              }
-            };
-            return [socket2];
-          }
-          return [];
-        }
-      };
-      mockery.registerMock('../helper/socketio', socketHelper);
-
-      var communityMock = {
-        getMembers: function(communityId, query, callback) {
-          return callback(null, [
-            {user: 'user1'}, {user: 'user2'}
-          ]);
-        }
-      };
-      mockery.registerMock('../../core/community', communityMock);
-
-      var io = {
-        of: function() { return this; },
-        on: function() { }
-      };
-      require(moduleToTest).init(io);
-
-      var notif = {
-        target: [
-          {
-            objectType: 'community',
-            id: 'community1'
-          }
-        ]
-      };
-      globalstub.topics['notification:api'].handler(notif);
-
-      expect(emittedEvents1.length).to.equal(1);
-      expect(emittedEvents1[0]).to.deep.equal(notif);
-      expect(emittedEvents2.length).to.equal(1);
-      expect(emittedEvents2[0]).to.deep.equal(notif);
-    });
-
     it('should emit once per sockets', function() {
       var localstub = {};
       var globalstub = {};
@@ -333,15 +269,6 @@ describe('The WebSockets notification module', function() {
       };
       mockery.registerMock('../helper/socketio', socketHelper);
 
-      var communityMock = {
-        getMembers: function(communityId, query, callback) {
-          return callback(null, [
-            {user: 'user1'}
-          ]);
-        }
-      };
-      mockery.registerMock('../../core/community', communityMock);
-
       var io = {
         of: function() { return this; },
         on: function() { }
@@ -353,10 +280,6 @@ describe('The WebSockets notification module', function() {
           {
             objectType: 'user',
             id: 'user1'
-          },
-          {
-            objectType: 'community',
-            id: 'community1'
           },
           {
             objectType: 'user',

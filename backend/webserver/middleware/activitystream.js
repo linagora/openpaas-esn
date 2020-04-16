@@ -1,37 +1,36 @@
-'use strict';
+const activitystreams = require('../../core/activitystreams');
+const streamsFinder = require('composable-middleware')();
+const writableFinder = require('composable-middleware')();
 
-var activitystreams = require('../../core/activitystreams');
-var communityMiddleware = require('./community');
-var streamsFinder = require('composable-middleware')();
-var writableFinder = require('composable-middleware')();
+module.exports = {
+  addStreamResourceFinder,
+  addStreamWritableFinder,
+  filterWritableTargets: writableFinder,
+  findStreamResource: streamsFinder,
+  isValidStream
+};
 
-var addStreamResourceFinder = function(finder) {
+function addStreamResourceFinder(finder) {
   if (finder) {
     streamsFinder.use(finder);
   }
-};
-module.exports.addStreamResourceFinder = addStreamResourceFinder;
-addStreamResourceFinder(communityMiddleware.findStreamResource);
+}
 
-module.exports.findStreamResource = streamsFinder;
-
-var addStreamWritableFinder = function(finder) {
+function addStreamWritableFinder(finder) {
   if (finder) {
     writableFinder.use(finder);
   }
-};
-module.exports.addStreamWritableFinder = addStreamWritableFinder;
-addStreamWritableFinder(communityMiddleware.filterWritableTargets);
+}
 
-module.exports.filterWritableTargets = writableFinder;
+function isValidStream(req, res, next) {
+  const objectType = req.query.objectType || req.query.objectType;
 
-module.exports.isValidStream = function(req, res, next) {
-  var objectType = req.query.objectType || req.query.objectType;
   if (!objectType) {
     return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'objectType is mandatory'}});
   }
 
-  var id = req.query.id;
+  const id = req.query.id;
+
   if (!id) {
     return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'ID is mandatory'}});
   }
@@ -45,7 +44,7 @@ module.exports.isValidStream = function(req, res, next) {
       return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'User does not have any linked activitystream'}});
     }
 
-    var belongs = streams.some(function(stream) {
+    const belongs = streams.some(function(stream) {
       return stream.uuid === id;
     });
 
@@ -56,4 +55,4 @@ module.exports.isValidStream = function(req, res, next) {
     }
     res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'User does not have access to the ativitystream ' + id}});
   });
-};
+}

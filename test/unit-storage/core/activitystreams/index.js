@@ -44,8 +44,6 @@ describe('The activitystreams core module', function() {
       this.helpers.requireBackend('core/db/mongo/models/read-timelineentriestracker');
       this.helpers.requireBackend('core/db/mongo/models/domain');
       this.helpers.requireBackend('core/db/mongo/models/user');
-      this.helpers.requireBackend('core/db/mongo/models/community');
-      this.helpers.requireBackend('core/db/mongo/models/community-archive');
       this.helpers.requireBackend('core/db/mongo/models/notification');
       this.helpers.requireBackend('core/db/mongo/models/usernotification');
       this.helpers.requireBackend('core/db/mongo/models/authtoken');

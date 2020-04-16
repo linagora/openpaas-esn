@@ -37,6 +37,7 @@ module.exports.processActivity = processActivity;
 function updateTimelineEntriesTracker(data, callback) {
   if (!data) {
     logger.warn('Can not create timeline entries tracker from null data');
+
     return;
   }
 
@@ -48,7 +49,7 @@ function updateTimelineEntriesTracker(data, callback) {
     }
   };
 
-  collaborationModule.queryOne(data.collaboration.objectType, {_id: data.collaboration.id}, function(err, community) {
+  collaborationModule.queryOne(data.collaboration.objectType, {_id: data.collaboration.id}, function(err, collaboration) {
     if (err) {
       return callback(err);
     }
@@ -56,10 +57,11 @@ function updateTimelineEntriesTracker(data, callback) {
     var options = {
       target: {
         objectType: 'activitystream',
-        _id: community.activity_stream.uuid
+        _id: collaboration.activity_stream.uuid
       },
       limit: 1
     };
+
     activitystream.query(options, function(err, results) {
       if (err) {
         return callback(err);
@@ -68,7 +70,7 @@ function updateTimelineEntriesTracker(data, callback) {
         return callback(null, null);
       }
 
-      tracker.updateLastTimelineEntry(data.target, community.activity_stream.uuid, results[0]._id, function(err) {
+      tracker.updateLastTimelineEntry(data.target, collaboration.activity_stream.uuid, results[0]._id, function(err) {
         if (err) {
           return callback(err);
         }
@@ -83,6 +85,7 @@ module.exports.updateTimelineEntriesTracker = updateTimelineEntriesTracker;
 function init() {
   if (initialized) {
     logger.warn('Activity Stream Pubsub is already initialized');
+
     return;
   }
   pubsub.topic('message:activity').subscribe(processActivity);

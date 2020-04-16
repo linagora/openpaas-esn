@@ -1,22 +1,30 @@
-const communityModule = require('../../core/community');
-const communityPermission = communityModule.permission;
-const mongoose = require('mongoose');
-const Community = mongoose.model('Community');
+const async = require('async');
+const SimulatedCollaboration = require('mongoose').model('SimulatedCollaboration');
+const { permission: collaborationPermission } = require('../../../../backend/core/collaboration');
+const { OBJECT_TYPE } = require('../constants');
+const {
+  addStreamResourceFinder,
+  addStreamWritableFinder
+} = require('../../../../backend/webserver/middleware/activitystream');
 
 module.exports = {
-  findStreamResource,
-  filterWritableTargets
+  registerActivityStreamMW
 };
+
+function registerActivityStreamMW() {
+  addStreamResourceFinder(findStreamResource);
+  addStreamWritableFinder(filterWritableTargets);
+}
 
 function findStreamResource(req, res, next) {
   const uuid = req.params.uuid;
 
-  Community.getFromActivityStreamID(uuid, function(err, community) {
+  SimulatedCollaboration.getFromActivityStreamID(uuid, function(err, collaboration) {
     if (err) {
       return next(new Error('Error while searching the stream resource : ' + err.message));
     }
 
-    if (!community) {
+    if (!collaboration) {
       return next();
     }
 
@@ -24,10 +32,11 @@ function findStreamResource(req, res, next) {
       objectType: 'activitystream',
       _id: uuid,
       target: {
-        objectType: 'community',
-        object: community
+        objectType: OBJECT_TYPE,
+        object: collaboration
       }
     };
+
     next();
   });
 }
@@ -45,17 +54,15 @@ function filterWritableTargets(req, res, next) {
     return next();
   }
 
-  const async = require('async');
-
   async.filter(targets,
     function(item, callback) {
-      Community.getFromActivityStreamID(item.id, function(err, community) {
+      SimulatedCollaboration.getFromActivityStreamID(item.id, function(err, collaboration) {
 
-        if (err || !community) {
+        if (err || !collaboration) {
           return callback(err, false);
         }
 
-        communityPermission.canWrite(community, { objectType: 'user', id: req.user.id }, callback);
+        collaborationPermission.canWrite(collaboration, { objectType: 'user', id: req.user.id }, callback);
       });
     },
     function(err, results) {

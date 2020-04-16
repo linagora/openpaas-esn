@@ -89,7 +89,6 @@ function mockMiddlewares() {
     'authentication',
     'authorization',
     'collaboration',
-    'community',
     'configuration',
     'cookie-lifetime',
     'domain',

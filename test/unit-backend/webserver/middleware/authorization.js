@@ -17,7 +17,6 @@ describe('The authorization middleware', function() {
   describe('The loginAndContinue fn', function() {
 
     it('does nothing when authenticated', function(done) {
-      mockery.registerMock('../../core/community', {});
       var middleware = this.helpers.requireBackend('webserver/middleware/authorization').loginAndContinue;
       var redirectTarget = null;
       var req = {
@@ -38,7 +37,6 @@ describe('The authorization middleware', function() {
     });
 
     it('redirects when not authenticated', function(done) {
-      mockery.registerMock('../../core/community', {});
       var middleware = this.helpers.requireBackend('webserver/middleware/authorization').loginAndContinue;
       var req = {
         originalUrl: 'http://localhost/oauth/authorize',
@@ -86,7 +84,6 @@ describe('The authorization middleware', function() {
   describe('The requiresAPILogin fn', function() {
 
     it('should send an error if user is not autenticated', function(done) {
-      mockery.registerMock('../../core/community', {});
       const middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILogin;
       const req = {
         isAuthenticated: function() {
@@ -107,7 +104,6 @@ describe('The authorization middleware', function() {
     });
 
     it('should call next if user is autenticated', function(done) {
-      mockery.registerMock('../../core/community', {});
       var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILogin;
       var req = {
         isAuthenticated: function() {
@@ -141,7 +137,6 @@ describe('The authorization middleware', function() {
       };
 
       mockery.registerMock('../../core', mock);
-      mockery.registerMock('../../core/community', {});
       mockery.registerMock('passport', passport);
 
       var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILogin;
@@ -166,7 +161,6 @@ describe('The authorization middleware', function() {
 
   describe('The requiresAPILoginAndFailWithError function', function() {
     it('should send an error if user is not autenticated', function(done) {
-      mockery.registerMock('../../core/community', {});
       const middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILoginAndFailWithError;
       const req = {
         isAuthenticated: function() {
@@ -187,7 +181,6 @@ describe('The authorization middleware', function() {
     });
 
     it('should call next if user is autenticated', function(done) {
-      mockery.registerMock('../../core/community', {});
       var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILoginAndFailWithError;
       var req = {
         isAuthenticated: function() {
@@ -221,7 +214,6 @@ describe('The authorization middleware', function() {
       };
 
       mockery.registerMock('../../core', mock);
-      mockery.registerMock('../../core/community', {});
       mockery.registerMock('passport', passport);
 
       var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILoginAndFailWithError;
@@ -249,7 +241,6 @@ describe('The authorization middleware', function() {
     var middleware;
 
     beforeEach(function() {
-      mockery.registerMock('../../core/community', {});
       middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainManager;
     });
 
@@ -361,7 +352,6 @@ describe('The authorization middleware', function() {
     var middleware;
 
     beforeEach(function() {
-      mockery.registerMock('../../core/community', {});
       middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainMember;
     });
 
@@ -449,7 +439,6 @@ describe('The authorization middleware', function() {
     const platformAdminModule = {};
 
     beforeEach(function() {
-      mockery.registerMock('../../core/community', {});
       mockery.registerMock('../../core/platformadmin', platformAdminModule);
       middleware = this.helpers.requireBackend('webserver/middleware/authorization').requirePlatformAdminOrDomainAdmin;
     });
