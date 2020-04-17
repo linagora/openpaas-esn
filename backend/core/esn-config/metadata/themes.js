@@ -16,7 +16,8 @@ const schema = {
           },
           value: {
             type: 'string',
-            minLength: 1
+            minLength: 1,
+            color: true
           }
         },
         required: ['key', 'value'],
