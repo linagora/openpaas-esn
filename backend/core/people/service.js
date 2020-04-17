@@ -30,7 +30,10 @@ class PeopleService {
 
     function search(searcher, { term, context, pagination, excludes }) {
       return searcher.search({ term, context, pagination, excludes: excludes.filter(tuple => tuple.objectType === searcher.objectType) })
-        .then(results => denormalizeAll(results, searcher, context));
+        .then(results => denormalizeAll(results, searcher, context))
+        .catch(error => {
+          logger.error(`Failed to search ${searcher.objectType}`, error);
+        });
     }
 
     function denormalizeAll(data, searcher, context) {
