@@ -7,7 +7,7 @@ module.exports = router => {
 
   /**
    * @swagger
-   * /people/search:
+   * /api/people/search:
    *   get:
    *     tags:
    *      - PeopleSearch
@@ -34,7 +34,7 @@ module.exports = router => {
 
   /**
    * @swagger
-   * /people/search:
+   * /api/people/search:
    *   post:
    *     tags:
    *      - PeopleSearch
@@ -62,7 +62,7 @@ module.exports = router => {
 
   /**
    * @swagger
-   * /people/resolve/{fieldType}/{value}:
+   * /api/people/resolve/{fieldType}/{value}:
    *   get:
    *     tags:
    *      - People
