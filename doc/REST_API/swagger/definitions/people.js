@@ -61,5 +61,5 @@
  *         description: The maximum number of resources to send back
  *       offset:
  *         type: integer
- *         description: The offset to start to sarch resources from
+ *         description: The offset to start to search resources from
  */
