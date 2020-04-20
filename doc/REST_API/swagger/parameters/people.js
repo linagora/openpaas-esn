@@ -32,7 +32,7 @@
  *     type: integer
  *   ppl_search_query_offset:
  *     name: offset
- *     description: The offset to start to sarch resources from
+ *     description: The offset to start to search resources from
  *     in: query
  *     type: integer
  *   ppl_search_excludes:

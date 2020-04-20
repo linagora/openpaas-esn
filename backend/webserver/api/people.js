@@ -7,15 +7,17 @@ module.exports = router => {
 
   /**
    * @swagger
-   * /people/search:
+   * /api/people/search:
    *   get:
    *     tags:
    *      - PeopleSearch
    *     description: Simple search for people in the platform
    *     parameters:
    *       - $ref: "#/parameters/ppl_search_query_q"
+   *       - $ref: "#/parameters/ppl_search_object_types"
    *       - $ref: "#/parameters/ppl_search_query_limit"
    *       - $ref: "#/parameters/ppl_search_query_offset"
+   *       - $ref: "#/parameters/ppl_search_excludes"
    *     produces:
    *       - application/json
    *     responses:
@@ -34,7 +36,7 @@ module.exports = router => {
 
   /**
    * @swagger
-   * /people/search:
+   * /api/people/search:
    *   post:
    *     tags:
    *      - PeopleSearch
@@ -62,7 +64,7 @@ module.exports = router => {
 
   /**
    * @swagger
-   * /people/resolve/{fieldType}/{value}:
+   * /api/people/resolve/{fieldType}/{value}:
    *   get:
    *     tags:
    *      - People
