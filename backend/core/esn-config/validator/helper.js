@@ -1,4 +1,5 @@
 const Ajv = require('ajv');
+const validateColor = require('is-color');
 
 module.exports = {
   buildErrorMessage,
@@ -16,6 +17,13 @@ function createValidateFunction(schema) {
   const ajv = new Ajv({
     removeAdditional: true,
     useDefaults: true
+  });
+
+  ajv.addKeyword('color', {
+    validate: function(isColor, data) {
+      return isColor ? (typeof data === 'string' && validateColor(data)) : true;
+    },
+    errors: false
   });
 
   return ajv.compile(schema);
