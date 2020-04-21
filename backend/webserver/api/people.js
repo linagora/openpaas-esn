@@ -14,10 +14,8 @@ module.exports = router => {
    *     description: Simple search for people in the platform
    *     parameters:
    *       - $ref: "#/parameters/ppl_search_query_q"
-   *       - $ref: "#/parameters/ppl_search_object_types"
    *       - $ref: "#/parameters/ppl_search_query_limit"
    *       - $ref: "#/parameters/ppl_search_query_offset"
-   *       - $ref: "#/parameters/ppl_search_excludes"
    *     produces:
    *       - application/json
    *     responses:
