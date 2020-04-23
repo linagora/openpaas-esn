@@ -100,7 +100,7 @@ function getForUser(user, query, callback) {
 }
 
 function remove(query, callback) {
-  UserNotification.remove(query, callback);
+  UserNotification.deleteMany(query, callback);
 }
 
 function setAcknowledged(usernotification, acknowledged, callback) {

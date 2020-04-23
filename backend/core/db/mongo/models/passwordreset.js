@@ -14,7 +14,7 @@ var PasswordResetSchema = new Schema({
 
 PasswordResetSchema.statics = {
   removeByEmail: function(email, callback) {
-    this.findOne({email: email}).remove(callback);
+    this.findOne({email: email}).deleteOne(callback);
   }
 };
 
