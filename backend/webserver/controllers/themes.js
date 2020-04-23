@@ -81,7 +81,7 @@ function getLogosPathname(req, type) {
     const theme = result[0];
     const url = result[1];
 
-    if (Object.keys(theme).length === 0) {
+    if (Object.keys(theme).length === 0 || !theme.logos || !theme.logos[type]) {
       return `${url}${defaultThemesFiles[type]}`;
     }
 

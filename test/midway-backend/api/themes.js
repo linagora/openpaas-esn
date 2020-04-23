@@ -25,6 +25,25 @@ describe('The Themes API', function() {
       ]
     }
   };
+  const TEST_CONFIG_EMPTY_LOGOS = {
+    name: 'themes',
+    value: {
+      logos: {
+        logo: '',
+        favicon: ''
+      },
+      colors: [
+        {
+          key: 'primaryColor',
+          value: '#2196f3'
+        },
+        {
+          key: 'secondaryColor',
+          value: '#FFC107'
+        }
+      ]
+    }
+  };
   const REQUEST_BODY = {
     logos: {
       logo: '123',
@@ -52,6 +71,8 @@ describe('The Themes API', function() {
     }
   };
   const TEST_CONFIG_RETURN_LOGO = BASE_URL + '123';
+  const DEFAULT_TEST_CONFIG_RETURN_LOGO = 'http://localhost:8081/images/white-logo.svg';
+  const DEFAULT_TEST_CONFIG_RETURN_FAVICON = 'http://localhost:8081/images/logo-tiny.png';
 
   const TEST_CONFIG_RETURN_FAVICON = BASE_URL + '456';
 
@@ -225,6 +246,25 @@ describe('The Themes API', function() {
         });
       });
     });
+
+    it('should send back 302 found with default logo when domain logo is empty', function(done) {
+      const config = new core['esn-config'].EsnConfig('core', domain._id);
+
+      config.set(TEST_CONFIG_EMPTY_LOGOS).then(function() {
+        sendRequestAsUser(userDomainMember, requestAsMember => {
+          requestAsMember(request(app).get(`${API_PATH}/${domain._id}/logo`))
+            .expect(302)
+            .end((err, res) => {
+              if (err) {
+                return done(err);
+              }
+              expect(res).to.redirect;
+              expect(res.headers.location).to.equal(DEFAULT_TEST_CONFIG_RETURN_LOGO);
+              done();
+            });
+        });
+      });
+    });
   });
 
   describe('GET /api/themes/:uuid/favicon', function() {
@@ -258,6 +298,25 @@ describe('The Themes API', function() {
               }
               expect(res).to.redirect;
               expect(res.headers.location).to.equal(TEST_CONFIG_RETURN_FAVICON);
+              done();
+            });
+        });
+      });
+    });
+
+    it('should send back 302 found with default favicon when domain favicon is empty', function(done) {
+      const config = new core['esn-config'].EsnConfig('core', domain._id);
+
+      config.set(TEST_CONFIG_EMPTY_LOGOS).then(function() {
+        sendRequestAsUser(userDomainMember, requestAsMember => {
+          requestAsMember(request(app).get(`${API_PATH}/${domain._id}/favicon`))
+            .expect(302)
+            .end((err, res) => {
+              if (err) {
+                return done(err);
+              }
+              expect(res).to.redirect;
+              expect(res.headers.location).to.equal(DEFAULT_TEST_CONFIG_RETURN_FAVICON);
               done();
             });
         });
