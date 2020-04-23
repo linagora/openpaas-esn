@@ -170,7 +170,7 @@ describe('The activity streams core module', function() {
         TimelineEntry: {
           find: () => ({
             or: () => ({
-              count: () => ({
+              countDocuments: () => ({
                 exec: callback => callback()
               }),
               sort: sortQuery => {
@@ -195,7 +195,7 @@ describe('The activity streams core module', function() {
         TimelineEntry: {
           find: () => ({
             or: () => ({
-              count: () => ({
+              countDocuments: () => ({
                 exec: callback => callback()
               }),
               sort: sortQuery => {

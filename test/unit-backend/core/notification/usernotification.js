@@ -92,7 +92,7 @@ describe('The core user notifications module', function() {
       mockery.registerMock('mongoose', {
         model: function() {
           return {
-            count: function(q) {
+            countDocuments: function(q) {
 
               expect(q).to.exist;
               expect(q.target).to.exist;
@@ -120,7 +120,7 @@ describe('The core user notifications module', function() {
       mockery.registerMock('mongoose', {
         model: function() {
           return {
-            count: function(q) {
+            countDocuments: function(q) {
 
               expect(q).to.exist;
               expect(q.target).to.exist;
