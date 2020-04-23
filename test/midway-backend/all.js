@@ -28,7 +28,13 @@ before(function() {
     writeDBConfigFile: function() {
       fs.writeFileSync(`${tmpPath}/db.json`, JSON.stringify({
         connectionString: `mongodb://${testConfig.mongodb.host}:${testConfig.mongodb.port}/${testConfig.mongodb.dbname}`,
-        connectionOptions: { auto_reconnect: false }
+        connectionOptions: {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+          useCreateIndex: true,
+          useFindAndModify: false,
+          auto_reconnect: false
+        }
       }));
     },
 
