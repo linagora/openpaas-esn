@@ -213,6 +213,16 @@ module.exports = function(grunt) {
       }
     },
 
+    swagger_checker: {
+      options: {
+        path: './doc/REST_API/swagger/swagger.json',
+        validate: {
+          schema: true,
+          spec: false
+        }
+      }
+    },
+
     swagger_generate: {
       options: {
         baseDir: __dirname,
@@ -274,6 +284,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-wait-server');
   grunt.loadNpmTasks('@linagora/grunt-i18n-checker');
+  grunt.loadNpmTasks('grunt-swagger-checker');
   grunt.loadNpmTasks('grunt-swagger-generate');
   grunt.loadNpmTasks('grunt-puglint');
 
@@ -337,6 +348,7 @@ module.exports = function(grunt) {
   grunt.registerTask('swagger-generate', 'Grunt plugin for swagger generate', ['swagger_generate']);
   grunt.registerTask('pug-linter', 'Check the pug/jade files', ['puglint:all']);
   grunt.registerTask('linters', 'Check code for lint', ['eslint:all', 'lint_pattern', 'i18n', 'pug-linter']);
+  grunt.registerTask('swagger-validate', ['swagger_checker']);
 
   /**
    * Usage:
