@@ -34,7 +34,7 @@ function countForUser(user, query, callback) {
     q.read = query.read;
   }
 
-  return UserNotification.count(q).exec(callback);
+  return UserNotification.countDocuments(q).exec(callback);
 }
 
 function create(usernotification, callback) {

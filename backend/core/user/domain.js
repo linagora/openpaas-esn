@@ -153,7 +153,7 @@ function countDomainsMembers(domainIds = [], query = {}) {
     return Promise.reject(new Error('domains to count members for can not be empty'));
   }
 
-  return User.find(query).where('domains.domain_id').in(domainIds).count().exec();
+  return User.find(query).where('domains.domain_id').in(domainIds).countDocuments().exec();
 }
 
 /**

@@ -143,7 +143,7 @@ function getTimelineEntries(options = {}, callback) {
   };
 
   return getQuery()
-    .count()
+    .countDocuments()
     .exec((err, count) => {
       if (err) {
         return callback(err);
