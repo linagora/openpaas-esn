@@ -413,7 +413,7 @@ describe('The collaboration member module', function() {
     it('should send back error when Community.update fails', function(done) {
       const error = new Error('Update failed');
 
-      modelMock.update = function(a, b, callback) {
+      modelMock.updateOne = function(a, b, callback) {
         callback(error);
       };
 
@@ -428,7 +428,7 @@ describe('The collaboration member module', function() {
     it('should send back updated document when Community.update is ok', function(done) {
       const result = {_id: 123};
 
-      modelMock.update = function(a, b, callback) {
+      modelMock.updateOne = function(a, b, callback) {
         callback(null, result);
       };
 
@@ -446,7 +446,7 @@ describe('The collaboration member module', function() {
       const localstub = {}, globalstub = {};
       const userTarget = String(new ObjectId());
 
-      modelMock.update = function(a, b, callback) {
+      modelMock.updateOne = function(a, b, callback) {
         callback(null, result);
       };
 
@@ -949,12 +949,12 @@ describe('The collaboration member module', function() {
       const updatedData = { key: 'value' };
 
       mockery.registerMock('../../tuple', tupleMock);
-      modelMock.update = sinon.spy((query, option, callback) => callback(null, updatedData));
+      modelMock.updateOne = sinon.spy((query, option, callback) => callback(null, updatedData));
 
       getModule().removeMembers(collaboration, members, (err, updated) => {
         expect(err).to.not.exist;
         expect(updated).to.deep.equal(updatedData);
-        expect(modelMock.update).to.have.been.calledOnce;
+        expect(modelMock.updateOne).to.have.been.calledOnce;
         done();
       });
     });

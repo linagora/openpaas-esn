@@ -48,7 +48,7 @@ describe('The activity streams tracker core module', function() {
     it('should send back error when mongoose request send back an error', function(done) {
       this.helpers.mock.models({
         ReadTimeLineEntriesTracker: {
-          update: function(query, update, options, callback) {
+          updateOne: function(query, update, options, callback) {
             return callback(new Error('Error test'));
           }
         }
@@ -70,7 +70,7 @@ describe('The activity streams tracker core module', function() {
 
       this.helpers.mock.models({
         ReadTimeLineEntriesTracker: {
-          update: function(query, update, options, callback) {
+          updateOne: function(query, update, options, callback) {
             expect(query).to.deep.equal({_id: userId});
             var expectedUpdate = {$set: {}};
             expectedUpdate.$set['timelines.' + activityStreamUuid] = lastTimelineEntryReadId;

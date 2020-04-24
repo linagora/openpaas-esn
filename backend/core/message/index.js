@@ -147,9 +147,9 @@ function copy(id, sharerId, resource, target, callback) {
     copyOf.target = copyOf.target.concat(target);
 
     if (original.root._id.equals(id)) {
-      return getModel(original.target.objectType).update({_id: original.target._id}, {$set: {copyOf: copyOf} }, callback);
+      return getModel(original.target.objectType).updateOne({_id: original.target._id}, {$set: {copyOf: copyOf} }, callback);
     } else {
-      return getModel(original.target.objectType).update({_id: original.root._id, 'responses._id': mongoose.Types.ObjectId(id)}, {$set: {'responses.$.copyOf': copyOf} }, callback);
+      return getModel(original.target.objectType).updateOne({_id: original.root._id, 'responses._id': mongoose.Types.ObjectId(id)}, {$set: {'responses.$.copyOf': copyOf} }, callback);
     }
   }
 

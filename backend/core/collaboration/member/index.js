@@ -528,7 +528,7 @@ module.exports = function(collaborationModule) {
       'member.id': member.id, 'member.objectType': member.objectType
     }));
 
-    Model.update(
+    Model.updateOne(
       { _id: collaboration.id },
       {
         $pull: {
