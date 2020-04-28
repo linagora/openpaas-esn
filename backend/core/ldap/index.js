@@ -1,15 +1,14 @@
-const LdapAuth = require('ldapauth-fork');
 const async = require('async');
 const _ = require('lodash');
 const esnConfig = require('../esn-config');
 const logger = require('../logger');
 const utils = require('./utils');
 const helpers = require('./helpers');
-const q = require('q');
 const coreUser = require('../user');
+const { Client } = require('ldapts');
 
 const LDAP_DEFAULT_LIMIT = 50;
-const NOOP = () => {};
+const SEARCH_SCOPE = 'sub';
 
 module.exports = {
   findLDAPForUser,
@@ -29,39 +28,47 @@ function init() {
  * Check if the email exists in the given ldap
  *
  * @param {String} email - email to search
- * @param {hash} ldap - LDAP configuration
- * @param {Function} callback - as fn(err, username) where username is defined if found
+ * @param {hash} ldapConfig - LDAP configuration
+ * @param {Function} callback - as fn(err, user) where user is defined if found
  */
-function emailExists(email, ldap, callback) {
-  if (!email || !ldap) {
+function emailExists(email, ldapConfig, callback) {
+  if (!email || !ldapConfig) {
     return callback(new Error('Missing parameters'));
   }
 
-  const ldapauth = new LdapAuth(ldap);
-  let called = false;
+  const {
+    adminDn,
+    adminPassword,
+    searchBase,
+    searchFilter,
+    url
+  } = ldapConfig;
 
-  ldapauth.on('error', err => {
-    if (!called) {
-      called = true;
-      callback(err);
-    }
-  });
+  const ldapClient = new Client({ url });
+  const filter = searchFilter.replace(/{{username}}/g, utils.sanitizeInput(email));
 
-  return ldapauth._findUser(email, (err, data) => {
-    ldapauth.close(NOOP);
+  ldapClient.bind(adminDn, adminPassword)
+    .then(() => ldapClient.search(searchBase, {
+      scope: SEARCH_SCOPE,
+      filter
+    }))
+    .then(({ searchEntries }) => {
+      ldapClient.unbind();
 
-    if (!called) {
-      called = true;
-      callback(err, data);
-    }
-  });
+      return callback(null, Array.isArray(searchEntries) && searchEntries[0]);
+    })
+    .catch(err => {
+      ldapClient.unbind();
+
+      return callback(err);
+    });
 }
 
 /**
  * Try to find a user in all the registered LDAPs.
  *
  * @param {String} email - the email to search in the LDAPs
- * @param {Function} callback - as fn(err, ldap) where ldap is the first LDAP entry where the user has been found
+ * @param {Function} callback - as function(err, ldaps) where ldaps are LDAP entries that the user has been found
  */
 function findLDAPForUser(email, callback) {
   return esnConfig('ldap').getFromAllDomains().then(configs => {
@@ -98,15 +105,15 @@ function findLDAPForUser(email, callback) {
       return callback(new Error('No LDAP configured for authentication'));
     }
 
-    const emailExistsInLdap = (ldap, callback) => {
+    const emailExistsInLdap = (ldap, _callback) => {
       const errorMsg = `Error while finding user ${email} in LDAP directory "${ldap.name}"`;
 
-      emailExists(email, ldap.configuration, (err, username) => {
+      emailExists(email, ldap.configuration, (err, user) => {
         if (err) {
           logger.debug(errorMsg, err);
         }
 
-        callback(null, !!username);
+        _callback(null, !!user);
       });
     };
 
@@ -119,33 +126,34 @@ function findLDAPForUser(email, callback) {
  *
  * @param {String} email
  * @param {String} password
- * @param {hash} ldap - LDAP configuration
+ * @param {hash} ldapConf - LDAP configuration
  * @param {function} callback - as function(err, user) where user is nullable
  */
-function authenticate(email, password, ldap, callback) {
-  if (!email || !password || !ldap) {
+function authenticate(email, password, ldapConf, callback) {
+  if (!email || !password || !ldapConf) {
     return callback(new Error('Can not authenticate from null values'));
   }
 
-  const ldapauth = new LdapAuth(ldap);
+  const ldapClient = new Client({ url: ldapConf.url });
 
-  ldapauth.authenticate(email, password, function(err, user) {
-    ldapauth.close(NOOP);
+  emailExists(email, ldapConf, (err, foundUser) => {
+    if (err) return callback(err);
 
-    if (err) {
-      // Invalid credentials / user not found are not errors but login failures
-     if (err.name === 'InvalidCredentialsError' ||
-         err.name === 'NoSuchObjectError' ||
-         (typeof err === 'string' && err.match(/no such user/i))
-     ) {
+    if (!foundUser) {
       return callback(null, null);
-     }
-
-      // Other errors are (most likely) real errors
-      return callback(err);
     }
 
-    return callback(null, user);
+    ldapClient.bind(foundUser.dn, password)
+      .then(() => {
+        ldapClient.unbind();
+
+        return callback(null, foundUser);
+      })
+      .catch(err => {
+        ldapClient.unbind();
+
+        return callback(err);
+      });
   });
 }
 
@@ -175,55 +183,45 @@ function translate(baseUser, ldapPayload) {
  * @param {object} query      - Query object: {search: 'keyword', limit: 20}
  */
 function ldapSearch(domainId, ldapConf, query) {
-  const deferred = q.defer();
-  const ldapauth = new LdapAuth(ldapConf);
+  const {
+    adminDn,
+    adminPassword,
+    mapping,
+    searchBase,
+    searchFilter,
+    url
+  } = ldapConf;
 
-  ldapauth.on('error', err => {
-    if (err) {
-      return deferred.reject(err);
-    }
-  });
-
-  const uniqueAttr = utils.getUniqueAttr(ldapauth.opts.searchFilter);
+  const ldapClient = new Client({ url });
+  const uniqueAttr = utils.getUniqueAttr(searchFilter);
 
   if (!uniqueAttr) {
-    return deferred.reject(new Error('Parsing searchFilter error'));
+    return Promise.reject(new Error('Parsing searchFilter error'));
   }
 
-  const searchFilter = utils.buildSearchFilter(ldapConf.mapping, query.search);
-  const opts = {
-    filter: searchFilter,
-    scope: ldapauth.opts.searchScope
-  };
+  return ldapClient.bind(adminDn, adminPassword)
+    .then(() => ldapClient.search(searchBase, {
+      scope: SEARCH_SCOPE,
+      filter: utils.buildSearchFilter(mapping, query.search),
+      sizeLimit: query.limit || LDAP_DEFAULT_LIMIT
+    }))
+    .then(({ searchEntries }) => {
+      ldapClient.unbind();
 
-  if (ldapauth.opts.searchAttributes) {
-    opts.attributes = ldapauth.opts.searchAttributes;
-  }
-
-  ldapauth._search(ldapauth.opts.searchBase, opts, (err, users) => {
-    ldapauth.close(NOOP);
-
-    if (err) {
-      return deferred.reject(err);
-    }
-
-    const ldapPayloads = users.map(user => {
-      const ldapPayload = {
-        username: user[uniqueAttr],
+      return searchEntries.map(entry => ({
+        username: entry[uniqueAttr],
         domainId: domainId,
-        user: user,
+        user: entry,
         config: {
-          mapping: ldapConf.mapping
+          mapping: mapping
         }
-      };
+      }));
+    })
+    .catch(err => {
+      ldapClient.unbind();
 
-      return ldapPayload;
+      return Promise.reject(err);
     });
-
-    return deferred.resolve(ldapPayloads);
-  });
-
-  return deferred.promise;
 }
 
 /**
@@ -237,7 +235,7 @@ function ldapSearch(domainId, ldapConf, query) {
  */
 function search(user, query) {
   if (!query || !user) {
-    return q.reject(new Error('Can not authenticate from null values'));
+    return Promise.reject(new Error('Can not authenticate from null values'));
   }
 
   query.limit = query.limit || LDAP_DEFAULT_LIMIT;
@@ -246,22 +244,22 @@ function search(user, query) {
 
   return esnConfig('ldap').forUser(user).get().then(ldaps => {
     if (!ldaps || ldaps.length === 0) {
-      return q({
+      return Promise.resolve({
         total_count: 0,
         list: []
       });
     }
 
     const promises = ldaps.filter(helpers.isLdapUsedForSearch).map(ldap => ldapSearch(domainId, ldap.configuration, query)
-        .catch(err => {
-          logger.error('Error while searching LDAP:', err);
+      .catch(err => {
+        logger.error('Error while searching LDAP:', err);
 
-          return q([]);
-        })
+        return Promise.resolve([]);
+      })
     );
     let totalCount = 0;
 
-    return q.all(promises).then(ldapSearchResults => {
+    return Promise.all(promises).then(ldapSearchResults => {
       const ldapsUsers = [];
 
       ldapSearchResults.map(ldapPayloads => {
