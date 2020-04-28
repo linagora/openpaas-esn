@@ -10,6 +10,8 @@ const moduleHelpers = require('../module-helpers');
 const testConfig = require('../config/servers-conf.js');
 
 before(function() {
+  const self = this;
+
   chai.use(require('chai-shallow-deep-equal'));
   chai.use(require('sinon-chai'));
   chai.use(require('chai-as-promised'));
@@ -23,18 +25,13 @@ before(function() {
     tmp: tmpPath,
     fixtures: path.resolve(`${__dirname}/fixtures`),
     mongoUrl: `mongodb://${testConfig.mongodb.host}:${testConfig.mongodb.port}/${testConfig.mongodb.dbname}`,
+    mongoConnectionOptions: testConfig.mongodb.connectionOptions,
     redisUrl: `redis://${testConfig.redis.host}:${testConfig.redis.port}`,
 
     writeDBConfigFile: function() {
       fs.writeFileSync(`${tmpPath}/db.json`, JSON.stringify({
         connectionString: `mongodb://${testConfig.mongodb.host}:${testConfig.mongodb.port}/${testConfig.mongodb.dbname}`,
-        connectionOptions: {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-          useCreateIndex: true,
-          useFindAndModify: false,
-          auto_reconnect: false
-        }
+        connectionOptions: self.testEnv.mongoConnectionOptions
       }));
     },
 
@@ -61,7 +58,7 @@ before(function() {
       const self = this;
 
       mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
-      mongoose.connect(this.mongoUrl, err => {
+      mongoose.connect(this.mongoUrl, this.mongoConnectionOptions, err => {
         if (err) return callback(err);
 
         configuration('redis').store({ url: self.redisUrl }, err => {
