@@ -13,7 +13,10 @@ describe('The local pubsub for MongoDB configuration', function() {
   });
 
   it('should fire a publish when mongodb configuration is available', function(done) {
-    var mongodbConfiguration = { connectionString: this.testEnv.mongoUrl };
+    var mongodbConfiguration = {
+      connectionString: this.testEnv.mongoUrl,
+      connectionOptions: this.testEnv.mongoConnectionOptions
+    };
     var core = this.helpers.requireBackend('core');
     var pubsub = core.pubsub.local;
     var topic = pubsub.topic('mongodb:configurationAvailable');
