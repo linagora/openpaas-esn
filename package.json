@@ -54,7 +54,7 @@
     "jsonwebtoken": "8.1.0",
     "konphyg": "1.4.0",
     "kue": "0.11.6",
-    "ldapauth-fork": "3.0.0",
+    "ldapts": "2.2.1",
     "less": "2.7.1",
     "less-middleware": "2.2.0",
     "linagora.esn.admin": "1.7.3",

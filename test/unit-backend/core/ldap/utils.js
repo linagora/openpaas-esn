@@ -1,6 +1,4 @@
-'use strict';
-
-const expect = require('chai').expect;
+const { expect } = require('chai');
 
 describe('The utils ldap core module', function() {
   let getModule;
@@ -62,6 +60,50 @@ describe('The utils ldap core module', function() {
       const expectArray = ['a1', 'b1', 'c1', 'a2', 'b2', 'a3'];
 
       expect(getModule().aggregate([A, B, C], limit)).to.deep.equal(expectArray);
+    });
+  });
+
+  describe('The sanitizeInput method', function() {
+    it('should not sanitize if the input does not contain special characters', function() {
+      const input = 'foo';
+
+      expect(getModule().sanitizeInput(input)).to.equal(input);
+    });
+
+    it('should return sanitized string if the input contains "*" character', function() {
+      const input = 'foo*';
+
+      expect(getModule().sanitizeInput(input)).to.equal('foo\\5c2a');
+    });
+
+    it('should return sanitized string if the input contains "(" character', function() {
+      const input = '(foo';
+
+      expect(getModule().sanitizeInput(input)).to.equal('\\5c28foo');
+    });
+
+    it('should return sanitized string if the input contains ")" character', function() {
+      const input = 'foo)';
+
+      expect(getModule().sanitizeInput(input)).to.equal('foo\\5c29');
+    });
+
+    it('should return sanitized string if the input contains backslash character', function() {
+      const input = 'foo\\';
+
+      expect(getModule().sanitizeInput(input)).to.equal('foo\\5c');
+    });
+
+    it('should return sanitized string if the input contains backslash character', function() {
+      const input = 'foo\0';
+
+      expect(getModule().sanitizeInput(input)).to.equal('foo\\00');
+    });
+
+    it('should return sanitized string if the input contains backslash character', function() {
+      const input = 'foo/';
+
+      expect(getModule().sanitizeInput(input)).to.equal('foo\\2f');
     });
   });
 });
