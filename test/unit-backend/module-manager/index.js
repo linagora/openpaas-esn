@@ -70,6 +70,7 @@ describe('The module manager', function() {
         'linagora.esn.core.features',
         'linagora.esn.core.feedback',
         'linagora.esn.core.filestore',
+        'linagora.esn.core.health-check',
         'linagora.esn.core.helpers',
         'linagora.esn.core.i18n',
         'linagora.esn.core.image',

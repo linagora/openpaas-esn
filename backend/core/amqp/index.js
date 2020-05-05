@@ -17,8 +17,15 @@ let clientInstancePromise;
 module.exports = {
   // deprecated, replaced by getPubsubClient
   getClient,
-  getPubsubClient
+  getPubsubClient,
+  init
 };
+
+function init() {
+  const healthCheck = require('./health-check');
+
+  healthCheck.register();
+}
 
 function createClient() {
   return amqpUtils.getUrl()
