@@ -110,6 +110,7 @@ function setupAPI(application) {
   require('./i18n')(router);
   require('./themes')(router);
   require('./technicalusers')(router);
+  require('./health-check')(router);
 
   application.use('/api', router);
   application.use('/api/v0.1', router);
