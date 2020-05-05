@@ -27,10 +27,12 @@ before(function() {
     tmp: tmpPath,
     fixtures: path.resolve(`${__dirname}/fixtures`),
     mongoUrl: `mongodb://${testConfig.mongodb.host}:${testConfig.mongodb.port}/${testConfig.mongodb.dbname}`,
+    mongoConnectionOptions: testConfig.mongodb.connectionOptions,
 
     writeDBConfigFile: function() {
       fs.writeFileSync(`${tmpPath}/db.json`, JSON.stringify({
-        connectionString: `mongodb://${testConfig.mongodb.host}:${testConfig.mongodb.port}/${testConfig.mongodb.dbname}`
+        connectionString: `mongodb://${testConfig.mongodb.host}:${testConfig.mongodb.port}/${testConfig.mongodb.dbname}`,
+        connectionOptions: self.testEnv.mongoConnectionOptions
       }));
     },
 
@@ -61,7 +63,7 @@ before(function() {
 
   this.connectMongoose = function(mongoose, done) {
     mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
-    mongoose.connect(self.testEnv.mongoUrl, done);
+    mongoose.connect(self.testEnv.mongoUrl, self.testEnv.mongoConnectionOptions, done);
   };
 });
 

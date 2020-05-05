@@ -76,7 +76,7 @@ function count(options) {
     query['target.objectType'] = options.target.objectType;
   }
 
-  ResourceLink.find(query).count().exec(function(err, result) {
+  ResourceLink.find(query).countDocuments().exec(function(err, result) {
     if (err) {
       return defer.reject(err);
     }

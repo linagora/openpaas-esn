@@ -1,10 +1,11 @@
 'use strict';
 
-var Grid = require('gridfs-stream');
-var mongoose = require('mongoose');
-var ObjectId = mongoose.Types.ObjectId;
-var chunk_size = 1024;
-var extend = require('extend');
+const mongoose = require('mongoose');
+const conn = mongoose.connection;
+const { ObjectId } = mongoose.Types;
+const chunk_size = 1024;
+const extend = require('extend');
+const { PassThrough } = require('stream');
 const CONSTANTS = require('./constants');
 
 function getMongoID(id) {
@@ -15,30 +16,39 @@ function getMongoID(id) {
     return id;
   }
   var outid;
+
   try {
     outid = new ObjectId(id);
   } catch (e) {
     return null;
   }
+
   return outid;
 }
 
 function getGrid() {
-  return new Grid(mongoose.connection.db, mongoose.mongo);
+  return new mongoose.mongo.GridFSBucket(conn.db);
 }
 
 module.exports.find = function find(query, callback) {
-  var gfs = getGrid();
-  gfs.files.find(query).toArray(function(err, meta) {
-    if (err) {
-      return callback(err);
-    }
-    return callback(null, meta.map(function(m) { return m._id; }));
-  });
+  conn.db
+    .collection(CONSTANTS.COLLECTIONS.FS_FILES)
+    .find(query)
+    .toArray((err, meta) => {
+      if (err) {
+        return callback(err);
+      }
+
+      return callback(
+        null,
+        meta.map(m => ObjectId(m._id))
+      );
+    });
 };
 
 module.exports.store = function(id, contentType, metadata, stream, options, callback) {
   var mongoId = getMongoID(id);
+
   if (!mongoId) {
     return callback(new Error('ID is mandatory'));
   }
@@ -62,9 +72,8 @@ module.exports.store = function(id, contentType, metadata, stream, options, call
 
   var strMongoId = mongoId.toHexString(); // http://stackoverflow.com/a/27176168
   var opts = {
-    _id: strMongoId,
-    mode: 'w',
-    content_type: contentType
+    contentType: contentType,
+    metadata: metadata
   };
 
   options = options || {};
@@ -75,17 +84,16 @@ module.exports.store = function(id, contentType, metadata, stream, options, call
 
   if (options.chunk_size) {
     var size = parseInt(options.chunk_size, 10);
+
     if (!isNaN(size) && size > 0 && size < 255) {
-      opts.chunk_size = chunk_size * size;
+      opts.chunkSizeBytes = chunk_size * size;
     }
   }
 
-  opts.metadata = metadata;
-
   var gfs = getGrid();
-  var writeStream = gfs.createWriteStream(opts);
+  var writeStream = gfs.openUploadStreamWithId(strMongoId, opts.filename, opts);
 
-  writeStream.on('close', function(file) {
+  writeStream.on('finish', function(file) {
     return callback(null, file);
   });
 
@@ -93,17 +101,17 @@ module.exports.store = function(id, contentType, metadata, stream, options, call
     return callback(err);
   });
 
-  stream.pipe(writeStream);
+  stream.pipe(new PassThrough()).pipe(writeStream);
 };
 
 function getMeta(id, callback) {
   var mongoId = getMongoID(id);
+
   if (!mongoId) {
     return callback(new Error('ID is mandatory'));
   }
 
-  var gfs = getGrid();
-  gfs.files.findOne({_id: mongoId}, callback);
+  conn.db.collection(CONSTANTS.COLLECTIONS.FS_FILES).findOne({_id: mongoId.toHexString()}, callback);
 }
 module.exports.getMeta = getMeta;
 
@@ -117,8 +125,11 @@ function getAllMetaByUserId(userId, options, callback) {
   const limit = options.limit || CONSTANTS.DEFAULT_LIMIT;
   const offset = options.offset || CONSTANTS.DEFAULT_OFFSET;
 
-  const gfs = getGrid();
-  const query = gfs.files.find({'metadata.creator.id': mongoUserId}).limit(limit).skip(offset);
+  const query = conn.db
+    .collection(CONSTANTS.COLLECTIONS.FS_FILES)
+    .find({ 'metadata.creator.id': mongoUserId })
+    .limit(limit)
+    .skip(offset);
 
   if (options.sort) {
     query.sort({uploadDate: options.sort});
@@ -130,6 +141,7 @@ module.exports.getAllMetaByUserId = getAllMetaByUserId;
 
 module.exports.addMeta = function(id, data, callback) {
   var mongoId = getMongoID(id);
+
   if (!mongoId) {
     return callback(new Error('ID is mandatory'));
   }
@@ -144,15 +156,25 @@ module.exports.addMeta = function(id, data, callback) {
     }
     if (file) {
       extend(true, file, data);
-      var gfs = getGrid();
-      return gfs.files.update({_id: mongoId}, file, callback);
+
+      return conn.db.collection(CONSTANTS.COLLECTIONS.FS_FILES).updateOne(
+        {
+          _id: mongoId.toHexString()
+        },
+        {
+          $set: file
+        },
+        callback
+      );
     }
+
     return callback();
   });
 };
 
 function get(id, callback) {
   var mongoId = getMongoID(id);
+
   if (!mongoId) {
     return callback(new Error('ID is mandatory'));
   }
@@ -167,9 +189,8 @@ function get(id, callback) {
     }
 
     var gfs = getGrid();
-    var readstream = gfs.createReadStream({
-      _id: mongoId
-    });
+    var readstream = gfs.openDownloadStream(mongoId.toHexString());
+
     return callback(err, meta, readstream);
   });
 }
@@ -180,15 +201,28 @@ module.exports.getFileStream = function(id, callback) {
     if (!err && !meta) {
       return callback(new Error('File does not exists'));
     }
+
     return callback(err, readstream);
   });
 };
 
 module.exports.delete = function(id, callback) {
   var mongoId = getMongoID(id);
+
   if (!mongoId) {
     return callback(new Error('ID is mandatory'));
   }
   var gfs = getGrid();
-  return gfs.remove({_id: mongoId}, callback);
+
+  return gfs.delete(mongoId.toHexString(), function(err) {
+    if (!err) {
+      return callback(null);
+    }
+
+    if (err.message.includes('FileNotFound')) {
+      return callback(null);
+    }
+
+    return callback(err);
+  });
 };

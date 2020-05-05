@@ -34,7 +34,7 @@ function countForUser(user, query, callback) {
     q.read = query.read;
   }
 
-  return UserNotification.count(q).exec(callback);
+  return UserNotification.countDocuments(q).exec(callback);
 }
 
 function create(usernotification, callback) {
@@ -100,7 +100,7 @@ function getForUser(user, query, callback) {
 }
 
 function remove(query, callback) {
-  UserNotification.remove(query, callback);
+  UserNotification.deleteMany(query, callback);
 }
 
 function setAcknowledged(usernotification, acknowledged, callback) {

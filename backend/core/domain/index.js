@@ -57,7 +57,7 @@ function updateById(domainId, modified, callback) {
 }
 
 function removeById(domainId, callback) {
-  return Domain.remove({ _id: domainId }, callback);
+  return Domain.deleteOne({ _id: domainId }, callback);
 }
 
 function getByName(name) {

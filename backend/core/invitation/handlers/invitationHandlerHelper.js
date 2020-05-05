@@ -95,7 +95,7 @@ module.exports.initHelper = function(invitation, data) {
       var domainObject = new Domain(domain);
       domainObject.save(function(err, saved) {
         if (err) {
-          User.remove(user, function(err) {
+          User.deleteOne(user, function(err) {
             if (err) {
               return callback(new Error('Domain creation failed, cannot delete the user ' + err.message));
             }

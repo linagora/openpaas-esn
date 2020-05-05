@@ -180,11 +180,11 @@ describe('The TimelineEntriesTracker module', function() {
 
             const TimelineEntry = self.helpers.requireBackend('core/db/mongo/models/timelineentry');
 
-            TimelineEntry.update({_id: models2.timelineEntries[1]._id }, {$set: {verb: 'remove'}}, function(err) {
+            TimelineEntry.updateOne({_id: models2.timelineEntries[1]._id }, {$set: {verb: 'remove'}}, function(err) {
               if (err) {
                 return done(err);
               }
-              TimelineEntry.update({_id: models2.timelineEntries[2]._id }, {$set: {verb: 'remove'}}, function(err) {
+              TimelineEntry.updateOne({_id: models2.timelineEntries[2]._id }, {$set: {verb: 'remove'}}, function(err) {
                 if (err) {
                   return done(err);
                 }

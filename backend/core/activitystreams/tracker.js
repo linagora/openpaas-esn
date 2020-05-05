@@ -49,7 +49,7 @@ module.exports.getTracker = function(type) {
 
     var updateQuery = {$set: {}};
     updateQuery.$set['timelines.' + activityStreamUuid] = lastTimelineEntryReadId;
-    Tracker.update({_id: userId}, updateQuery, {upsert: true}, function(err) {
+    Tracker.updateOne({_id: userId}, updateQuery, {upsert: true}, function(err) {
       if (err) {
         logger.error('Error while updating by ID a TimelineEntriesTracker : ', +err.message);
         return callback(err);
