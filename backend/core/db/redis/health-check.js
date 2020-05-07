@@ -35,12 +35,12 @@ function checkConnection(client) {
   return new Promise((resolve, reject) => {
     client().ping(function(err, value) {
       if (err) {
-        reject(err);
+        return reject(err);
       }
       if (value && value === HEALTHY_RESPONSE) {
-        resolve(true);
+        return resolve(true);
       }
-      reject(`Redis ping did not return expected value: ${HEALTHY_RESPONSE}`);
+      return reject(new Error(`Redis ping did not return expected value: ${HEALTHY_RESPONSE}`));
     });
   });
 }
