@@ -7,7 +7,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /ldap/search:
+   * /api/ldap/search:
    *   get:
    *     tags:
    *       - LDAP

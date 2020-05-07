@@ -14,7 +14,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /user:
+   * /api/user:
    *   get:
    *     tags:
    *      - User
@@ -33,7 +33,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /user/profile:
+   * /api/user/profile:
    *   get:
    *     tags:
    *      - User
@@ -51,7 +51,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /user/profile:
+   * /api/user/profile:
    *   put:
    *     tags:
    *      - User

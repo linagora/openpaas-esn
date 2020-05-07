@@ -11,7 +11,7 @@ module.exports = dependencies => {
 
   /**
    * @swagger
-   * /addressbooks/domainmembers/synchronize:
+   * /contact/api/addressbooks/domainmembers/synchronize:
    *   post:
    *     tags:
    *       - synchoronize, addressbooks, domain-members
