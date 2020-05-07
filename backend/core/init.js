@@ -6,6 +6,7 @@ const elasticsearch = require('./elasticsearch');
 
 module.exports = callback => {
   db.mongo.init();
+  db.redis.initHealthCheck();
   pubsub.init();
   amqp.init();
   elasticsearch.init();
