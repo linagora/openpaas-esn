@@ -25,6 +25,9 @@ module.exports = function(dependencies) {
   }
 
   function updateLastActiveForUsers(userIds, last_active = Date.now()) {
-    return UserStatus.where({_id: {$in: userIds}}).setOptions({multi: true, upsert: true}).update({$set: {last_active: last_active}}).exec();
+    return UserStatus.where({ _id: { $in: userIds } })
+      .setOptions({ upsert: true })
+      .updateMany({ $set: { last_active: last_active } })
+      .exec();
   }
 };
