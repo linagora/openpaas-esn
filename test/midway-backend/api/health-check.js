@@ -3,7 +3,7 @@ const { expect } = require('chai');
 
 describe('The Health Check API', function() {
   const API_PATH = '/api/healthcheck';
-  const TEST_RETURN = ['rabbitmq'];
+  const TEST_RETURN = ['mongodb', 'rabbitmq'];
   const TEST_RETURN_ONLY_RABBITMQ = ['rabbitmq'];
   const TEST_RETURN_NOT_FOUND = [
     {
