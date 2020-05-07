@@ -14,7 +14,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /users/{uuid}:
+   * /api/users/{uuid}:
    *   get:
    *     tags:
    *      - Users

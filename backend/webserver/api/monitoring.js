@@ -6,7 +6,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /monitoring:
+   * /api/monitoring:
    *   get:
    *     tags:
    *       - Monitoring

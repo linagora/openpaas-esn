@@ -189,7 +189,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /domains/{domain_id}/manager:
+   * /api/domains/{domain_id}/manager:
    *   get:
    *     tags:
    *      - Domain
@@ -212,7 +212,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /domains/{domain_id}/administrators:
+   * /api/domains/{domain_id}/administrators:
    *   get:
    *     tags:
    *      - Domain
@@ -235,7 +235,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /domains/{domain_id}/administrators:
+   * /api/domains/{domain_id}/administrators:
    *   post:
    *     tags:
    *      - Domain
@@ -260,7 +260,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /domains/{domain_id}/administrators/{administrator_id}:
+   * /api/domains/{domain_id}/administrators/{administrator_id}:
    *   delete:
    *     tags:
    *      - Domain

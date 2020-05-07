@@ -9,7 +9,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /files:
+   * /api/files:
    *   post:
    *     tags:
    *       - File
@@ -35,7 +35,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /files/{id}:
+   * /api/files/{id}:
    *   get:
    *     tags:
    *       - File
@@ -61,7 +61,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /files/{id}:
+   * /api/files/{id}:
    *   delete:
    *     tags:
    *       - File

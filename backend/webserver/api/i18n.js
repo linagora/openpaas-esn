@@ -3,7 +3,7 @@ const i18nController = require('../controllers/i18n');
 module.exports = function(router) {
   /**
    * @swagger
-   * /i18n:
+   * /api/i18n:
    *   get:
    *     tags:
    *      - i18n

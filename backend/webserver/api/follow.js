@@ -10,7 +10,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /users/{id}/followers:
+   * /api/users/{id}/followers:
    *   get:
    *     tags:
    *      - Users
@@ -39,7 +39,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /users/{id}/followings:
+   * /api/users/{id}/followings:
    *   get:
    *     tags:
    *      - Users
@@ -66,7 +66,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /users/{id}/followings/{tid}:
+   * /api/users/{id}/followings/{tid}:
    *   get:
    *     tags:
    *      - Users
@@ -92,7 +92,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /users/{id}/followings/{tid}:
+   * /api/users/{id}/followings/{tid}:
    *   put:
    *     tags:
    *      - Users
@@ -118,7 +118,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /users/{id}/followings/{tid}:
+   * /api/users/{id}/followings/{tid}:
    *   delete:
    *     tags:
    *      - Users
