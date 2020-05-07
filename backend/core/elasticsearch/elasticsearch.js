@@ -30,8 +30,14 @@ module.exports = {
   removeDocumentFromIndex,
   removeDocumentsByQuery,
   searchDocuments,
-  updateClient
+  updateClient,
+  init
 };
+
+function init() {
+  const healthCheck = require('./health-check');
+  healthCheck.register(getClient);
+}
 
 /**
  * Digest the config parameter into md5sum
