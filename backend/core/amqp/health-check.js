@@ -7,26 +7,27 @@ module.exports = {
   register
 };
 
+const SERVICE_NAME = 'rabbitmq';
 /**
  * Register RabbitMQ as a HealthCheckProvider, check is an async function to check for RabbitMQ
  * connection, return boolean for result.
  */
 function register() {
-  return registry.register(new HealthCheckProvider('rabbitmq', checker));
+  return registry.register(new HealthCheckProvider(SERVICE_NAME, checker));
 }
 
 /**
  * Checks for RabbitMQ connection, then returns formatted result
  */
 function checker() {
-  const message = 'AMQP: Something went wrong with RabbitMQ connection.';
+  const message = 'Health check: Something went wrong with RabbitMQ connection.';
 
   return checkConnection()
-    .then(result => (result ? buildHealthyMessage('rabbitmq') : buildUnhealthyMessage('rabbitmq', message)))
+    .then(result => (result ? buildHealthyMessage(SERVICE_NAME) : buildUnhealthyMessage(SERVICE_NAME, message)))
     .catch(error => {
       logger.error(message, error);
 
-      return buildUnhealthyMessage('rabbitmq', error.message || error || message);
+      return buildUnhealthyMessage(SERVICE_NAME, error.message || error || message);
     });
 }
 
