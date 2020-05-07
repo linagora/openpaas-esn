@@ -340,6 +340,10 @@ function mongooseConnect(reinit) {
 }
 
 function init() {
+  // Register health check service
+  const healthCheck = require('./health-check');
+  healthCheck.register();
+
   function reinit() {
     logger.info('Database configuration updated, reloading mongoose');
     config.clear();
