@@ -545,6 +545,38 @@ describe('The profile API', function() {
       });
     });
 
+    it('should return 400 if request body is empty', function(done) {
+      const User = mongoose.model('User');
+
+      User.findOne({ _id: userDomainMember._id }).exec()
+        .then(() => {
+          helpers.api.loginAsUser(app, userDomainAdmin.emails[0], password, (error, loggedInAsUser) => {
+            if (error) return done(error);
+
+            loggedInAsUser(
+              request(app)
+                .put(`${USERS_API_PATH}/${userDomainMember._id}`)
+                .query(`domain_id=${domain_id}`)
+            )
+              .send({})
+              .expect(400)
+              .end((error, res) => {
+                if (error) return done(error);
+
+                expect(res.body).to.shallowDeepEqual({
+                  error: {
+                    code: 400,
+                    message: 'Bad Request',
+                    details: 'Request body is required when updating a user'
+                  }
+                });
+                done();
+              });
+          });
+        })
+        .catch(done);
+    });
+
     it('should return 400 if request body contains user provisioned fields', function(done) {
       const userModule = helpers.requireBackend('core/user');
       const User = mongoose.model('User');
