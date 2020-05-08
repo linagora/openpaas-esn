@@ -545,6 +545,38 @@ describe('The profile API', function() {
       });
     });
 
+    it('should return 400 if request body is empty', function(done) {
+      const User = mongoose.model('User');
+
+      User.findOne({ _id: userDomainMember._id }).exec()
+        .then(() => {
+          helpers.api.loginAsUser(app, userDomainAdmin.emails[0], password, (error, loggedInAsUser) => {
+            if (error) return done(error);
+
+            loggedInAsUser(
+              request(app)
+                .put(`${USERS_API_PATH}/${userDomainMember._id}`)
+                .query(`domain_id=${domain_id}`)
+            )
+              .send({})
+              .expect(400)
+              .end((error, res) => {
+                if (error) return done(error);
+
+                expect(res.body).to.shallowDeepEqual({
+                  error: {
+                    code: 400,
+                    message: 'Bad Request',
+                    details: 'Request body is required when updating a user'
+                  }
+                });
+                done();
+              });
+          });
+        })
+        .catch(done);
+    });
+
     it('should return 400 if request body contains user provisioned fields', function(done) {
       const userModule = helpers.requireBackend('core/user');
       const User = mongoose.model('User');
@@ -632,6 +664,59 @@ describe('The profile API', function() {
               })
               .catch(done);
           }));
+      });
+    });
+
+    it('should update profile and respond 200 and the attribute that was not mentioned should not be reset.', function(done) {
+      const User = mongoose.model('User');
+
+      const oldProfile = {
+        firstname: 'John',
+        main_phone: '123456789',
+        description: 'This is my description'
+      };
+
+      // We want to change only main_phone and description
+      const profile = {
+        main_phone: '000000',
+        description: 'Updated description'
+      };
+
+      sendRequestAsUser(userDomainAdmin, loggedInAsUser => {
+        loggedInAsUser(
+          request(app)
+            .put(`${USERS_API_PATH}/${foouser._id}`)
+            .query(`domain_id=${domain_id}`)
+            .send(profile)
+        )
+          .expect(200)
+          .end(
+            helpers.callbacks.noErrorAnd(res => {
+              expect(res.body).to.shallowDeepEqual({
+                firstname: oldProfile.firstname,
+                main_phone: profile.main_phone,
+                description: profile.description
+              });
+
+              User.findOne({ _id: foouser._id })
+                .then(user => {
+                  const newUserData = {
+                    firstname: user.firstname,
+                    main_phone: user.main_phone,
+                    description: user.description
+                  };
+
+                  expect(newUserData).to.deep.equal({
+                    firstname: oldProfile.firstname,
+                    main_phone: profile.main_phone,
+                    description: profile.description
+                  });
+
+                  done();
+                })
+                .catch(done);
+            })
+          );
       });
     });
   });

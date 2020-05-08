@@ -230,16 +230,30 @@ function updateUserProfileOnReq(property) {
 }
 
 function _buildNewProfile(data) {
-  return {
-    firstname: data.firstname || '',
-    lastname: data.lastname || '',
-    job_title: data.job_title || '',
-    service: data.service || '',
-    building_location: data.building_location || '',
-    office_location: data.office_location || '',
-    main_phone: data.main_phone || '',
-    description: data.description || ''
-  };
+  const editableFields = [
+    'firstname',
+    'lastname',
+    'job_title',
+    'service',
+    'building_location',
+    'office_location',
+    'main_phone',
+    'description'
+  ];
+
+  const profile = {};
+
+  editableFields.forEach(field => {
+    const value = data[field];
+
+    if (value === null) {
+      profile[field] = '';
+    } else if (typeof value !== 'undefined') {
+      profile[field] = value;
+    }
+  });
+
+  return profile;
 }
 
 /**

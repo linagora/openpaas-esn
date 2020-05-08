@@ -205,7 +205,7 @@ function validateUserUpdateOnReq(property) {
   return (req, res, next) => {
     const targetUser = req[property];
 
-    if (!req.body) {
+    if (_.isEmpty(req.body)) {
       return res.status(400).json({
         error: {
           code: 400,
