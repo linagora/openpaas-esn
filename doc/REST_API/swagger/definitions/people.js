@@ -52,14 +52,4 @@
  *     type: array
  *     items:
  *       type: string
- *   PeopleSearchRequestPagination:
- *     type: object
- *     description: Defines the pagination for each resource type
- *     properties:
- *       limit:
- *         type: integer
- *         description: The maximum number of resources to send back
- *       offset:
- *         type: integer
- *         description: The offset to start to search resources from
  */
