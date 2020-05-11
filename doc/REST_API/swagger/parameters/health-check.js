@@ -10,9 +10,7 @@
  *   hc_services:
  *     name: services
  *     in: query
- *     description: Lists of services name to get health check status for. If unset, returns all.
+ *     description: Lists of services name to get health check status for, separated by comma. If unset, returns all.
  *     required: false
- *     type: array
- *     items:
- *       type: string
+ *     type: string
  */

@@ -18,4 +18,10 @@
  *             cause:
  *               type: string
  *               description: The detail message from the throwable
+ *   hc_available:
+ *     properties:
+ *       services:
+ *         type: array
+ *         items:
+ *           type: string
  */
