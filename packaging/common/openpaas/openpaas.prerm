@@ -1,5 +1,0 @@
-#! /bin/sh -e
-
-systemctl stop openpaas
-systemctl disable openpaas
-systemctl daemon-reload
