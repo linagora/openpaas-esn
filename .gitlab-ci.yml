@@ -161,9 +161,20 @@ modules-midway-test:
       alias: redis-midway
     - name: rabbitmq:3.6.5-management
       alias: rabbitmq-midway
+    - name: linagora/esn-sabre:branch-master
+      alias: sabre
   variables:
+    ESN_HOST: "172.17.0.1"
+    ESN_PORT: 8080
+    DAVSERVER_HOST: sabre
+    DAVSERVER_PORT: 80
     MONGO_HOST: mongo-midway
     MONGO_PORT: 27017
+    SABRE_MONGO_HOST: mongo-midway
+    SABRE_MONGO_PORT: 27017
+    ESN_MONGO_HOST: mongo-midway
+    ESN_MONGO_PORT: 27017
+    ESN_MONGO_DBNAME: tests
     AMQP_HOST: rabbitmq-midway
     AMQP_PORT: 5672
     ESN_ELASTIC_HOST: elasticsearch-midway
@@ -186,9 +197,20 @@ midway-backend-test:
       alias: redis-backend
     - name: rabbitmq:3.6.5-management
       alias: rabbitmq-backend
+    - name: linagora/esn-sabre:branch-master
+      alias: sabre
   variables:
+    ESN_HOST: "172.17.0.1"
+    ESN_PORT: 8080
+    DAVSERVER_HOST: sabre
+    DAVSERVER_PORT: 80
     MONGO_HOST: mongo-backend
     MONGO_PORT: 27017
+    SABRE_MONGO_HOST: mongo-backend
+    SABRE_MONGO_PORT: 27017
+    ESN_MONGO_HOST: mongo-backend
+    ESN_MONGO_PORT: 27017
+    ESN_MONGO_DBNAME: tests
     AMQP_HOST: rabbitmq-backend
     AMQP_PORT: 5672
     ESN_ELASTIC_HOST: elasticsearch-backend
