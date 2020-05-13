@@ -1,9 +1,10 @@
-'use strict';
+/* eslint-disable no-process-env */
 
-var tmp = 'tmp',
-    tmpAbsolutePath = require('path').join(process.cwd(), tmp);
+const tmp = 'tmp',
+      tmpAbsolutePath = require('path').join(process.cwd(), tmp);
 
-var DEFAULT_PORTS = {
+const DEFAULT_PORTS = {
+  esn: 23453,
   express: 23455,
   mongo: 23456,
   redis: 23457,
@@ -14,17 +15,17 @@ var DEFAULT_PORTS = {
   rabbitmq: 23462
 };
 
-var images = require('../../docker/images.json');
-var host = process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
-var mongoHost = process.env.MONGO_HOST || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
-var mongoPort = process.env.MONGO_PORT || DEFAULT_PORTS.mongo;
-var amqpHost = process.env.AMQP_HOST || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
-var amqpPort = process.env.AMQP_PORT || DEFAULT_PORTS.rabbitmq;
-var elasticsearchHost = process.env.ELASTICSEARCH_HOST || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
-var elasticsearchPort = process.env.ELASTICSEARCH_PORT || DEFAULT_PORTS.elasticsearch;
-var redisHost = process.env.REDIS_HOST || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
-var redisPort = process.env.REDIS_PORT || DEFAULT_PORTS.redis;
-var dbName = 'tests';
+const images = require('../../docker/images.json');
+const host = process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
+const mongoHost = process.env.MONGO_HOST || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
+const mongoPort = process.env.MONGO_PORT || DEFAULT_PORTS.mongo;
+const amqpHost = process.env.AMQP_HOST || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
+const amqpPort = process.env.AMQP_PORT || DEFAULT_PORTS.rabbitmq;
+const elasticsearchHost = process.env.ELASTICSEARCH_HOST || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
+const elasticsearchPort = process.env.ELASTICSEARCH_PORT || DEFAULT_PORTS.elasticsearch;
+const redisHost = process.env.REDIS_HOST || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
+const redisPort = process.env.REDIS_PORT || DEFAULT_PORTS.redis;
+const dbName = 'tests';
 
 module.exports = {
   tmp: tmp,
@@ -32,6 +33,10 @@ module.exports = {
   default_ports: DEFAULT_PORTS,
 
   host: host,
+
+  esn: {
+    port: process.env.ESN_PORT || DEFAULT_PORTS.esn
+  },
 
   express: {
     port: process.env.PORT_EXPRESS || DEFAULT_PORTS.express
@@ -116,6 +121,11 @@ module.exports = {
   },
 
   davserver: {
-    port: process.env.PORT_DAVSERVER || DEFAULT_PORTS.davserver
+    host: process.env.DAVSERVER_HOST || process.env.DOCKER_HOST || 'localhost',
+    port: process.env.DAVSERVER_PORT || DEFAULT_PORTS.davserver,
+    container: {
+      image: images.sabre,
+      name: 'davserver'
+    }
   }
 };

@@ -5,7 +5,7 @@
   "mongodb": "mongo:3.2",
   "redis": "redis:latest",
   "rabbitmq": "rabbitmq:3.6.5-management",
-  "sabre": "linagora/esn-sabre",
+  "sabre": "linagora/esn-sabre:branch-master",
   "esn": "linagora/esn",
   "esn_base": "linagora/esn-base"
 }

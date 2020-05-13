@@ -143,6 +143,28 @@ module.exports = function(grunt) {
         }, {}, {}, {
           regex: /started/,
           info: 'Elasticsearch server is started.'
+        }),
+      davserver: container.newContainer({
+          Image: servers.davserver.container.image,
+          name: servers.davserver.container.name,
+          PortBindings: { '80/tcp': [{ HostPort: servers.davserver.port + '' }] },
+          Env: [
+            `SABRE_MONGO_PORT=${servers.mongodb.port}`,
+            `ESN_MONGO_PORT=${servers.mongodb.port}`,
+            `ESN_PORT=${servers.esn.port}`,
+            `REDIS_PORT=${servers.redis.port}`,
+            `AMQP_PORT=${servers.rabbitmq.port}`,
+            `ESN_MONGO_DBNAME=${servers.mongodb.dbname}`,
+            'MONGO_TIMEOUT=100000',
+            'SABRE_MONGO_HOST=172.17.0.1',
+            'ESN_MONGO_HOST=172.17.0.1',
+            'ESN_HOST=172.17.0.1',
+            'REDIS_HOST=172.17.0.1',
+            'AMQP_HOST=172.17.0.1'
+          ]
+        }, {}, {}, {
+          regex: /supervisord started/,
+          info: 'DAV server is started'
         })
     },
     waitServer: {
@@ -290,9 +312,9 @@ module.exports = function(grunt) {
 
   grunt.loadTasks('tasks');
 
-  grunt.registerTask('spawn-containers', 'spawn servers', ['container:redis', 'container:rabbitmq', 'container:mongo', 'container:elasticsearch']);
-  grunt.registerTask('pull-containers', 'pull containers', ['container:redis:pull', 'container:rabbitmq:pull', 'container:mongo:pull', 'container:elasticsearch:pull']);
-  grunt.registerTask('kill-containers', 'kill servers', ['container:redis:remove', 'container:rabbitmq:remove', 'container:mongo:remove', 'container:elasticsearch:remove']);
+  grunt.registerTask('spawn-containers', 'spawn servers', ['container:redis', 'container:rabbitmq', 'container:mongo', 'container:elasticsearch', 'container:davserver']);
+  grunt.registerTask('pull-containers', 'pull containers', ['container:redis:pull', 'container:rabbitmq:pull', 'container:mongo:pull', 'container:elasticsearch:pull', 'container:davserver:pull']);
+  grunt.registerTask('kill-containers', 'kill servers', ['container:redis:remove', 'container:rabbitmq:remove', 'container:mongo:remove', 'container:elasticsearch:remove', 'container:davserver:remove']);
   grunt.registerTask('setup-mongo-es-docker', ['spawn-containers', 'continue:on', 'setupElasticsearchIndexes']);
 
   grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:rabbitmq', 'shell:mongo', 'shell:elasticsearch']);
