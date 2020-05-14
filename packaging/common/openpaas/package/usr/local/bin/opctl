@@ -1,5 +1,0 @@
-#! /bin/sh -e
-
-. /etc/openpaas/opctl-env.sh
-
-node /usr/share/openpaas/bin/cli.js $*

@@ -16,22 +16,6 @@ stages:
     - frontend/components
   policy: pull
 
-.curl-tpl: &curl-tpl
-  variables:
-    GIT_STRATEGY: none
-  tags:
-    - curl
-  before_script:
-      - apk add --no-cache curl jq
-
-.build-pkg-tpl: &build-pkg-tpl
-  <<: *curl-tpl
-  only:
-    - master@linagora/lgs/openpaas/esn
-  except:
-    variables:
-      - $SKIP_BUILD_PKG
-
 .test-template: &test-template
   image: node:10-stretch
   stage: test
@@ -220,84 +204,6 @@ midway-backend-test:
     - BROWSER="firefox" VIDEO_FILE_NAME=$VIDEO_FIREFOX_NAME grunt test-e2e $DOCKER_OPTIONS
     - BROWSER="chrome" VIDEO_FILE_NAME=$VIDEO_CHROME_NAME grunt test-e2e $DOCKER_OPTIONS
   allow_failure: true
-
-.build_pkg_deb_openpaas_jessie:
-  <<: *build-pkg-tpl
-  stage: build
-  script:
-    - curl -s -X POST
-      -F "token=${BUILD_PACKAGE_CI_TOKEN}"
-      -F "ref=master"
-      -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
-      -F "variables[VERSION_FILE]=package.json"
-      -F "variables[PACKAGE_NAME]=openpaas"
-      -F "variables[DOCKERFILE]=debian/jessie/openpaas/Dockerfile"
-      https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
-
-.build_pkg_deb_openpaas_stretch:
-  <<: *build-pkg-tpl
-  stage: build
-  script:
-    - curl -s -X POST
-      -F "token=${BUILD_PACKAGE_CI_TOKEN}"
-      -F "ref=master"
-      -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
-      -F "variables[VERSION_FILE]=package.json"
-      -F "variables[PACKAGE_NAME]=openpaas"
-      -F "variables[DOCKERFILE]=debian/stretch/openpaas/Dockerfile"
-      https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
-
-.build_pkg_rpm_openpaas:
-  <<: *build-pkg-tpl
-  stage: build
-  script:
-    - curl -s -X POST
-      -F "token=${BUILD_PACKAGE_CI_TOKEN}"
-      -F "ref=master"
-      -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
-      -F "variables[VERSION_FILE]=package.json"
-      -F "variables[PACKAGE_NAME]=openpaas"
-      -F "variables[DOCKERFILE]=redhat/7/openpaas/Dockerfile"
-      https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
-
-.build_pkg_deb_openpaas-james_jessie:
-  <<: *build-pkg-tpl
-  stage: build
-  script:
-    - curl -s -X POST
-      -F "token=${BUILD_PACKAGE_CI_TOKEN}"
-      -F "ref=master"
-      -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
-      -F "variables[VERSION_FILE]=package.json"
-      -F "variables[PACKAGE_NAME]=openpaas-james"
-      -F "variables[DOCKERFILE]=debian/jessie/openpaas-james/Dockerfile"
-      https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
-
-.build_pkg_deb_openpaas-james_stretch:
-  <<: *build-pkg-tpl
-  stage: build
-  script:
-    - curl -s -X POST
-      -F "token=${BUILD_PACKAGE_CI_TOKEN}"
-      -F "ref=master"
-      -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
-      -F "variables[VERSION_FILE]=package.json"
-      -F "variables[PACKAGE_NAME]=openpaas-james"
-      -F "variables[DOCKERFILE]=debian/stretch/openpaas-james/Dockerfile"
-      https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
-
-.build_pkg_rpm_openpaas-james:
-  <<: *build-pkg-tpl
-  stage: build
-  script:
-    - curl -s -X POST
-      -F "token=${BUILD_PACKAGE_CI_TOKEN}"
-      -F "ref=master"
-      -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
-      -F "variables[VERSION_FILE]=package.json"
-      -F "variables[PACKAGE_NAME]=openpaas-james"
-      -F "variables[DOCKERFILE]=redhat/7/openpaas-james/Dockerfile"
-      https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
 # Maybe this stage should not use test-template,
 # the job will not created for tag pipeline.
