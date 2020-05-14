@@ -63,6 +63,7 @@
     "linagora.esn.chat": "linagora/linagora.esn.chat",
     "linagora.esn.community": "linagora/linagora.esn.community",
     "linagora.esn.contact.collect": "linagora/linagora.esn.contact.collect",
+    "linagora.esn.dashboard": "github:linagora/linagora.esn.dashboard",
     "linagora.esn.dav.import": "github:linagora/linagora.esn.dav.import",
     "linagora.esn.group": "linagora/linagora.esn.group",
     "linagora.esn.james": "linagora/linagora.esn.james",
