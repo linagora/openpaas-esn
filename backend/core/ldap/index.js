@@ -44,7 +44,13 @@ function emailExists(email, ldapConfig, callback) {
     url
   } = ldapConfig;
 
-  const ldapClient = new Client({ url });
+  let ldapClient;
+
+  try {
+    ldapClient = new Client({ url });
+  } catch (err) {
+    return callback(err);
+  }
   const filter = searchFilter.replace(/{{username}}/g, utils.sanitizeInput(email));
 
   ldapClient.bind(adminDn, adminPassword)
@@ -134,7 +140,13 @@ function authenticate(email, password, ldapConf, callback) {
     return callback(new Error('Can not authenticate from null values'));
   }
 
-  const ldapClient = new Client({ url: ldapConf.url });
+  let ldapClient;
+
+  try {
+    ldapClient = new Client({ url: ldapConf.url });
+  } catch (err) {
+    return callback(err);
+  }
 
   emailExists(email, ldapConf, (err, foundUser) => {
     if (err) return callback(err);
@@ -192,7 +204,13 @@ function ldapSearch(domainId, ldapConf, query) {
     url
   } = ldapConf;
 
-  const ldapClient = new Client({ url });
+  let ldapClient;
+
+  try {
+    ldapClient = new Client({ url });
+  } catch (err) {
+    return Promise.reject(err);
+  }
   const uniqueAttr = utils.getUniqueAttr(searchFilter);
 
   if (!uniqueAttr) {
