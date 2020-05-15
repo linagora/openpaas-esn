@@ -169,4 +169,20 @@ describe('The Health Check API', function() {
       });
     });
   });
+
+  describe('GET /api/healthcheck/services', function() {
+    it('should send back 200 with all available service names for performing health check', function(done) {
+      sendRequestAsUser(userDomainMember, requestAsMember => {
+        requestAsMember(request(app).get(`${API_PATH}/services`))
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(checker(res.body.services, TEST_RETURN)).to.be.true;
+            done();
+          });
+      });
+    });
+  });
 });

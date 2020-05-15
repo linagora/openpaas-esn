@@ -11,7 +11,8 @@ module.exports = {
   HealthCheckProvider,
   HealthCheckMessage,
   buildHealthyMessage,
-  buildUnhealthyMessage
+  buildUnhealthyMessage,
+  getRegisteredServiceNames
 };
 
 /**
@@ -21,7 +22,7 @@ module.exports = {
  */
 function checkWithCause(serviceNames = []) {
   let checkers = registry.getAllCheckers();
-  let availableServices = registry.getAllServiceNames();
+  let availableServices = registry.getRegisteredServiceNames();
   let unavailableServices = [];
   if (serviceNames.length) {
     checkers = registry.getCheckers(serviceNames);
@@ -53,4 +54,11 @@ function check(serviceNames = []) {
       result.cause = null;
       return result;
     }));
+}
+
+/**
+ * Get all registered health provider name.
+ */
+function getRegisteredServiceNames() {
+  return registry.getRegisteredServiceNames();
 }

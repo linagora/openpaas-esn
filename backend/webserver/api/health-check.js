@@ -30,4 +30,29 @@ module.exports = router => {
     healthCheckMW.checkAPIAuthorization,
     controller.getHealthStatus
   );
+
+  /**
+   * @swagger
+   * /healthcheck/services:
+   *   get:
+   *     tags:
+   *      - Healthcheck
+   *     description:
+   *       Get all available services for health check.
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/hc_available"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.get(
+    '/healthcheck/services',
+    controller.getAvailableServices
+  );
 };

@@ -6,7 +6,7 @@ const providers = {};
 module.exports = {
   getCheckers,
   getAllCheckers,
-  getAllServiceNames,
+  getRegisteredServiceNames,
   checkAvailable,
   register
 };
@@ -47,6 +47,6 @@ function checkAvailable(name) {
   return Boolean(providers[name]);
 }
 
-function getAllServiceNames() {
+function getRegisteredServiceNames() {
   return Object.keys(providers);
 }

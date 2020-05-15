@@ -1,8 +1,9 @@
-const { check, checkWithCause } = require('../../core/health-check');
+const { check, checkWithCause, getRegisteredServiceNames } = require('../../core/health-check');
 const logger = require('../../core/logger');
 
 module.exports = {
-  getHealthStatus
+  getHealthStatus,
+  getAvailableServices
 };
 
 function getHealthStatus(req, res) {
@@ -30,5 +31,11 @@ function getHealthStatus(req, res) {
         }
       });
     });
+}
+
+function getAvailableServices(_req, res) {
+  res.status(200).json({
+    services: getRegisteredServiceNames()
+  });
 }
 
