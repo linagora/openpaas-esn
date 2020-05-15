@@ -7,17 +7,22 @@
  *         type: array
  *         items:
  *           type: object
- *           description: detail status of component
- *           properties:
- *             componentName:
- *               type: string
- *               description: The name of the component
- *             status:
- *               type: string
- *               description: The status of the component
- *             cause:
- *               type: string
- *               description: The detail message from the throwable
+ *           description: detail status of service
+ *           $ref: "#/definitions/hc_one"
+ *   hc_one:
+ *     properties:
+ *       componentName:
+ *         type: string
+ *         description: The name of the service
+ *       status:
+ *         type: string
+ *         description: The status of the service
+ *       cause:
+ *         type: string
+ *         description: The detail message from the throwable
+ *       details:
+ *         type: object
+ *         description: Object contains detail informations of service.
  *   hc_available:
  *     properties:
  *       services:

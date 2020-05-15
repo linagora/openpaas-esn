@@ -1,23 +1,30 @@
-const platformadminMW = require('./platformadmins');
+const logger = require('../../core/logger');
+const corePlatformAdmin = require('../../core/platformadmin');
 
 module.exports = {
   checkAPIAuthorization
 };
 
 function checkAPIAuthorization(req, res, next) {
-  if (req.query.cause) {
-    if (req.isAuthenticated()) {
-      req.isAuthorized = true;
-      return platformadminMW.requirePlatformAdmin(req, res, next);
-    }
-    res.status(401).json({
-      error: {
-        code: 401,
-        message: 'Authentication error',
-        details: 'To perform this action, you have to login first!'
-      }
-    });
-  }
   req.isAuthorized = false;
+  if (req.isAuthenticated()) {
+    return requirePlatformAdmin(req, res, next);
+  }
   return next();
+}
+
+function requirePlatformAdmin(req, _res, next) {
+  corePlatformAdmin.isPlatformAdmin(req.user.id).then(isPlatformAdmin => {
+    if (isPlatformAdmin) {
+      req.isAuthorized = true;
+      return next();
+    } else {
+      return next();
+    }
+  }, err => {
+    const details = 'Error while checking platformadmin';
+
+    logger.debug(details, err);
+    return next();
+  });
 }

@@ -1,23 +1,55 @@
-const { check, checkWithCause, getRegisteredServiceNames } = require('../../core/health-check');
+const { check, checkWithDetails, getRegisteredServiceNames } = require('../../core/health-check');
 const logger = require('../../core/logger');
 
 module.exports = {
-  getHealthStatus,
+  getAllServices,
+  getOneService,
   getAvailableServices
 };
 
-function getHealthStatus(req, res) {
-  const requestServices = (req.query.services && req.query.services.split(',') || []).map(service => service.toLowerCase());
+function getAllServices(req, res) {
   let checking = check;
   if (req.isAuthorized) {
-    checking = checkWithCause;
+    checking = checkWithDetails;
   }
 
-  return checking(requestServices)
+  return checking()
     .then(statuses => {
       res.status(200).json({
         checks: statuses
       });
+    })
+    .catch(err => {
+      const details = 'Failed to do health check';
+
+      logger.error(details, err);
+      res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
+    });
+}
+
+function getOneService(req, res) {
+  if (!req.params.name) {
+    res.status(400).json({
+      error: {
+        message: 'Bad Parameter',
+        details: 'Name parameter is required'
+      }
+    });
+  }
+  let checking = check;
+  if (req.isAuthorized) {
+    checking = checkWithDetails;
+  }
+
+  return checking([req.params.name.toLowerCase()])
+    .then(results => {
+      res.status(200).json(results[0]);
     })
     .catch(err => {
       const details = 'Failed to do health check';

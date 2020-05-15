@@ -1,6 +1,6 @@
 class HealthCheckMessage {
   constructor(message) {
-    const { status, name, cause } = message;
+    const { status, name, cause, details } = message;
 
     if (!status || !name) {
       throw new Error('Health check message requires service name and status');
@@ -9,7 +9,8 @@ class HealthCheckMessage {
     this.message = {
       componentName: name,
       status,
-      cause
+      cause,
+      details
     };
   }
 }
