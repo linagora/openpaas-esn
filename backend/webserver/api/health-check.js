@@ -12,7 +12,7 @@ module.exports = router => {
    *       Get health status of services.
    *     responses:
    *       200:
-   *         $ref: "#/responses/hc_response"
+   *         $ref: "#/responses/hc_response_all"
    *       400:
    *         $ref: "#/responses/cm_400"
    *       401:
@@ -77,6 +77,7 @@ module.exports = router => {
    */
   router.get(
     '/healthcheck/:name',
+    healthCheckMW.validateParameters,
     healthCheckMW.checkAPIAuthorization,
     controller.getOneService
   );

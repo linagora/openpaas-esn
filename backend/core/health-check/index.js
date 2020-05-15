@@ -3,6 +3,7 @@ const { buildHealthyMessage, buildUnhealthyMessage, buildNotFoundMessage } = req
 const Q = require('q');
 const HealthCheckMessage = require('./HealthCheckMessage');
 const HealthCheckProvider = require('./HealthCheckProvider');
+const { STATUSES } = require('./constants');
 
 module.exports = {
   checkWithDetails,
@@ -12,7 +13,8 @@ module.exports = {
   HealthCheckMessage,
   buildHealthyMessage,
   buildUnhealthyMessage,
-  getRegisteredServiceNames
+  getRegisteredServiceNames,
+  STATUSES
 };
 
 /**

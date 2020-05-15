@@ -1,15 +1,15 @@
 /**
  * @swagger
  * definition:
- *   hc_all:
+ *   hc_all_services:
  *     properties:
  *       checks:
  *         type: array
  *         items:
  *           type: object
  *           description: detail status of service
- *           $ref: "#/definitions/hc_one"
- *   hc_one:
+ *           $ref: "#/definitions/hc_single_service"
+ *   hc_single_service:
  *     properties:
  *       componentName:
  *         type: string
@@ -23,7 +23,7 @@
  *       details:
  *         type: object
  *         description: Object contains detail informations of service.
- *   hc_available:
+ *   hc_available_services:
  *     properties:
  *       services:
  *         type: array
