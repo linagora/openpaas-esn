@@ -14,8 +14,8 @@ module.exports = router => {
    *     description: Simple search for people in the platform
    *     parameters:
    *       - $ref: "#/parameters/ppl_search_query_q"
-   *       - $ref: "#/parameters/ppl_search_query_limit"
-   *       - $ref: "#/parameters/ppl_search_query_offset"
+   *       - $ref: "#/parameters/cm_limit"
+   *       - $ref: "#/parameters/cm_offset"
    *     produces:
    *       - application/json
    *     responses:
@@ -38,11 +38,16 @@ module.exports = router => {
    *   post:
    *     tags:
    *      - PeopleSearch
-   *     description: Advanced search for people in the platform
+   *     description: Advanced search for people in the platform. <br>
+   *        - This endpoint accepts limit and offset as request body parameters. <br>
+   *        - In case these body paramters are not set, it would get limit and offset parameters from query.
    *     parameters:
    *       - $ref: "#/parameters/ppl_search_q"
    *       - $ref: "#/parameters/ppl_search_object_types"
-   *       - $ref: "#/parameters/ppl_search_pagination"
+   *       - $ref: "#/parameters/ppl_search_limit"
+   *       - $ref: "#/parameters/ppl_search_offset"
+   *       - $ref: "#/parameters/cm_offset"
+   *       - $ref: "#/parameters/cm_limit"
    *       - $ref: "#/parameters/ppl_search_excludes"
    *     produces:
    *       - application/json
