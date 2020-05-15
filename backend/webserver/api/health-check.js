@@ -10,9 +10,6 @@ module.exports = router => {
    *      - Healthcheck
    *     description:
    *       Get health status of services.
-   *     parameters:
-   *       - $ref: "#/parameters/hc_cause"
-   *       - $ref: "#/parameters/hc_services"
    *     responses:
    *       200:
    *         $ref: "#/responses/hc_response"
@@ -28,7 +25,7 @@ module.exports = router => {
   router.get(
     '/healthcheck',
     healthCheckMW.checkAPIAuthorization,
-    controller.getHealthStatus
+    controller.getAllServices
   );
 
   /**
@@ -54,5 +51,33 @@ module.exports = router => {
   router.get(
     '/healthcheck/services',
     controller.getAvailableServices
+  );
+
+  /**
+   * @swagger
+   * /healthcheck/:name:
+   *   get:
+   *     tags:
+   *      - Healthcheck
+   *     description:
+   *       Get health status of a single service by name.
+   *     parameters:
+   *       - $ref: "#/parameters/hc_name"
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/hc_response_single"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.get(
+    '/healthcheck/:name',
+    healthCheckMW.checkAPIAuthorization,
+    controller.getOneService
   );
 };

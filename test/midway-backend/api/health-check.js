@@ -4,14 +4,7 @@ const { expect } = require('chai');
 describe('The Health Check API', function() {
   const API_PATH = '/api/healthcheck';
   const TEST_RETURN = ['elasticsearch', 'mongodb', 'rabbitmq', 'redis'];
-  const TEST_RETURN_ONLY_RABBITMQ = ['rabbitmq'];
-  const TEST_RETURN_NOT_FOUND = [
-    {
-      componentName: 'rabbit',
-      status: 'not found',
-      cause: null
-    }
-  ];
+  const TEST_RETURN_NOT_FOUND = 'not found';
 
   let app;
   let core;
@@ -62,7 +55,7 @@ describe('The Health Check API', function() {
     return target.every(element => arr.includes(element));
   }
 
-  describe('GET /api/healthcheck?cause=false', function() {
+  describe('GET /api/healthcheck', function() {
     beforeEach(function(done) {
       core.platformadmin
         .addPlatformAdmin(userPlatformAdmin)
@@ -70,7 +63,7 @@ describe('The Health Check API', function() {
         .catch(err => done(err || 'failed to add platformadmin'));
     });
 
-    it('should send back 200 with all components health status', function(done) {
+    it.only('should send back 200 with public data contains all components health status', function(done) {
       sendRequestAsUser(userDomainMember, requestAsMember => {
         requestAsMember(request(app).get(API_PATH))
           .expect(200)
@@ -84,35 +77,25 @@ describe('The Health Check API', function() {
       });
     });
 
-    it('should send back 200 with corresponding components health status when passed component names via query', function(done) {
-      sendRequestAsUser(userDomainMember, requestAsMember => {
-        requestAsMember(request(app).get(`${API_PATH}?services=rabbitmq`))
+    it.only('should send back 200 with all data contains all components health status when logged in as platform admin', function(done) {
+      sendRequestAsUser(userPlatformAdmin, requestAsMember => {
+        requestAsMember(request(app).get(`${API_PATH}`))
           .expect(200)
           .end((err, res) => {
             if (err) {
               return done(err);
             }
-            expect(res.body.checks.map(v => v.componentName)).to.shallowDeepEqual(TEST_RETURN_ONLY_RABBITMQ);
-            done();
-          });
-      });
-    });
+            var unhealthyServices = res.body.checks.filter(v => v.status === 'unhealthy');
 
-    it('should send back 200 with not found status when component name is not found or not registered', function(done) {
-      sendRequestAsUser(userDomainMember, requestAsMember => {
-        requestAsMember(request(app).get(`${API_PATH}?services=rabbit`))
-          .expect(200)
-          .end((err, res) => {
-            if (err) {
-              return done(err);
+            if (unhealthyServices.length) {
+              expect(unhealthyServices.map(v => Boolean(v.cause) || Boolean(v.details))).to.have.length.above(0);
             }
-            expect(res.body.checks).to.shallowDeepEqual(TEST_RETURN_NOT_FOUND);
             done();
           });
       });
     });
 
-    it('should send back 200 with components health status when not logged in', function(done) {
+    it.only('should send back 200 with components health status when not logged in', function(done) {
       request(app).get(API_PATH)
         .expect(200)
         .end((err, res) => {
@@ -126,7 +109,7 @@ describe('The Health Check API', function() {
     });
   });
 
-  describe('GET /api/healthcheck?cause=true', function() {
+  describe('GET /api/healthcheck/:name', function() {
     beforeEach(function(done) {
       core.platformadmin
         .addPlatformAdmin(userPlatformAdmin)
@@ -134,36 +117,46 @@ describe('The Health Check API', function() {
         .catch(err => done(err || 'failed to add platformadmin'));
     });
 
-    it('should send back 401 when not logged in', function(done) {
-      this.helpers.api.requireLogin(app, 'get', '/api/healthcheck?cause=true', done);
-    });
-
-    it('should send back 403 when current user is not platform administrator', function(done) {
+    it.only('should send back 200 with data of one single service', function(done) {
       sendRequestAsUser(userDomainMember, requestAsMember => {
-        requestAsMember(request(app).get(`${API_PATH}?cause=true`))
-          .expect(403)
-          .end(err => {
+        requestAsMember(request(app).get(`${API_PATH}/rabbitmq`))
+          .expect(200)
+          .end((err, res) => {
             if (err) {
               return done(err);
+            }
+            expect(res.body.componentName).to.equal('rabbitmq');
+            done();
+          });
+      });
+    });
+
+    it.only('should send back 200 with all data of that one service when current user is platform administrator', function(done) {
+      sendRequestAsUser(userPlatformAdmin, requestAsMember => {
+        requestAsMember(request(app).get(`${API_PATH}/rabbitmq`))
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            if (res.body.status === 'unhealthy') {
+              expect(res.body.cause).to.not.empty;
             }
             done();
           });
       });
     });
 
-    it('should send back 200 with all components health status includes cause when current user is platform administrator', function(done) {
+    it.only('should send back 200 with not found status when cannot find service', function(done) {
       sendRequestAsUser(userPlatformAdmin, requestAsMember => {
-        requestAsMember(request(app).get(`${API_PATH}?cause=true`))
+        requestAsMember(request(app).get(`${API_PATH}/service_cannot_be_found`))
           .expect(200)
           .end((err, res) => {
             if (err) {
               return done(err);
             }
-            var unhealthyServices = res.body.checks.filter(v => v.status === 'unhealthy');
-
-            if (unhealthyServices.length) {
-              expect(unhealthyServices.map(v => Boolean(v.cause))).to.have.length.above(0);
-            }
+            expect(res.body.status).to.equal(TEST_RETURN_NOT_FOUND);
             done();
           });
       });
@@ -171,7 +164,7 @@ describe('The Health Check API', function() {
   });
 
   describe('GET /api/healthcheck/services', function() {
-    it('should send back 200 with all available service names for performing health check', function(done) {
+    it.only('should send back 200 with all available service names for performing health check', function(done) {
       sendRequestAsUser(userDomainMember, requestAsMember => {
         requestAsMember(request(app).get(`${API_PATH}/services`))
           .expect(200)

@@ -6,19 +6,21 @@ module.exports = {
   buildNotFoundMessage
 };
 
-function buildHealthyMessage(componentName) {
+function buildHealthyMessage(componentName, details) {
   return new HealthCheckMessage({
     name: componentName,
     status: 'healthy',
-    cause: null
+    cause: null,
+    details
   }).message;
 }
 
-function buildUnhealthyMessage(componentName, cause) {
+function buildUnhealthyMessage(componentName, cause, details) {
   return new HealthCheckMessage({
     name: componentName,
     status: 'unhealthy',
-    cause
+    cause,
+    details
   }).message;
 }
 
