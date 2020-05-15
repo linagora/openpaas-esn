@@ -3,6 +3,7 @@ const pubsub = require('./pubsub');
 const platformAdmin = require('./platformadmin/init');
 const amqp = require('./amqp');
 const elasticsearch = require('./elasticsearch');
+const ldap = require('./ldap');
 
 module.exports = callback => {
   db.mongo.init();
@@ -10,6 +11,7 @@ module.exports = callback => {
   pubsub.init();
   amqp.init();
   elasticsearch.init();
+  ldap.initHealthCheck();
   platformAdmin();
 
   callback && callback();

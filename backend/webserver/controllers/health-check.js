@@ -9,7 +9,7 @@ module.exports = {
 
 function getAllServices(req, res) {
   let checking = check;
-  if (req.isAuthorized) {
+  if (req.isAuthorizedAsPlatformAdmin) {
     checking = checkWithDetails;
   }
 
@@ -34,16 +34,8 @@ function getAllServices(req, res) {
 }
 
 function getOneService(req, res) {
-  if (!req.params.name) {
-    res.status(400).json({
-      error: {
-        message: 'Bad Parameter',
-        details: 'Name parameter is required'
-      }
-    });
-  }
   let checking = check;
-  if (req.isAuthorized) {
+  if (req.isAuthorizedAsPlatformAdmin) {
     checking = checkWithDetails;
   }
 

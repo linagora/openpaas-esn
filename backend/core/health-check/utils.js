@@ -1,4 +1,5 @@
 const HealthCheckMessage = require('./HealthCheckMessage');
+const { STATUSES } = require('./constants');
 
 module.exports = {
   buildHealthyMessage,
@@ -9,8 +10,7 @@ module.exports = {
 function buildHealthyMessage(componentName, details) {
   return new HealthCheckMessage({
     name: componentName,
-    status: 'healthy',
-    cause: null,
+    status: STATUSES.HEALTHY,
     details
   }).message;
 }
@@ -18,16 +18,17 @@ function buildHealthyMessage(componentName, details) {
 function buildUnhealthyMessage(componentName, cause, details) {
   return new HealthCheckMessage({
     name: componentName,
-    status: 'unhealthy',
-    cause,
-    details
+    status: STATUSES.UNHEALTHY,
+    details: {
+      cause,
+      info: details
+    }
   }).message;
 }
 
 function buildNotFoundMessage(componentName) {
   return new HealthCheckMessage({
     name: componentName,
-    status: 'not found',
-    cause: null
+    status: STATUSES.NOT_FOUND
   }).message;
 }
