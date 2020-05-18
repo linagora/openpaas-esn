@@ -3,16 +3,18 @@ const { buildHealthyMessage, buildUnhealthyMessage, buildNotFoundMessage } = req
 const Q = require('q');
 const HealthCheckMessage = require('./HealthCheckMessage');
 const HealthCheckProvider = require('./HealthCheckProvider');
+const { STATUSES } = require('./constants');
 
 module.exports = {
-  checkWithCause,
+  checkWithDetails,
   check,
   registry,
   HealthCheckProvider,
   HealthCheckMessage,
   buildHealthyMessage,
   buildUnhealthyMessage,
-  getRegisteredServiceNames
+  getRegisteredServiceNames,
+  STATUSES
 };
 
 /**
@@ -20,7 +22,7 @@ module.exports = {
  * If service not found, returns formatted message with status not found
  * @param {array} serviceNames
  */
-function checkWithCause(serviceNames = []) {
+function checkWithDetails(serviceNames = []) {
   let checkers = registry.getAllCheckers();
   let availableServices = registry.getRegisteredServiceNames();
   let unavailableServices = [];
@@ -49,9 +51,10 @@ function checkWithCause(serviceNames = []) {
  * @param {array} serviceNames
  */
 function check(serviceNames = []) {
-  return checkWithCause(serviceNames)
+  return checkWithDetails(serviceNames)
     .then(results => results.map(result => {
       result.cause = null;
+      result.details = null;
       return result;
     }));
 }

@@ -6,6 +6,7 @@ const utils = require('./utils');
 const helpers = require('./helpers');
 const coreUser = require('../user');
 const { Client } = require('ldapts');
+const { register, testAccessLdap } = require('./health-check');
 
 const LDAP_DEFAULT_LIMIT = 50;
 const SEARCH_SCOPE = 'sub';
@@ -15,10 +16,16 @@ module.exports = {
   emailExists,
   authenticate,
   translate,
-  search
+  search,
+  testAccessLdap,
+  initHealthCheck
 };
 
 init();
+
+function initHealthCheck() {
+  register();
+}
 
 function init() {
   logger.info('Add ldap provision provider');
