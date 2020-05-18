@@ -1392,28 +1392,126 @@ describe('The domain API', function() {
       });
     });
 
-    it('should send back 500 when save fail', function(done) {
+    it('should send back 201 when create success', function(done) {
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/members'));
-        req.send({user: 'invalid user'});
-        req.expect(500).end(function(err, res) {
+
+        req.send(newUser);
+        req.expect(201).end(function(err, res) {
           expect(err).to.not.exist;
           expect(res.body).to.exists;
-          expect(res.body.error.code).to.equal(500);
           done();
         });
       });
     });
 
-    it('should send back 201 when create success', function(done) {
+    it('should send back 400 when accounts field is missing', function(done) {
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/members'));
+
+        newUser = {
+          password: 'secret',
+          firstname: 'new',
+          lastname: 'member'
+        };
+
         req.send(newUser);
-        req.expect(201).end(function(err, res) {
+        req.expect(400).end(function(err, res) {
           expect(err).to.not.exist;
-          expect(res.body).to.exists;
+          expect(res.body).to.deep.equal({
+            error: {
+              code: 400,
+              message: 'Bad Request',
+              details: 'Accounts field is required in payload'
+            }
+          });
+          done();
+        });
+      });
+    });
+
+    it('should send back 400 when accounts field is not an array', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/members'));
+
+        newUser.accounts = {
+          type: 'email',
+          hosted: true,
+          preferredEmailIndex: 0,
+          emails: ['invalidEmail', 'validEmail@abc.com']
+        };
+
+        req.send(newUser);
+        req.expect(400).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.deep.equal({
+            error: {
+              code: 400,
+              message: 'Bad Request',
+              details: 'Accounts field must be an array with at least 1 element'
+            }
+          });
+          done();
+        });
+      });
+    });
+
+    it('should send back 400 when an account has no email', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/members'));
+
+        newUser.accounts = [
+          {
+            type: 'email'
+          },
+          {
+            type: 'email'
+          }
+        ];
+
+        req.send(newUser);
+        req.expect(400).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.deep.equal({
+            error: {
+              code: 400,
+              message: 'Bad Request',
+              details: 'A member must have at least 1 email'
+            }
+          });
+          done();
+        });
+      });
+    });
+
+    it('should send back 400 when user provides invalid email', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/members'));
+
+        newUser.accounts = [
+          {
+            type: 'email',
+            hosted: true,
+            preferredEmailIndex: 0,
+            emails: ['invalidEmail', 'validEmail@abc.com']
+          }
+        ];
+
+        req.send(newUser);
+        req.expect(400).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.deep.equal({
+            error: {
+              code: 400,
+              message: 'Bad Request',
+              details: 'Emails must be in correct format'
+            }
+          });
           done();
         });
       });

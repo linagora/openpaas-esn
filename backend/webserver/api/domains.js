@@ -185,7 +185,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.post('/domains/:uuid/members', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainManager, domains.createMember);
+  router.post('/domains/:uuid/members', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainManager, domainMiddleware.checkMemberAccounts, domains.createMember);
 
   /**
    * @swagger

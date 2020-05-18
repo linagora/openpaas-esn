@@ -8,6 +8,7 @@ const userIndex = require('../../core/user/index');
 const coreDomain = require('../../core/domain');
 const logger = require('../../core/logger');
 const authorize = require('../middleware/authorization');
+const emailChecker = require('email-addresses');
 
 module.exports = {
   canGetMembers,
@@ -17,7 +18,8 @@ module.exports = {
   loadSessionDomain,
   requireAdministrator,
   requireDomainInfo,
-  checkUpdateParameters
+  checkUpdateParameters,
+  checkMemberAccounts
 };
 
 /**
@@ -275,6 +277,51 @@ function checkUpdateParameters(req, res, next) {
     }
 
     return ensureNoConflictHostname(req, res, next);
+  }
+
+  return next();
+}
+
+function checkMemberAccounts(req, res, next) {
+  const accountList = req.body.accounts;
+
+  const errorMessage = {
+    error: {
+      code: 400,
+      message: 'Bad Request'
+    }
+  };
+
+  if (!accountList) {
+    errorMessage.error.details = 'Accounts field is required in payload';
+
+    return res.status(400).json(errorMessage);
+  }
+
+  if (!Array.isArray(accountList) || accountList.length === 0) {
+    errorMessage.error.details = 'Accounts field must be an array with at least 1 element';
+
+    return res.status(400).json(errorMessage);
+  }
+
+  const hasEmail = accountList.some(account => account.emails && account.emails.some(email => !!email));
+
+  if (!hasEmail) {
+    errorMessage.error.details = 'A member must have at least 1 email';
+
+    return res.status(400).json(errorMessage);
+  }
+
+  const isValidEmail = accountList.every(account => {
+    account.emails = Array.isArray(account.emails) ? account.emails : [account.emails];
+
+    return account.emails.every(email => emailChecker(email));
+    });
+
+  if (!isValidEmail) {
+    errorMessage.error.details = 'Emails must be in correct format';
+
+    return res.status(400).json(errorMessage);
   }
 
   return next();
