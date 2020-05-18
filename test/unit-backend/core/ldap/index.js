@@ -236,6 +236,27 @@ describe('The ldap core module', function() {
       });
     });
 
+    it('should send back error if cannot create an instance of Client', function(done) {
+      ldapConf = {
+        url: 'an error string',
+        searchBase: '',
+        searchFilter: '',
+        adminDn: 'adminDn',
+        adminPassword: 'adminPassword'
+      };
+      const message = 'an error string is not a valid ldap URL';
+      mockery.registerMock('ldapts', {
+        Client: function() {
+          throw new Error(message);
+        }
+      });
+      getModule().emailExists(user.mail, ldapConf, err => {
+        expect(err).to.exist;
+        expect(err.message).to.equal(message);
+        done();
+      });
+    });
+
     it('should call the callback with data when find user successfully', function(done) {
       getModule().emailExists(user.mail, ldapConf, (err, foundUser) => {
         expect(err).to.not.exist;
@@ -321,6 +342,27 @@ describe('The ldap core module', function() {
     it('should send back error if ldap config is not set', function(done) {
       getModule().authenticate(user.mail, password, null, err => {
         expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should send back error if cannot create an instance of Client', function(done) {
+      ldapConf = {
+        url: 'an error string',
+        searchBase: '',
+        searchFilter: '',
+        adminDn: 'adminDn',
+        adminPassword: 'adminPassword'
+      };
+      const message = 'an error string is not a valid ldap URL';
+      mockery.registerMock('ldapts', {
+        Client: function() {
+          throw new Error(message);
+        }
+      });
+      getModule().authenticate(user.mail, password, ldapConf, err => {
+        expect(err).to.exist;
+        expect(err.message).to.equal(message);
         done();
       });
     });
@@ -521,6 +563,27 @@ describe('The ldap core module', function() {
       getModule().search(user, query).then(result => {
         expect(result).to.deep.equal(expectResult);
         expect(unbindMock).to.have.been.calledOnce;
+
+        done();
+      }, err => done(err || 'should resolve'));
+    });
+
+    it('should only return an empty array if cannot create instance of client', function(done) {
+      const message = 'an error string is not a valid ldap URL';
+      mockery.registerMock('ldapts', {
+        Client: function() {
+          throw new Error(message);
+        }
+      });
+
+      const query = { search: 'abc', limit: 20 };
+      const expectResult = {
+        total_count: 0,
+        list: []
+      };
+
+      getModule().search(user, query).then(result => {
+        expect(result).to.deep.equal(expectResult);
 
         done();
       }, err => done(err || 'should resolve'));
