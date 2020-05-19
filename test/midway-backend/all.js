@@ -53,7 +53,7 @@ before(function() {
       return core;
     },
 
-    initRedisConfiguration: function(mongoose, callback) {
+    presetConfiguration: function(mongoose, callback) {
       const configuration = require('../../backend/core/esn-config');
       const self = this;
 
@@ -61,12 +61,14 @@ before(function() {
       mongoose.connect(this.mongoUrl, this.mongoConnectionOptions, err => {
         if (err) return callback(err);
 
-        configuration('redis').store({ url: self.redisUrl }, err => {
-          if (err) {
-            console.log('Error while saving redis configuration', err);
-
-            return callback(err);
-          }
+        configuration('*').storeMultiple([{
+          name: 'redis',
+          value: { url: self.redisUrl }
+        }, {
+          name: 'amqp',
+          value: { url: testConfig.rabbitmq.url }
+        }], err => {
+          if (err) return callback(err);
 
           callback();
         });
