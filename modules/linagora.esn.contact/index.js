@@ -5,19 +5,16 @@ const Dependency = AwesomeModule.AwesomeModuleDependency;
 const path = require('path');
 const glob = require('glob-all');
 
-const FRONTEND_PATH = path.join(__dirname, 'frontend/app/');
+const FRONTEND_JS_PATH = path.join(__dirname, 'frontend/app/');
+const FRONTEND_JS_PATH_BUILD = path.join(__dirname, 'dist/');
 const innerApps = ['esn'];
-const angularModuleAppFiles = glob.sync([
-  `${FRONTEND_PATH}**/*.module.js`,
-  `${FRONTEND_PATH}**/!(*spec).js`
-]);
 const moduleData = {
   shortName: 'contact',
   fullName: 'linagora.esn.contact',
   lessFiles: []
 };
 
-moduleData.lessFiles.push([moduleData.shortName, [path.resolve(FRONTEND_PATH, 'app.less')], innerApps]);
+moduleData.lessFiles.push([moduleData.shortName, [path.resolve(FRONTEND_JS_PATH, 'app.less')], innerApps]);
 
 const contactModule = new AwesomeModule(moduleData.fullName, {
   dependencies: [
@@ -66,12 +63,26 @@ const contactModule = new AwesomeModule(moduleData.fullName, {
     deploy: function(dependencies, callback) {
       const app = require('./backend/webserver/application')(dependencies);
       const webserverWrapper = dependencies('webserver-wrapper');
-      const appFilesUri = angularModuleAppFiles.map(function(filepath) {
-        return filepath.replace(FRONTEND_PATH, '');
-      });
 
-      webserverWrapper.injectAngularAppModules(moduleData.shortName, appFilesUri, moduleData.fullName, innerApps, {
-        localJsFiles: angularModuleAppFiles
+      let frontendJsFilesFullPath, frontendJsFilesUri;
+
+      if (process.env.NODE_ENV !== 'production') {
+        frontendJsFilesFullPath = glob.sync([
+          FRONTEND_JS_PATH + '**/*.module.js',
+          FRONTEND_JS_PATH + '**/!(*spec).js'
+        ]);
+
+        frontendJsFilesUri = frontendJsFilesFullPath.map(filepath => filepath.replace(FRONTEND_JS_PATH, ''));
+      } else {
+        frontendJsFilesFullPath = glob.sync([
+          FRONTEND_JS_PATH_BUILD + '*.js'
+        ]);
+
+        frontendJsFilesUri = frontendJsFilesFullPath.map(filepath => filepath.replace(FRONTEND_JS_PATH_BUILD, ''));
+      }
+
+      webserverWrapper.injectAngularAppModules(moduleData.shortName, frontendJsFilesUri, moduleData.fullName, innerApps, {
+        localJsFiles: frontendJsFilesFullPath
       });
 
       moduleData.lessFiles.forEach(lessSet => webserverWrapper.injectLess.apply(webserverWrapper, lessSet));

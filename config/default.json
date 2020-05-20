@@ -136,7 +136,6 @@
     "linagora.esn.admin",
     "linagora.esn.sync",
     "linagora.esn.contact.collect",
-    "linagora.esn.calendar.collect.email",
     "linagora.esn.resource",
     "linagora.esn.james",
     "linagora.esn.group",
