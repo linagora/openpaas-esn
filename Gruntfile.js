@@ -364,4 +364,6 @@ module.exports = function(grunt) {
 
     fixtures(done);
   });
+
+  grunt.registerTask('bundle-webpack-modules', gruntfileUtils.bundleWebpackModules());
 };
