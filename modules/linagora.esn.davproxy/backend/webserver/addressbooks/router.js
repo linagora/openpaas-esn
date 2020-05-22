@@ -250,11 +250,16 @@ module.exports = function(dependencies) {
    *   get:
    *     tags:
    *       - Davproxy
-   *     description: Gets all address of books
+   *     description: Gets all contacts that match a searching pattern or lists address books from a book home <br>
+   *       - To get all contacts match a searching pattern, query search is required, query bookName is optional. When bookName is set, it returns results belonging to this bookName only. <br>
+   *       - To lists address book from a book home, at least one of these following queries is required and set to true. These queries are personal, subscribed, shared.
    *     parameters:
    *       - $ref: "#/parameters/davproxy_addressbook_book_home"
-   *       - $ref: "#/parameters/davproxy_addressbook_book_name"
-   *       - $ref: "#/parameters/davproxy_addressbook_user_id"
+   *       - $ref: "#/parameters/davproxy_addressbook_book_name_query"
+   *       - $ref: "#/parameters/davproxy_addressbook_personal"
+   *       - $ref: "#/parameters/davproxy_addressbook_subscribed"
+   *       - $ref: "#/parameters/davproxy_addressbook_shared"
+   *       - $ref: "#/parameters/davproxy_addressbook_contacts_count"
    *       - $ref: "#/parameters/cm_search"
    *       - $ref: "#/parameters/cm_limit"
    *       - $ref: "#/parameters/cm_pages"
