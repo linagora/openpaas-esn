@@ -7,7 +7,7 @@ var authTokenMiddleware = require('../middleware/token');
 module.exports = function(router) {
   /**
    * @swagger
-   * /authenticationtoken :
+   * /api/authenticationtoken :
    *   get:
    *     tags:
    *      - Token
@@ -24,7 +24,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /authenticationtoken/{token} :
+   * /api/authenticationtoken/{token} :
    *   get:
    *     tags:
    *      - Token

@@ -12,7 +12,7 @@ module.exports = function(lib, dependencies) {
 
   /**
    * @swagger
-   * /tasks/{id}:
+   * /graceperiod/api/tasks/{id}:
    *   delete:
    *     tags:
    *       - GracePeriod
@@ -35,7 +35,7 @@ module.exports = function(lib, dependencies) {
 
   /**
    * @swagger
-   * /tasks/{id}:
+   * /graceperiod/api/tasks/{id}:
    *   put:
    *     tags:
    *       - GracePeriod
