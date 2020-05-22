@@ -242,6 +242,7 @@ module.exports = function(router) {
    *     description: Add administrators to a domain
    *     parameters:
    *       - $ref: "#/parameters/dm_id"
+   *       - $ref: "#/parameters/dm_user_ids"
    *     responses:
    *       204:
    *         $ref: "#/responses/cm_204"
