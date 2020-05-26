@@ -53,7 +53,11 @@
         var type = bday.type,
           value = bday.getFirstValue();
 
-        this.birthday = type !== 'text' ? value.toJSDate() : value;
+        if (type === 'text') {
+          this.birthday = value;
+        } else if (typeof value.toJSDate === 'function') {
+          this.birthday = value.toJSDate();
+        }
       }
 
       this.nickname = vcard.getFirstPropertyValue('nickname');
