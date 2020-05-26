@@ -9,23 +9,24 @@ const { parsePrincipal } = require('../helper');
 module.exports = dependencies => {
   const pubsub = dependencies('pubsub');
   const logger = dependencies('logger');
+  const { pointToPoint } = dependencies('messaging');
 
   return {
     listen
   };
 
   function listen() {
-    logger.info('Listening on global pubsub event of contacts');
+    logger.info('Listening on point to point message of contacts');
 
-    pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_CREATED).subscribe(onContactAdded);
-    pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_UPDATED).subscribe(onContactUpdated);
-    pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_DELETED).subscribe(onContactDeleted);
-    pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_CREATED).subscribe(onAddressbookCreated);
-    pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_DELETED).subscribe(onAddressbookDeleted);
-    pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_UPDATED).subscribe(onAddressbookUpdated);
-    pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_DELETED).subscribe(onAddressbookSubscriptionDeleted);
-    pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_UPDATED).subscribe(onAddressbookSubscriptionUpdated);
-    pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_CREATED).subscribe(onAddressbookSubscriptionCreated);
+    pointToPoint.get(GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_CREATED).receive(onContactAdded);
+    pointToPoint.get(GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_UPDATED).receive(onContactUpdated);
+    pointToPoint.get(GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_DELETED).receive(onContactDeleted);
+    pointToPoint.get(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_CREATED).receive(onAddressbookCreated);
+    pointToPoint.get(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_DELETED).receive(onAddressbookDeleted);
+    pointToPoint.get(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_UPDATED).receive(onAddressbookUpdated);
+    pointToPoint.get(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_DELETED).receive(onAddressbookSubscriptionDeleted);
+    pointToPoint.get(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_UPDATED).receive(onAddressbookSubscriptionUpdated);
+    pointToPoint.get(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_CREATED).receive(onAddressbookSubscriptionCreated);
 
     function parseContact(msg) {
       const data = parseContactPath(msg.path);
