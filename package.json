@@ -59,7 +59,6 @@
     "less-middleware": "2.2.0",
     "linagora.esn.admin": "1.7.5",
     "linagora.esn.calendar": "1.7.5",
-    "linagora.esn.calendar.collect.email": "1.7.5",
     "linagora.esn.chat": "1.7.5",
     "linagora.esn.contact.collect": "1.7.5",
     "linagora.esn.dav.import": "1.7.5",
