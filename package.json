@@ -59,7 +59,6 @@
     "less-middleware": "2.2.0",
     "linagora.esn.admin": "linagora/linagora.esn.admin",
     "linagora.esn.calendar": "linagora/linagora.esn.calendar",
-    "linagora.esn.calendar.collect.email": "linagora/linagora.esn.calendar.collect.email",
     "linagora.esn.chat": "linagora/linagora.esn.chat",
     "linagora.esn.community": "linagora/linagora.esn.community",
     "linagora.esn.contact.collect": "linagora/linagora.esn.contact.collect",
