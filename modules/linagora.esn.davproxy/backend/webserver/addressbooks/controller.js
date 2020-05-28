@@ -18,6 +18,7 @@ module.exports = function(dependencies) {
     getContact,
     getContacts,
     getContactsFromDAV,
+    searchContacts,
     moveContact,
     removeAddressbook,
     updateAddressbook,
@@ -333,43 +334,43 @@ module.exports = function(dependencies) {
       });
   }
 
-  function getAddressbooks(req, res) {
-    if (req.query.search) {
-      const options = {
-        user: req.user,
-        search: req.query.search,
-        limit: req.query.limit,
-        page: req.query.page,
-        addressbooks: req.query.bookName ? [{
-          bookHome: req.params.bookHome,
-          bookNames: req.query.bookName.split(',')
-        }] : [],
-        ESNToken: req.token && req.token.token ? req.token.token : '',
-        davserver: req.davserver,
-        originalUrl: req.originalUrl
-      };
+  function searchContacts(req, res) {
+    const options = {
+      user: req.user,
+      search: req.query.search,
+      limit: req.query.limit,
+      page: req.query.page,
+      addressbooks: req.query.bookName ? [{
+        bookHome: req.params.bookHome,
+        bookNames: req.query.bookName.split(',')
+      }] : [],
+      ESNToken: req.token && req.token.token ? req.token.token : '',
+      davserver: req.davserver,
+      originalUrl: req.originalUrl
+    };
 
-      return _searchContacts(options)
-        .then(result => {
-          res.header('X-ESN-Items-Count', result.total_count);
+    return _searchContacts(options)
+      .then(result => {
+        res.header('X-ESN-Items-Count', result.total_count);
 
-          return res.status(200).json(result.data);
-        })
-        .catch(err => {
-          const details = 'Error while searching contacts';
+        return res.status(200).json(result.data);
+      })
+      .catch(err => {
+        const details = 'Error while searching contacts';
 
-          logger.error(details, err);
+        logger.error(details, err);
 
-          res.status(500).json({
-            error: {
-              code: 500,
-              message: 'Server Error',
-              details
-            }
-          });
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details
+          }
         });
-    }
+      });
+  }
 
+  function getAddressbooks(req, res) {
     var options = {
       ESNToken: req.token && req.token.token ? req.token.token : '',
       davserver: req.davserver
