@@ -71,4 +71,34 @@
   *     description: addressbook destination to move
   *     required: true
   *     type: string
+  *   davproxy_addressbook_book_name_query:
+  *     name: bookName
+  *     in: query
+  *     description: ID of the address book
+  *     required: false
+  *     type: string
+  *   davproxy_addressbook_personal:
+  *     name: personal
+  *     description: result returns personal address books of a book home
+  *     in: query
+  *     required: false
+  *     type: boolean
+  *   davproxy_addressbook_subscribed:
+  *     name: subscribed
+  *     description: result returns subscribed address books of a book home
+  *     in: query
+  *     required: false
+  *     type: boolean
+  *   davproxy_addressbook_shared:
+  *     name: shared
+  *     description: result returns shared address books of a book home
+  *     in: query
+  *     required: false
+  *     type: boolean
+  *   davproxy_addressbook_contacts_count:
+  *     name: contactsCount
+  *     description: result includes the number of contact in each address book
+  *     in: query
+  *     required: false
+  *     type: boolean
   */
