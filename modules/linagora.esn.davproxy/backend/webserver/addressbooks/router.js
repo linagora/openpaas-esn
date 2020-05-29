@@ -220,7 +220,7 @@ module.exports = function(dependencies) {
    *       - $ref: "#/parameters/davproxy_addressbook_user_id"
    *       - $ref: "#/parameters/cm_search"
    *       - $ref: "#/parameters/cm_limit"
-   *       - $ref: "#/parameters/cm_pages"
+   *       - $ref: "#/parameters/cm_page"
    *     responses:
    *       200:
    *         $ref: "#/responses/davproxy_addressbook_contact"

@@ -8,10 +8,10 @@
   *     required: false
   *     default: 50
   *     type: integer
-  *   cm_pages:
-  *     name: pages
+  *   cm_page:
+  *     name: page
   *     in: query
-  *     description: the total pages of results to display
+  *     description: the index of the page returning results
   *     required: false
   *     default: 0
   *     type: integer
