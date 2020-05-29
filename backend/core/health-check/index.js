@@ -14,6 +14,7 @@ module.exports = {
   buildHealthyMessage,
   buildUnhealthyMessage,
   getRegisteredServiceNames,
+  generateGlobalStatus,
   STATUSES
 };
 
@@ -47,7 +48,7 @@ function checkWithDetails(serviceNames = []) {
 }
 
 /**
- * Check for all services, but returns no cause
+ * Check for all services, but returns no details
  * @param {array} serviceNames
  */
 function check(serviceNames = []) {
@@ -63,4 +64,15 @@ function check(serviceNames = []) {
  */
 function getRegisteredServiceNames() {
   return registry.getRegisteredServiceNames();
+}
+
+/**
+ * Generate the global status for all services. Return `unhealthy` if at least one service is unhealthy and otherwise.
+ * @param {object} serviceHealthChecks
+ */
+function generateGlobalStatus(serviceHealthChecks) {
+  if (serviceHealthChecks.some(health => health.status === STATUSES.UNHEALTHY)) {
+    return STATUSES.UNHEALTHY;
+  }
+  return STATUSES.HEALTHY;
 }

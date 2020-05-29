@@ -1,5 +1,7 @@
 const controller = require('../controllers/health-check');
 const healthCheckMW = require('../middleware/health-check');
+const authorize = require('../middleware/authorization');
+const platformadminsMw = require('../middleware/platformadmins');
 
 module.exports = router => {
   /**
@@ -50,6 +52,8 @@ module.exports = router => {
    */
   router.get(
     '/healthcheck/services',
+    authorize.requiresAPILogin,
+    platformadminsMw.requirePlatformAdmin,
     controller.getAvailableServices
   );
 
@@ -77,8 +81,9 @@ module.exports = router => {
    */
   router.get(
     '/healthcheck/:name',
+    authorize.requiresAPILogin,
+    platformadminsMw.requirePlatformAdmin,
     healthCheckMW.validateParameters,
-    healthCheckMW.checkAPIAuthorization,
     controller.getOneService
   );
 };

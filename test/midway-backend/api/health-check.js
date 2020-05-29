@@ -4,7 +4,6 @@ const { expect } = require('chai');
 describe('The Health Check API', function() {
   const API_PATH = '/api/healthcheck';
   const TEST_RETURN = ['elasticsearch', 'mongodb', 'rabbitmq', 'redis'];
-  const TEST_RETURN_NOT_FOUND = 'not found';
 
   let app;
   let core;
@@ -63,28 +62,29 @@ describe('The Health Check API', function() {
         .catch(err => done(err || 'failed to add platformadmin'));
     });
 
-    it('should send back 200 with public data contains all components health status', function(done) {
+    it('should send back 200 or 503 with public data contains only global status of all services', function(done) {
       sendRequestAsUser(userDomainMember, requestAsMember => {
         requestAsMember(request(app).get(API_PATH))
-          .expect(200)
           .end((err, res) => {
             if (err) {
               return done(err);
             }
-            expect(checker(res.body.checks.map(service => service.componentName), TEST_RETURN)).to.be.true;
+            expect(res.status).to.be.oneOf([200, 503]);
+            expect(res.body.status).to.exist;
+            expect(res.body.checks).to.be.undefined;
             done();
           });
       });
     });
 
-    it('should send back 200 with all data contains all components health status when logged in as platform admin', function(done) {
+    it('should send back 200 or 503 with all data contains all components health status and global status when logged in as platform admin', function(done) {
       sendRequestAsUser(userPlatformAdmin, requestAsMember => {
         requestAsMember(request(app).get(`${API_PATH}`))
-          .expect(200)
           .end((err, res) => {
             if (err) {
               return done(err);
             }
+            expect(res.status).to.be.oneOf([200, 503]);
             var unhealthyServices = res.body.checks.filter(service => service.status === 'unhealthy');
 
             if (unhealthyServices.length) {
@@ -95,15 +95,15 @@ describe('The Health Check API', function() {
       });
     });
 
-    it('should send back 200 with components health status when not logged in', function(done) {
+    it('should send back 200 or 503 with public data contains only global status of all services when not logged in', function(done) {
       request(app).get(API_PATH)
-        .expect(200)
         .end((err, res) => {
           if (err) {
             return done(err);
           }
-          expect(checker(res.body.checks.map(service => service.componentName), TEST_RETURN)).to.be.true;
-          expect(res.body.checks.filter(service => service.status === 'unhealthy' && Boolean(service.cause))).to.empty;
+          expect(res.status).to.be.oneOf([200, 503]);
+          expect(res.body.status).to.exist;
+          expect(res.body.checks).to.be.undefined;
           done();
         });
     });
@@ -117,29 +117,32 @@ describe('The Health Check API', function() {
         .catch(err => done(err || 'failed to add platformadmin'));
     });
 
-    it('should send back 200 with data of one single service', function(done) {
+    it('should send back 401 if the user is not logged in', function(done) {
+      helpers.api.requireLogin(webserver.application, 'get', `${API_PATH}/rabbitmq`, done);
+    });
+
+    it('should send back 403 if the logged in user is not platformadmin', function(done) {
       sendRequestAsUser(userDomainMember, requestAsMember => {
         requestAsMember(request(app).get(`${API_PATH}/rabbitmq`))
-          .expect(200)
           .end((err, res) => {
             if (err) {
               return done(err);
             }
-            expect(res.body.componentName).to.equal('rabbitmq');
+            expect(res.status).to.equal(403);
             done();
           });
       });
     });
 
-    it('should send back 200 with all data of that one service when current user is platform administrator', function(done) {
+    it('should send back 200 or 503 with all data of that one service when current user is platform administrator', function(done) {
       sendRequestAsUser(userPlatformAdmin, requestAsMember => {
         requestAsMember(request(app).get(`${API_PATH}/rabbitmq`))
-          .expect(200)
           .end((err, res) => {
             if (err) {
               return done(err);
             }
 
+            expect(res.status).to.be.oneOf([200, 503]);
             if (res.body.status === 'unhealthy') {
               expect(res.body.details).to.not.empty;
             }
@@ -148,15 +151,14 @@ describe('The Health Check API', function() {
       });
     });
 
-    it('should send back 200 with not found status when cannot find service', function(done) {
+    it('should send back 404 when cannot find service', function(done) {
       sendRequestAsUser(userPlatformAdmin, requestAsMember => {
         requestAsMember(request(app).get(`${API_PATH}/service_cannot_be_found`))
-          .expect(200)
           .end((err, res) => {
             if (err) {
               return done(err);
             }
-            expect(res.body.status).to.equal(TEST_RETURN_NOT_FOUND);
+            expect(res.status).to.equal(404);
             done();
           });
       });
@@ -164,8 +166,32 @@ describe('The Health Check API', function() {
   });
 
   describe('GET /api/healthcheck/services', function() {
-    it('should send back 200 with all available service names for performing health check', function(done) {
+    beforeEach(function(done) {
+      core.platformadmin
+        .addPlatformAdmin(userPlatformAdmin)
+        .then(() => done())
+        .catch(err => done(err || 'failed to add platformadmin'));
+    });
+
+    it('should send back 401 if the user is not logged in', function(done) {
+      helpers.api.requireLogin(webserver.application, 'get', `${API_PATH}/services`, done);
+    });
+
+    it('should send back 403 if the logged in user is not platformadmin', function(done) {
       sendRequestAsUser(userDomainMember, requestAsMember => {
+        requestAsMember(request(app).get(`${API_PATH}/services`))
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.status).to.equal(403);
+            done();
+          });
+      });
+    });
+
+    it('should send back 200 with all available service names when user is platform admin', function(done) {
+      sendRequestAsUser(userPlatformAdmin, requestAsMember => {
         requestAsMember(request(app).get(`${API_PATH}/services`))
           .expect(200)
           .end((err, res) => {

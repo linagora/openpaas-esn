@@ -1,4 +1,4 @@
-const { check, checkWithDetails, getRegisteredServiceNames } = require('../../core/health-check');
+const { checkWithDetails, getRegisteredServiceNames, generateGlobalStatus, STATUSES } = require('../../core/health-check');
 const logger = require('../../core/logger');
 
 module.exports = {
@@ -8,16 +8,17 @@ module.exports = {
 };
 
 function getAllServices(req, res) {
-  let checking = check;
-  if (req.isAuthorizedAsPlatformAdmin) {
-    checking = checkWithDetails;
-  }
-
-  return checking()
+  return checkWithDetails()
     .then(statuses => {
-      res.status(200).json({
-        checks: statuses
-      });
+      const globalStatus = generateGlobalStatus(statuses);
+      const returnedObject = {
+        status: globalStatus,
+        checks: req.isAuthorizedAsPlatformAdmin ? statuses : undefined
+      };
+      if (globalStatus === STATUSES.HEALTHY) {
+        return res.status(200).json(returnedObject);
+      }
+      return res.status(503).json(returnedObject);
     })
     .catch(err => {
       const details = 'Failed to do health check';
@@ -34,14 +35,15 @@ function getAllServices(req, res) {
 }
 
 function getOneService(req, res) {
-  let checking = check;
-  if (req.isAuthorizedAsPlatformAdmin) {
-    checking = checkWithDetails;
-  }
-
-  return checking([req.params.name.toLowerCase()])
+  return checkWithDetails([req.params.name.toLowerCase()])
     .then(results => {
-      res.status(200).json(results[0]);
+      if (results[0].status === STATUSES.NOT_FOUND) {
+        return res.status(404).json(results[0]);
+      }
+      if (results[0].status === STATUSES.UNHEALTHY) {
+        return res.status(503).json(results[0]);
+      }
+      return res.status(200).json(results[0]);
     })
     .catch(err => {
       const details = 'Failed to do health check';
@@ -62,4 +64,3 @@ function getAvailableServices(_req, res) {
     services: getRegisteredServiceNames()
   });
 }
-
