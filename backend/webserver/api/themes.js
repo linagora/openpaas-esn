@@ -88,7 +88,7 @@ module.exports = router => {
 
   /**
    * @swagger
-   * /themes/:uuid/favicon:
+   * /api/themes/:uuid/favicon:
    *   get:
    *     tags:
    *      - themes
@@ -98,6 +98,8 @@ module.exports = router => {
    *     responses:
    *       200:
    *         $ref: "#/responses/tm_favicon"
+   *       400:
+   *         $ref: "#responses/cm_400"
    *       401:
    *         $ref: "#/responses/cm_401"
    *       404:
