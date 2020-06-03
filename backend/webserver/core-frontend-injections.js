@@ -394,7 +394,11 @@ const injections = [
     'datetime/timeformat-selector/timeformat-selector.controller.js',
     'datetime/time-zone-selector/time-zone-selector.component.js',
     'datetime/time-zone-selector/time-zone-selector.controller.js',
-    'datetime/time-zone-selector/time-zone-selector.constants.js'
+    'datetime/time-zone-selector/time-zone-selector.constants.js',
+    'datetime/clock-picker/clock-picker.component.js',
+    'datetime/clock-picker/clock-picker.controller.js',
+    'datetime/date-picker/date-picker.component.js',
+    'datetime/date-picker/date-picker.controller.js'
   ], innerApps: ['esn']},
   {angular: 'esn.business-hours', files: [
     'business-hours/business-hours.module.js',

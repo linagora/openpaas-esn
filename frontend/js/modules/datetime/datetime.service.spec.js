@@ -7,6 +7,7 @@ var expect = chai.expect;
 describe('The esnDatetimeService', function() {
   var $rootScope;
   var esnDatetimeService;
+  var moment;
 
   beforeEach(function() {
     module('esn.datetime');
@@ -29,10 +30,12 @@ describe('The esnDatetimeService', function() {
   beforeEach(function() {
     inject(function(
       _$rootScope_,
-      _esnDatetimeService_
+      _esnDatetimeService_,
+      _moment_
     ) {
       $rootScope = _$rootScope_;
       esnDatetimeService = _esnDatetimeService_;
+      moment = _moment_;
     });
   });
 
@@ -151,6 +154,35 @@ describe('The esnDatetimeService', function() {
       expect(esnDatetimeService.getHumanTimeGrouping(targetDate.minusMonths(1)).name).to.eq('Last month');
       expect(esnDatetimeService.getHumanTimeGrouping(targetDate.minusMonths(3)).name).to.eq('This year');
       expect(esnDatetimeService.getHumanTimeGrouping(targetDate.minusYears(3)).name).to.eq('Old messages');
+    });
+  });
+
+  describe('The convert time zone function', function() {
+    it('Should convert correct to user setting time zone', function(done) {
+      var initialMoment = moment.utc('2020-06-08T12:00:00.000Z');
+      var expectedMoment = moment.utc('2020-06-08T10:00:00.000Z');
+      esnDatetimeService.init().then(function() {
+        expect(esnDatetimeService.updateObjectToUserTimeZone(initialMoment).valueOf()).to.equal(expectedMoment.valueOf());
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    it('Should convert correct to browser time zone', function(done) {
+      var temp = moment.tz.guess;
+      // Mock browser local time zone
+      moment.tz.guess = function() {
+        return 'Asia/Ho_Chi_Minh';
+      };
+      var initialMoment = moment.utc('2020-06-08T12:00:00.000Z');
+      var expectedMoment = moment.utc('2020-06-08T05:00:00.000Z');
+      esnDatetimeService.init().then(function() {
+        expect(esnDatetimeService.updateObjectToBrowserTimeZone(initialMoment).valueOf()).to.equal(expectedMoment.valueOf());
+        // Rebind moment function
+        moment.tz.guess = temp;
+        done();
+      });
+      $rootScope.$digest();
     });
   });
 });

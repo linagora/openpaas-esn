@@ -1,0 +1,7 @@
+ng-form(name="form")
+  esn-form-group.lng-date-picker-wrapper(label="{{::$ctrl.label}}")
+    input.input.form-control.date(type="text", size="10", ng-model="$ctrl.uiValue",
+      data-autoclose="1", data-start-week="1", data-date-format="{{::$ctrl.dateFormat}}",
+      placeholder="{{::$ctrl.placeholder}}", ng-change="$ctrl.onChange()", ng-blur="$ctrl.ngBlur()",
+      bs-datepicker, aria-expanded="false", ng-disabled="$ctrl.ngDisabled", cal-date-to-moment, data-is-all-day="$ctrl.isAllDay",
+      data-min-date="{{$ctrl.minDate()}}")

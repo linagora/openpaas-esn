@@ -4,7 +4,9 @@
   angular.module('esn.datetime')
     .run(run);
 
-    function run(esnDatetimeService) {
-      esnDatetimeService.init();
+    function run(moment, esnDatetimeService) {
+      esnDatetimeService.init().then(function() {
+        moment.tz.setDefault(esnDatetimeService.getTimeZone());
+      });
     }
 })();

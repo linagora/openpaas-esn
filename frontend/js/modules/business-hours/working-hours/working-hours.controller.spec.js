@@ -6,14 +6,21 @@ var expect = chai.expect;
 
 describe('The esnBusinessHoursWorkingHoursController', function() {
 
-  var $controller, $rootScope, $scope;
+  var $controller, $rootScope, $scope, esnDatetimeService;
 
   beforeEach(function() {
-    module('esn.business-hours');
+    module('esn.business-hours', function($provide) {
+      $provide.value('esnDatetimeService', esnDatetimeService);
+    });
 
-    inject(function(_$controller_, _$rootScope_) {
+    inject(function(
+      _$controller_,
+      _$rootScope_,
+      _esnDatetimeService_
+    ) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
+      esnDatetimeService = _esnDatetimeService_;
     });
   });
 

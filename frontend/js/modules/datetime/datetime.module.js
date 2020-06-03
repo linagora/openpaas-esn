@@ -2,6 +2,8 @@
   'use strict';
 
   angular.module('esn.datetime', [
-    'esn.configuration'
+    'esn.configuration',
+    'esn.form.helper',
+    'angular-clockpicker'
   ]);
 })();
