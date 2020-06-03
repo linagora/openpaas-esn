@@ -6,6 +6,7 @@
 
   function contactService(
       $q,
+      _,
       davImportService,
       ContactAPIClient,
       AddressbookShell
@@ -104,15 +105,15 @@
       function copyContact(toAddressbook, contact) {
         return _getAddressbookShell(toAddressbook).then(function(addressbookShell) {
           var sourceMetadata = _getSouceMetadata(addressbookShell);
+          var copyingContact = _.cloneDeep(contact);
 
-          contact = angular.copy(contact);
-          delete contact.id; // To generate new id for new contact, check out contactAPIClient
+          delete copyingContact.id; // To generate new id for new contact, check out contactAPIClient
 
           return ContactAPIClient
             .addressbookHome(sourceMetadata.bookId)
             .addressbook(sourceMetadata.bookName)
             .vcard()
-            .create(contact);
+            .create(copyingContact);
         });
       }
 
