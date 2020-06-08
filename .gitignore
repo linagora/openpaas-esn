@@ -19,3 +19,4 @@ doc/REST_API/swagger/swagger.json
 .flooignore
 package-lock.json
 .DS_Store
+dist/
