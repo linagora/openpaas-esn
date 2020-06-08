@@ -815,13 +815,12 @@ describe('The addressbooks module', function() {
       addressbookStub = sinon.stub();
     });
 
-    function createContactClientMock({ get, list, searchContacts }) {
+    function createContactClientMock({ get, list }) {
       dependencies.contact = {
         lib: {
           client() {
             return {
-              addressbookHome: addressbookHomeStub,
-              searchContacts
+              addressbookHome: addressbookHomeStub
             };
           }
         }
@@ -960,84 +959,9 @@ describe('The addressbooks module', function() {
         }
       });
     });
-
-    describe('When req.query.search is defined', function() {
-      it('should search in addressbooks', function(done) {
-        createContactClientMock({
-          searchContacts() {
-            return {
-              then() { done(); }
-            };
-          }
-        });
-
-        const controller = getController();
-        const req = {
-          user: { id: BOOK_HOME },
-          params: {bookHome: BOOK_HOME},
-          query: {
-            search: 'me'
-          }
-        };
-
-        controller.getAddressbooks(req);
-      });
-
-      it('should not inject text avatar if there is no body in card data', function(done) {
-        const injectTextAvatarSpy = sinon.stub().returns(q.resolve());
-
-        mockery.registerMock('./avatarHelper', function() {
-          return {
-            injectTextAvatar: injectTextAvatarSpy
-          };
-        });
-        createContactClientMock({
-          searchContacts() {
-            return q.resolve({
-              results: [{
-                response: {
-                  statusCode: 200
-                },
-                current_page: 1,
-                body: {}
-              }, {
-                response: {
-                  statusCode: 200
-                },
-                current_page: 1
-              }]
-            });
-          }
-        });
-
-        const controller = getController();
-        const req = {
-          user: { id: BOOK_HOME },
-          params: { bookHome: BOOK_HOME },
-          query: {
-            search: 'me'
-          }
-        };
-
-        controller.getAddressbooks(req, {
-          header: () => {},
-          status(code) {
-            expect(code).to.equal(200);
-
-            return {
-              json() {
-                expect(injectTextAvatarSpy).to.have.been.calledOnce;
-                done();
-              }
-            };
-          }
-        });
-      });
-    });
   });
 
   describe('The getAddressbook fn', function() {
-
     const BOOK_HOME = 'book12345';
     const BOOK_NAME = 'bookName';
     let addressbookHomeStub, addressbookStub;
@@ -1182,6 +1106,128 @@ describe('The addressbooks module', function() {
       });
     });
 
+  });
+
+  describe('The searchContacts fn', function() {
+    const BOOK_HOME = 'book12345';
+
+    function createContactClientMock({ searchContacts }) {
+      dependencies.contact = {
+        lib: {
+          client() {
+            return {
+              searchContacts
+            };
+          }
+        }
+      };
+    }
+
+    it('should search in addressbooks', function(done) {
+      createContactClientMock({
+        searchContacts() {
+          return {
+            then() { done(); }
+          };
+        }
+      });
+
+      const controller = getController();
+      const req = {
+        user: { id: BOOK_HOME },
+        params: {bookHome: BOOK_HOME},
+        query: {
+          search: 'me'
+        }
+      };
+
+      controller.searchContacts(req);
+    });
+
+    it('should return 500 response on error', function(done) {
+      createContactClientMock({
+        searchContacts() { return q.reject(); }
+      });
+
+      const controller = getController();
+      const req = {
+        user: { id: BOOK_HOME },
+        params: {bookHome: BOOK_HOME},
+        query: {
+          search: 'me'
+        }
+      };
+
+      controller.searchContacts(req, {
+        status: function(code) {
+          expect(code).to.equal(500);
+
+          return {
+            json: function(json) {
+              expect(json).to.eql({
+                error: {
+                  code: 500,
+                  message: 'Server Error',
+                  details: 'Error while searching contacts'
+                }
+              });
+              done();
+            }
+          };
+        }
+      });
+    });
+
+    it('should not inject text avatar if there is no body in card data', function(done) {
+      const injectTextAvatarSpy = sinon.stub().returns(q.resolve());
+
+      mockery.registerMock('./avatarHelper', function() {
+        return {
+          injectTextAvatar: injectTextAvatarSpy
+        };
+      });
+      createContactClientMock({
+        searchContacts() {
+          return q.resolve({
+            results: [{
+              response: {
+                statusCode: 200
+              },
+              current_page: 1,
+              body: {}
+            }, {
+              response: {
+                statusCode: 200
+              },
+              current_page: 1
+            }]
+          });
+        }
+      });
+
+      const controller = getController();
+      const req = {
+        user: { id: BOOK_HOME },
+        params: { bookHome: BOOK_HOME },
+        query: {
+          search: 'me'
+        }
+      };
+
+      controller.searchContacts(req, {
+        header: () => {},
+        status(code) {
+          expect(code).to.equal(200);
+
+          return {
+            json() {
+              expect(injectTextAvatarSpy).to.have.been.calledOnce;
+              done();
+            }
+          };
+        }
+      });
+    });
   });
 
   describe('The moveContact function', function() {

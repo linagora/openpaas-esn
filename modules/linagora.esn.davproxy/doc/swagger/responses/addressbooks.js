@@ -31,6 +31,42 @@
   *               ]
   *             }
   *           }
+  *   davproxy_addressbook_contacts:
+  *     description: Ok. With an array of contacts
+  *     examples:
+  *       application/json:
+  *           {
+                "_links": {
+                  "self": {
+                    "href": "/dav/api/addressbooks/5ec7428da3456852827d1ab2.json/contacts?search=%27james%27"
+                  }
+                },
+                "_total_hits": 1,
+                "_current_page": "1",
+                "_embedded": {
+                  "dav:item": [
+                    {
+                      "_links": {
+                        "self": {
+                          "href": "http://localhost:8001/addressbooks/5ec7428da3456852827d1ab2/85347de1-006f-44f6-bfc4-b59ad45741b4/74a97209-dac2-4d41-ba43-9d09287d3e84.vcf"
+                        }
+                      },
+                      "data": [
+                        "vcard",
+                        [
+                          ["version", {}, "text", "3.0"],
+                          ["prodid", {}, "text", "-//Sabre//Sabre VObject 4.1.3//EN"],
+                          ["uid", {}, "text", "74a97209-dac2-4d41-ba43-9d09287d3e84"],
+                          ["fn", {}, "text", "james"],
+                          ["n", {}, "text", ["", "james", "", "", ""]],
+                          ["photo", {}, "uri", "http://localhost:8080/contact/api/contacts/5ec7428da3456852827d1ab2/85347de1-006f-44f6-bfc4-b59ad45741b4/74a97209-dac2-4d41-ba43-9d09287d3e84/avatar"]
+                        ],
+                        []
+                      ]
+                    }
+                  ]
+                }
+              }
   *   davproxy_addressbook_address_books:
   *     description: OK. With all address of books
   *     examples:
