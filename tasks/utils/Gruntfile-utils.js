@@ -351,6 +351,7 @@ GruntfileUtils.prototype.setupElasticsearchIndexes = function() {
 GruntfileUtils.prototype.bundleCoreWebpackModules = function() {
   return function() {
     const webpackModules = [
+      'linagora.esn.account',
       'linagora.esn.contact',
       'linagora.esn.profile'
     ];
