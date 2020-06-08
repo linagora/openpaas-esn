@@ -348,4 +348,18 @@ GruntfileUtils.prototype.setupElasticsearchIndexes = function() {
   };
 };
 
+GruntfileUtils.prototype.bundleWebpackModules = function() {
+  return function() {
+    const webpackModules = [
+      'linagora.esn.contact'
+    ];
+
+    const execSync = require('child_process').execSync;
+
+    for (const module of webpackModules) {
+      execSync(`NODE_ENV='production' node_modules/.bin/webpack --config modules/${module}/webpack.prod.js`);
+    }
+  };
+};
+
 module.exports = GruntfileUtils;
