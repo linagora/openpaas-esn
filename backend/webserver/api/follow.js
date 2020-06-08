@@ -98,7 +98,7 @@ module.exports = function(router) {
    *      - Users
    *      - Follow
    *     description:
-   *       Follow an user.
+   *       Follow a user.
    *     parameters:
    *       - $ref: "#/parameters/fl_id"
    *       - $ref: "#/parameters/fl_tid"
@@ -124,7 +124,7 @@ module.exports = function(router) {
    *      - Users
    *      - Follow
    *     description:
-   *       Unfollow an user.
+   *       Unfollow a user.
    *     parameters:
    *       - $ref: "#/parameters/fl_id"
    *       - $ref: "#/parameters/fl_tid"
