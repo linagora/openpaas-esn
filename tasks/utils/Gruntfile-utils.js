@@ -348,7 +348,7 @@ GruntfileUtils.prototype.setupElasticsearchIndexes = function() {
   };
 };
 
-GruntfileUtils.prototype.bundleWebpackModules = function() {
+GruntfileUtils.prototype.bundleCoreWebpackModules = function() {
   return function() {
     const webpackModules = [
       'linagora.esn.contact'
