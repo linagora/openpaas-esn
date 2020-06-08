@@ -300,6 +300,20 @@ docker-master:
     variables:
       - $SKIP_BUILD_DOCKER
 
+docker-twake:
+  <<: *build-docker-tpl
+  stage: build
+  variables:
+    <<: *docker-branches-variables
+    DOCKER_PUBLIC_TAG_NAME: "branch-twake"
+  script:
+    - *docker-public-registry
+  only:
+    - twake@linagora/lgs/openpaas/esn
+  except:
+    variables:
+      - $SKIP_BUILD_DOCKER
+
 docker-snapshot:
   <<: *build-docker-tpl
   stage: build
@@ -352,6 +366,7 @@ docker-release:
     - docker logout
   only:
     - tags@linagora/lgs/openpaas/esn
+    - twake@linagora/lgs/openpaas/esn
   except:
     variables:
       - $SKIP_BUILD_DOCKER
