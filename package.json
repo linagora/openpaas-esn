@@ -70,6 +70,7 @@
     "linagora.esn.oidc": "linagora/linagora.esn.oidc",
     "linagora.esn.resource": "linagora/linagora.esn.resource",
     "linagora.esn.sync": "linagora/linagora.esn.sync",
+    "linagora.esn.twake": "linagora/linagora.esn.twake",
     "linagora.esn.unifiedinbox": "linagora/linagora.esn.unifiedinbox",
     "linagora.esn.unifiedinbox.github": "linagora/linagora.esn.unifiedinbox.github",
     "linagora.esn.unifiedinbox.james": "linagora/linagora.esn.unifiedinbox.james",

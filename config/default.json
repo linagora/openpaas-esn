@@ -140,7 +140,8 @@
     "linagora.esn.james",
     "linagora.esn.group",
     "linagora.esn.lemonldap",
-    "linagora.esn.linshare"
+    "linagora.esn.linshare",
+    "linagora.esn.twake"
   ],
   "email": {
     "templatesDir": "./templates/email"
