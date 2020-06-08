@@ -71,6 +71,7 @@
     "linagora.esn.oidc": "1.8.0-beta1",
     "linagora.esn.resource": "1.8.0-beta1",
     "linagora.esn.sync": "1.8.0-beta1",
+    "linagora.esn.twake": "linagora/linagora.esn.twake",
     "linagora.esn.unifiedinbox": "1.8.0-beta1",
     "linagora.esn.unifiedinbox.github": "1.8.0-beta1",
     "linagora.esn.unifiedinbox.james": "1.8.0-beta1",
