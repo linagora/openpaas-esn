@@ -67,7 +67,7 @@ $ node ./bin/cli elasticsearch --host localhost --port 9200 --type users --index
 - host: default is localhost
 - port: default is 9200
 - type: the data type to create. When not set, it will create all the required index types.
-Possible values: users, contacts, events, resources, core.events, groups, chat.messages, chat.conversations
+Possible values: users, contacts, events, resources, groups, chat.messages, chat.conversations
 - index: Defines the index to create. When not set, it will be generated automatically from type
 
 **populate**

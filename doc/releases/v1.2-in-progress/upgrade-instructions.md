@@ -13,4 +13,3 @@ If you are upgrading from OpenPaaS 1.1.x (Antares) to the 1.2.x, you will need t
 From your OpenPaaS folder, run these commands:
 
     node ./bin/cli.js reindex --type users
-    node ./bin/cli.js reindex --type core.events
