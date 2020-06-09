@@ -130,7 +130,7 @@ const schema = {
               },
               socketType: {
                 type: 'string',
-                enum: ['1', '2', '3']
+                enum: ['0', '2', '3']
               }
             },
             required: [
