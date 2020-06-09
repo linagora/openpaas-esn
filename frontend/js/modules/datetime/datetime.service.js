@@ -39,7 +39,10 @@
       formatShortDate: formatShortDate,
       formatLongDate: formatLongDate,
       formatTime: formatTime,
-      formatRelative: formatRelative
+      formatRelative: formatRelative,
+      updateObjectToUserTimeZone: updateObjectToUserTimeZone,
+      updateObjectToBrowserTimeZone: updateObjectToBrowserTimeZone
+
     };
 
     function init() {
@@ -152,6 +155,21 @@
 
     function _isThisYear(now, targetMoment) {
       return now.startOf('year').isBefore(targetMoment);
+    }
+
+    function updateObjectToUserTimeZone(date) {
+      if (date && date.format && date.format('YYYY-MM-DD HH:mm')) {
+        return moment.tz(date.format('YYYY-MM-DD HH:mm'), getTimeZone());
+      }
+      return;
+    }
+
+    function updateObjectToBrowserTimeZone(date) {
+      if (date && date.format && date.format('YYYY-MM-DD HH:mm')) {
+        var browserTimeZone = moment.tz.guess(true);
+        return moment.tz(date.format('YYYY-MM-DD HH:mm'), browserTimeZone);
+      }
+      return;
     }
   }
 })();
