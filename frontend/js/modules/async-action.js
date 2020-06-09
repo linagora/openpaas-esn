@@ -44,8 +44,16 @@ angular.module('esn.async-action', [
 
   function _getMessage(messages, type, arg) {
     var stringOrFunction = messages[type];
+    if (angular.isString(stringOrFunction) || esnI18nService.isI18nString(stringOrFunction)) {
 
-    return angular.isString(stringOrFunction) || esnI18nService.isI18nString(stringOrFunction) ? stringOrFunction : stringOrFunction(arg);
+      return stringOrFunction;
+    }
+    if (typeof stringOrFunction === 'function') {
+
+      return stringOrFunction(arg);
+    }
+
+    return;
   }
 
   return function(message, action, options) {
