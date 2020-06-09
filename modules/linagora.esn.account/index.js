@@ -3,21 +3,32 @@
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var path = require('path');
+const glob = require('glob-all');
 
-const FRONTEND_PATH = path.resolve(__dirname, 'frontend');
+const FRONTEND_PATH = path.resolve(__dirname, 'frontend/');
+const FRONTEND_JS_PATH_BUILD = __dirname + '/dist/';
 const innerApps = ['esn'];
-const angularModuleFiles = [
-  'app.js',
-  'app.run.js',
-  'constants.js',
-  'controllers.js',
-  'directives.js',
-  'services.js'
-];
-const modulesOptions = {
-  localJsFiles: angularModuleFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
-};
 
+let angularModuleFiles, modulesOptions;
+
+if (process.env.NODE_ENV !== 'production') {
+  angularModuleFiles = glob.sync([
+    FRONTEND_PATH + 'js/app.js',
+    FRONTEND_PATH + '**/!(*spec).js'
+  ]);
+
+  modulesOptions = {
+    localJsFiles: angularModuleFiles.map(file => path.resolve(FRONTEND_PATH, file))
+  };
+} else {
+  angularModuleFiles = glob.sync([
+    FRONTEND_JS_PATH_BUILD + '*.js'
+  ]);
+
+  modulesOptions = {
+    localJsFiles: angularModuleFiles.map(file => path.resolve(FRONTEND_JS_PATH_BUILD, file))
+  };
+}
 const moduleData = {
   shortName: 'account',
   fullName: 'linagora.esn.account',
