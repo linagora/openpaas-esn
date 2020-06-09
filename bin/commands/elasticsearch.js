@@ -3,7 +3,6 @@ const EsConfig = require('esn-elasticsearch-configuration');
 
 const DEFAULT_INDEX_TYPE = 'all';
 const AVAILABLE_INDEX_TYPES = [
-  'core.events',
   'chat.conversations',
   'chat.messages',
   'contacts',
