@@ -10,7 +10,8 @@ const {
   removeDocumentFromIndex,
   removeDocumentsByQuery,
   searchDocuments,
-  updateClient
+  updateClient,
+  init
 } = require('./elasticsearch');
 
 module.exports = {
@@ -24,5 +25,6 @@ module.exports = {
   removeDocumentFromIndex,
   removeDocumentsByQuery,
   searchDocuments,
-  updateClient
+  updateClient,
+  init
 };

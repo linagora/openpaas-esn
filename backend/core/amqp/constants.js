@@ -5,6 +5,9 @@ module.exports = {
   DEFAULT_AMQP_PORT: '5672',
   DEFAULT_AMQP_USERNAME: 'guest',
   DEFAULT_AMQP_PASSWORD: 'guest',
+  DEFAULT_AMQP_HTTP_HOST: 'localhost',
+  DEFAULT_AMQP_HTTP_PORT: '15672',
+  DEFAULT_AMQP_HTTP_PROTOCOL: 'http',
 
   EXCHANGE_TYPES: {
     pubsub: 'fanout',

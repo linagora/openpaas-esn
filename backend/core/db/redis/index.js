@@ -4,6 +4,16 @@ var logger = require('../../../core/logger');
 var esnconfig = require('../../../core/esn-config');
 var pubsub = require('../../../core/pubsub').local;
 
+module.exports = {
+  createClient,
+  initHealthCheck,
+  init,
+  isInitialized,
+  isConnected,
+  getClient,
+  _getClient
+};
+
 var initialized = false;
 var connected = false;
 var client;
@@ -38,7 +48,7 @@ var getRedisConfiguration = function(options) {
   return redisConfig;
 };
 
-var createClient = function(options, callback) {
+function createClient(options, callback) {
   var redisConfig = getRedisConfiguration(options);
 
   var client = redisConfig.client || require('redis').createClient(redisConfig.port || redisConfig.socket, redisConfig.host, redisConfig);
@@ -73,10 +83,9 @@ var createClient = function(options, callback) {
   });
 
   return callback(null, client);
-};
-module.exports.createClient = createClient;
+}
 
-var init = function(callback) {
+function init(callback) {
   esnconfig('redis').get(function(err, config) {
     if (err) {
       logger.error('Error while getting the redis configuration', err);
@@ -89,9 +98,13 @@ var init = function(callback) {
       return callback(err, client);
     });
   });
-};
+}
 
-module.exports.init = init;
+function initHealthCheck() {
+  // Register health check service
+  const healthCheck = require('./health-check');
+  healthCheck.register(_getClient);
+}
 
 pubsub.topic('mongodb:connectionAvailable').subscribe(function() {
   init(function(err, c) {
@@ -105,22 +118,22 @@ pubsub.topic('mongodb:connectionAvailable').subscribe(function() {
   });
 });
 
-module.exports.isInitialized = function() {
+function isInitialized() {
   return initialized;
-};
+}
 
-module.exports.isConnected = function() {
+function isConnected() {
   return connected;
-};
+}
 
-module.exports._getClient = function() {
+function _getClient() {
   return client;
-};
+}
 
-module.exports.getClient = function(callback) {
+function getClient(callback) {
   if (this.isConnected() && this._getClient()) {
     return callback(null, client);
   } else {
     return this.init(callback);
   }
-};
+}
