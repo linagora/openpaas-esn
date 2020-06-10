@@ -79,6 +79,7 @@
     "linagora.esn.unifiedinbox.social": "1.8.0-beta1",
     "linagora.esn.unifiedinbox.twitter": "1.8.0-beta1",
     "linagora.esn.videoconference": "1.8.0-beta1",
+    "linagora.esn.videoconference.calendar": "linagora/linagora.esn.videoconference.calendar",
     "lodash": "4.17.15",
     "logrotate-stream": "0.2.5",
     "mailparser": "0.6.1",
