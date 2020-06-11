@@ -7,7 +7,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /jwt/generate:
+   * /api/jwt/generate:
    *   post:
    *     tags:
    *       - JWT
