@@ -131,7 +131,6 @@
     "linagora.esn.controlcenter",
     "linagora.esn.unifiedinbox",
     "linagora.esn.unifiedinbox.james",
-    "linagora.esn.unifiedinbox.linshare",
     "linagora.esn.unifiedinbox.social",
     "linagora.esn.admin",
     "linagora.esn.sync",
@@ -140,7 +139,6 @@
     "linagora.esn.james",
     "linagora.esn.group",
     "linagora.esn.lemonldap",
-    "linagora.esn.linshare",
     "linagora.esn.twake"
   ],
   "email": {
