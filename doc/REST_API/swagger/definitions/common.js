@@ -16,6 +16,10 @@
   *         type: string
   *       main_phone:
   *         type: string
+  *       office_location:
+  *         type: string
+  *       description:
+  *         type: string
   *   cm_value:
   *     description: "defines a JSON object containing a value property"
   *     properties:
