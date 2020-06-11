@@ -7,11 +7,11 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /platformadmins:
+   * /api/platformadmins:
    *   get:
    *     tags:
    *      - PlatformAdmin
-   *     description: List all platformadmins
+   *     description: List all platform admins
    *     responses:
    *       200:
    *         $ref: "#/responses/sa_platformadmins"
@@ -29,11 +29,11 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /platformadmins:
+   * /api/platformadmins:
    *   post:
    *     tags:
    *      - PlatformAdmin
-   *     description: Set a user as platformadmin
+   *     description: Set a user as platform admin
    *     parameters:
    *       - $ref: "#/parameters/sa_set_type"
    *       - $ref: "#/parameters/sa_set_data"
@@ -60,11 +60,11 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /platformadmins:
+   * /api/platformadmins:
    *   delete:
    *     tags:
    *      - PlatformAdmin
-   *     description: Unset a platformadmin
+   *     description: Unset a platform admin
    *     parameters:
    *       - $ref: "#/parameters/sa_unset_type"
    *       - $ref: "#/parameters/sa_unset_data"
@@ -77,8 +77,6 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_401"
    *       403:
    *         $ref: "#/responses/cm_403"
-   *       404:
-   *         $ref: "#/responses/cm_404"
    *       500:
    *         $ref: "#/responses/cm_500"
    */
