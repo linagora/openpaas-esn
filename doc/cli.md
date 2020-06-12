@@ -148,14 +148,27 @@ $ node ./bin/cli help platformadmin
 ```
 
 **james**
-This command allows you to generate James JWT token with administrator right
 
+This command allows you to generate James JWT token to request to JAMES server
+
+To generate web admin token:
 ```bash
-$ node ./bin/cli james generate-token
+$ node ./bin/cli james generate-token --type webAdmin
 ```
+
+To generate JMAP token:
+```bash
+$ node ./bin/cli james generate-token --type jmap --email user1@open-paas.org
+```
+
+Where:
+- type: Type of JWT token
+- email: User email to generate JWT token for JMAP request. This is required when type is `jmap`
 
 To see all supported commands, use `help` command:
 
 ```bash
 $ node ./bin/cli help james
+
+$ node ./bin/cli help james generate-token
 ```
