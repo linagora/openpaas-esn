@@ -3,7 +3,6 @@
 
   angular.module('esn.datetime', [
     'esn.configuration',
-    'esn.form.helper',
-    'angular-clockpicker'
+    'esn.form.helper'
   ]);
 })();
