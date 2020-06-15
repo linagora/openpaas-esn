@@ -441,12 +441,11 @@ describe('The contact Angular module contactapis', function() {
             var bookName = 'bookName';
 
             it('should call sent HTTP request to backend with the right parameters', function() {
-              var expectPath = this.getBookUrl(bookId, bookName) + '?limit=20&page=5&search=linagora&userId=userId';
+              var expectPath = this.getBookHomeUrl(bookId) + '/contacts?limit=20&page=5&search=linagora';
               this.$httpBackend.expectGET(expectPath).respond(200, { _links: { self: { href: '' }}});
 
               var searchOptions = {
                 data: 'linagora',
-                userId: 'userId',
                 page: 5
               };
               this.ContactAPIClient
@@ -461,7 +460,7 @@ describe('The contact Angular module contactapis', function() {
 
             it('should return search result', function(done) {
               var shells = [1, 2, 3];
-              var expectPath = this.getBookUrl(bookId, bookName) + '?limit=20&page=5&search=linagora&userId=userId';
+              var expectPath = this.getBookHomeUrl(bookId) + '/contacts?limit=20&page=5&search=linagora';
               var response = {
                 _links: {
                   self: {
@@ -496,7 +495,6 @@ describe('The contact Angular module contactapis', function() {
 
               var searchOptions = {
                 data: 'linagora',
-                userId: 'userId',
                 page: 5
               };
               this.ContactAPIClient
@@ -517,7 +515,7 @@ describe('The contact Angular module contactapis', function() {
 
             it('should return next_page when not reached last_page', function(done) {
               var shells = [1, 2, 3];
-              var expectPath = this.getBookUrl(bookId, bookName) + '?limit=20&page=1&search=linagora&userId=userId';
+              var expectPath = this.getBookHomeUrl(bookId) + '/contacts?limit=20&page=1&search=linagora';
               var response = {
                 _links: {
                   self: {
@@ -555,7 +553,6 @@ describe('The contact Angular module contactapis', function() {
 
               var searchOptions = {
                 data: 'linagora',
-                userId: 'userId',
                 page: 1
               };
               this.ContactAPIClient
@@ -573,7 +570,7 @@ describe('The contact Angular module contactapis', function() {
 
             it('should not return next_page when reached last_page', function(done) {
               var shells = [1, 2, 3];
-              var expectPath = this.getBookUrl(bookId, bookName) + '?limit=20&page=1&search=linagora&userId=userId';
+              var expectPath = this.getBookHomeUrl(bookId) + '/contacts?limit=20&page=1&search=linagora';
               var response = {
                 _links: {
                   self: {
@@ -608,7 +605,6 @@ describe('The contact Angular module contactapis', function() {
 
               var searchOptions = {
                 data: 'linagora',
-                userId: 'userId',
                 page: 1
               };
               this.ContactAPIClient
@@ -1203,12 +1199,11 @@ describe('The contact Angular module contactapis', function() {
         var bookId = '123';
 
         it('should call sent HTTP request to backend with the right parameters', function() {
-          var expectPath = this.getBookHomeUrl(bookId) + '?limit=20&page=5&search=linagora&userId=userId';
+          var expectPath = this.getBookHomeUrl(bookId) + '/contacts?limit=20&page=5&search=linagora';
           this.$httpBackend.expectGET(expectPath).respond(200, { _links: { self: { href: '' }}});
 
           var searchOptions = {
             data: 'linagora',
-            userId: 'userId',
             page: 5
           };
           this.ContactAPIClient
@@ -1221,7 +1216,7 @@ describe('The contact Angular module contactapis', function() {
 
         it('should return search result', function(done) {
           var shells = [1, 2, 3];
-          var expectPath = this.getBookHomeUrl(bookId) + '?limit=20&page=5&search=linagora&userId=userId';
+          var expectPath = this.getBookHomeUrl(bookId) + '/contacts?limit=20&page=5&search=linagora';
           var response = {
             _links: { self: { href: '' }},
             _current_page: 1,
@@ -1252,7 +1247,6 @@ describe('The contact Angular module contactapis', function() {
 
           var searchOptions = {
             data: 'linagora',
-            userId: 'userId',
             page: 5
           };
           this.ContactAPIClient
