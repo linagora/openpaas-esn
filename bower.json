@@ -28,7 +28,7 @@
     "angular-auto-focus": "~1.0.4",
     "angular-bootstrap-switch": "~0.3.0",
     "angular-chart.js": "~0.5.1",
-    "angular-clockpicker": "~1.1.0",
+    "angular-clockpicker": "~1.2.0",
     "angular-component": "linagora/angular-component#0.1.4",
     "angular-feature-flags": "~1.0.0",
     "angular-file-saver": "1.1.2",
