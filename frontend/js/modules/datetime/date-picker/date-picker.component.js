@@ -15,7 +15,7 @@
         size: '@',
         dateFormat: '@',
         isAllDay: '=',
-        minDate: '&'
+        minDate: '@'
       },
       controller: 'esnDatetimeDatePickerController'
     });
