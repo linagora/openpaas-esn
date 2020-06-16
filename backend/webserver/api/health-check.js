@@ -59,7 +59,7 @@ module.exports = router => {
 
   /**
    * @swagger
-   * /healthcheck/:name:
+   * /healthcheck/{name}:
    *   get:
    *     tags:
    *      - Healthcheck
