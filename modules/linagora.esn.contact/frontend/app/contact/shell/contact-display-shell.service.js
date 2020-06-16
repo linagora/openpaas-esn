@@ -20,7 +20,13 @@
         this.informationsToDisplay = [];
 
         if (this.shell.emails && this.shell.emails.length) {
-          var email = ContactsHelper.getOrderedValues(this.shell.emails, CONTACT_ATTRIBUTES_ORDER.email)[0].value;
+          var supportedEmailTypes = CONTACT_ATTRIBUTES_ORDER.email;
+
+          this.shell.emails.forEach(function(email) {
+            email.type = email.type || supportedEmailTypes[2];
+          });
+
+          var email = ContactsHelper.getOrderedValues(this.shell.emails, supportedEmailTypes)[0].value;
 
           this.informationsToDisplay.push({
             objectType: 'email',
