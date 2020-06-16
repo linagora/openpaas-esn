@@ -41,8 +41,8 @@
       formatTime: formatTime,
       formatRelative: formatRelative,
       updateObjectToUserTimeZone: updateObjectToUserTimeZone,
-      updateObjectToBrowserTimeZone: updateObjectToBrowserTimeZone
-
+      updateObjectToBrowserTimeZone: updateObjectToBrowserTimeZone,
+      setAmbigTime: setAmbigTime
     };
 
     function init() {
@@ -157,19 +157,53 @@
       return now.startOf('year').isBefore(targetMoment);
     }
 
-    function updateObjectToUserTimeZone(date) {
+    /**
+     * Create a new instance of moment object with same time & date as the source object, but different time zone. The output
+     * time zone is retrieved from user configuration.
+     * @param {MomentObject} date: Source moment object
+     * @param {object} options: Options for outputted moment object
+     */
+    function updateObjectToUserTimeZone(date, options) {
+      options = options || {};
+      var converted;
+
       if (date && date.format && date.format('YYYY-MM-DD HH:mm')) {
-        return moment.tz(date.format('YYYY-MM-DD HH:mm'), getTimeZone());
+        converted = moment.tz(date.format('YYYY-MM-DD HH:mm'), getTimeZone());
+        _.assign(converted, options);
       }
-      return;
+
+      return converted;
     }
 
-    function updateObjectToBrowserTimeZone(date) {
+    /**
+     * Create a new instance of moment object with same time & date as the source object, but different time zone. The output
+     * time zone is the browser time zone.
+     * @param {MomentObject} date: Source moment object
+     * @param {object} options: Options for outputted moment object
+     */
+    function updateObjectToBrowserTimeZone(date, options) {
+      options = options || {};
+      var converted;
+
       if (date && date.format && date.format('YYYY-MM-DD HH:mm')) {
         var browserTimeZone = moment.tz.guess(true);
-        return moment.tz(date.format('YYYY-MM-DD HH:mm'), browserTimeZone);
+
+        converted = moment.tz(date.format('YYYY-MM-DD HH:mm'), browserTimeZone);
+        _.assign(converted, options);
       }
-      return;
+
+      return converted;
+    }
+
+    /**
+     * Override the _ambigTime property of moment object. If ambigTime is false, m.hasTime() will return true and vice versa
+     * @param {MomentObject} src: Source moment object
+     * @param {Boolean} ambigTime
+     */
+    function setAmbigTime(src, ambigTime) {
+      src._ambigTime = !!ambigTime;
+
+      return src;
     }
   }
 })();
