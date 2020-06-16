@@ -136,6 +136,24 @@ describe('ContactDisplayShell', function() {
           value: '01.02.03.04.05'
         }]);
     });
+
+    it('should add default type of email is \'other\' when there is no type', function() {
+      var shell = {
+        displayName: 'Contact OpenPaas',
+        emails: [
+          {
+            value: 'foo@lng.org'
+          }
+        ]
+      };
+
+      var displayShell = new ContactDisplayShell(shell);
+
+      expect(displayShell.shell.emails).to.deep.equal([{
+        type: 'Other',
+        value: 'foo@lng.org'
+      }]);
+    });
   });
 
   describe('The getAvatar fn', function() {
