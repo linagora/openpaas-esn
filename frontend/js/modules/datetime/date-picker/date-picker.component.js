@@ -8,14 +8,20 @@
         ngModel: '=',
         ngChange: '&',
         ngBlur: '&',
+        ngFocus: '&',
+        ngClick: '&',
+        className: '@',
         ngDisabled: '=',
         options: '@',
         label: '@',
         placeholder: '@',
         size: '@',
-        dateFormat: '@',
         isAllDay: '=',
-        minDate: '@'
+        minDate: '@',
+        dateFormat: '@',
+        autoclose: '@',
+        startWeek: '@',
+        customAttributes: '<'
       },
       controller: 'esnDatetimeDatePickerController'
     });

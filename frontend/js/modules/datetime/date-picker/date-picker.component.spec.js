@@ -27,7 +27,7 @@ describe('The esnDatePicker component', function() {
     scope.onChange = function() { return true; };
     var element = $compile(
       '<form name="form">' +
-        '<esn-date-picker ng-model="model" ng-change="onChange()", options="{twelvehour: false}", label="Time"/>' +
+        '<esn-date-picker ng-model="model" ng-change="onChange()" options="{twelvehour: false}" label="Time" custom-attributes="{\'cal-date-to-moment\': \'cal-date-to-moment\'}"/>' +
       '</form>'
     )(scope);
 
