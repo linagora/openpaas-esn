@@ -99,7 +99,7 @@ module.exports = router => {
    *       200:
    *         $ref: "#/responses/tm_favicon"
    *       400:
-   *         $ref: "#responses/cm_400"
+   *         $ref: "#/responses/cm_400"
    *       401:
    *         $ref: "#/responses/cm_401"
    *       404:
