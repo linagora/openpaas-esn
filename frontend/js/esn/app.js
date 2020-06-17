@@ -23,7 +23,8 @@ angular.module('esnApp', [
   'uuid4',
   'luegg.directives',
   'naturalSort',
-  'esn.configuration'
+  'esn.configuration',
+  'ngTagsInput'
 ].concat(angularInjections))
 
 .config(function(routeResolver, $urlRouterProvider, $stateProvider) {
@@ -88,4 +89,12 @@ angular.module('esnApp', [
     controller: 'logoutController'
   });
 
+})
+
+.config(function(tagsInputConfigProvider) {
+  // Override default placeholder on user-autocomplete-input component
+  tagsInputConfigProvider.setActiveInterpolation('tagsInput', {
+    placeholder: true,
+    displayProperty: true
+  });
 });
