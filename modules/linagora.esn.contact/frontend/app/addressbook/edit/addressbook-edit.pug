@@ -1,5 +1,5 @@
 .modal.full-screen
-  form.modal-dialog(name="form", esn-submit="$hide(); $ctrl.onSaveBtnClick();")
+  form.modal-dialog(name="form", ng-if="$ctrl.addressbook", esn-submit="$hide(); $ctrl.onSaveBtnClick();")
     .modal-content
       .modal-header
         button.close(type="button", data-dismiss="modal", aria-label=__('Close'), ng-click="$hide()")
