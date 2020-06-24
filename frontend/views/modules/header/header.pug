@@ -11,6 +11,7 @@ div
       esn-search-header
 
       ul.list-inline.all-centered.header-actions
+        .dynamic-header-actions(dynamic-directive="header-actions")
         li.hover-scale-animation.toggle-fullscreen(feature-flag="core.features.header:fullscreen")
           button.btn.btn-link.btn-icon(ng-click='toggleFullScreen()')
             i.md.mdi.mdi-fullscreen
