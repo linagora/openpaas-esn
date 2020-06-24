@@ -292,6 +292,73 @@ describe('The ContactShowController', function() {
 
   });
 
+  describe('The $scope.getAddress function', function() {
+    it('should filter only passed in address type', function() {
+      contactUpdateDataService.contact = {
+        addresses: [
+          {
+            city: '',
+            country: 'France',
+            street: '',
+            type: 'work',
+            zip: ''
+          },
+          {
+            city: '',
+            country: 'Vietnam',
+            street: '',
+            type: 'home',
+            zip: ''
+          }
+        ]
+      };
+
+      initController();
+
+      var address = {
+        city: '',
+        country: 'France',
+        street: '',
+        type: 'work',
+        zip: ''
+      };
+
+      expect(scope.getAddress('work')).to.deep.equal(address);
+    });
+
+    it('should filter out undefined address type', function() {
+      contactUpdateDataService.contact = {
+        addresses: [
+          {
+            city: '',
+            country: 'France',
+            street: '',
+            type: 'work',
+            zip: ''
+          },
+          {
+            city: '',
+            country: 'Vietnam',
+            street: '',
+            zip: ''
+          }
+        ]
+      };
+
+      initController();
+
+      var address = {
+        city: '',
+        country: 'France',
+        street: '',
+        type: 'work',
+        zip: ''
+      };
+
+      expect(scope.getAddress('work')).to.deep.equal(address);
+    });
+  });
+
   describe('The $scope.shouldDisplayWork function', function() {
 
     it('should return false when nothing defined', function() {

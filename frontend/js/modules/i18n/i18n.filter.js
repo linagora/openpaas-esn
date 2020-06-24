@@ -4,7 +4,9 @@
   angular.module('esn.i18n')
     .filter('esnI18n', function(esnI18nService) {
       return function(input) {
-        return esnI18nService.translate(input).toString();
+        var translatedInput = esnI18nService.translate(input);
+
+        return translatedInput && typeof translatedInput.toString === 'function' ? translatedInput.toString() : input;
       };
     });
 })();

@@ -54,7 +54,7 @@
       }
 
       return $scope.contact.addresses.filter(function(address) {
-        return address.type.toLowerCase() === type.toLowerCase();
+        return address.type && typeof address.type.toLowerCase === 'function' && address.type.toLowerCase() === type.toLowerCase();
       }).length;
     }
 
@@ -65,7 +65,7 @@
 
     $scope.getAddress = function(type) {
       return $scope.contact.addresses.filter(function(address) {
-        return address.type.toLowerCase() === type.toLowerCase();
+        return address.type && typeof address.type.toLowerCase === 'function' && address.type.toLowerCase() === type.toLowerCase();
       })[0];
     };
 
