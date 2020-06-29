@@ -18,7 +18,8 @@ module.exports = {
   // deprecated, replaced by getPubsubClient
   getClient,
   getPubsubClient,
-  init
+  init,
+  connect
 };
 
 function init() {

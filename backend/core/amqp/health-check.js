@@ -1,13 +1,14 @@
 const { registry, buildHealthyMessage, buildUnhealthyMessage, HealthCheckProvider } = require('../health-check');
-const { getRabbitMQUrl } = require('./utils');
+const { getUrl } = require('./utils');
+const { connect } = require('./index');
 const logger = require('../logger');
-const axios = require('axios');
 
 module.exports = {
   register
 };
 
 const SERVICE_NAME = 'rabbitmq';
+
 /**
  * Register RabbitMQ as a HealthCheckProvider, check is an async function to check for RabbitMQ
  * connection, return boolean for result.
@@ -32,15 +33,39 @@ function checker() {
 }
 
 function checkConnection() {
-  const BASE_HEALTH_CHECK_PATH = 'api/aliveness-test/%2f';
-  return getRabbitMQUrl()
-    .then(url => {
-      const httpClient = axios.create({
-        baseURL: url,
-        timeout: 3000
-      });
-
-      return httpClient.get(BASE_HEALTH_CHECK_PATH);
-    })
-    .then(result => result.status === 200 && result.data.status === 'ok');
+  return getUrl()
+    .then(connect)
+    .then(bindEvents);
 }
+
+function bindEvents(connection) {
+  return new Promise((resolve, reject) => {
+    const connectionTimeout = setTimeout(function() {
+      // A timeout in case all the events above don't have a response.
+
+      return reject(new Error('Connection to RabbitMQ timeout'));
+    }, 3000);
+
+    connection.on('connect', () => {
+      _cleanEventsAndTimeout();
+
+      return resolve(true);
+    });
+
+    connection.on('disconnect', data => {
+      _cleanEventsAndTimeout();
+
+      return reject(new Error(data.err || data));
+    });
+
+    function _cleanEventsAndTimeout() {
+      clearTimeout(connectionTimeout);
+      connection._events = {};
+    }
+  }).then(result => {
+    connection.close();
+
+    return result;
+  });
+}
+
