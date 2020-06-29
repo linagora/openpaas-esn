@@ -37,8 +37,8 @@ function emailExists(email, ldapConfig, callback) {
   }
 
   const {
-    adminDn,
-    adminPassword,
+    adminDn = '',
+    adminPassword = '',
     searchBase,
     searchFilter,
     url
@@ -196,8 +196,8 @@ function translate(baseUser, ldapPayload) {
  */
 function ldapSearch(domainId, ldapConf, query) {
   const {
-    adminDn,
-    adminPassword,
+    adminDn = '',
+    adminPassword = '',
     mapping,
     searchBase,
     searchFilter,
