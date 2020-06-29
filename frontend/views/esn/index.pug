@@ -78,7 +78,6 @@ html
 
     if locale !== 'en'
       script(src=`/components/moment/locale/${locale}.js`)
-      script(src=`/components/summernote/dist/lang/summernote-${fullLocale}.min.js`)
 
     script(src='/components/moment-timezone/builds/moment-timezone-with-data.min.js')
     script(src='/components/angular-moment/angular-moment.min.js')
@@ -112,6 +111,10 @@ html
     script(src='/components/angularjs-naturalsort/dist/naturalSortVersion.min.js')
     script(src='/components/summernote/dist/summernote.min.js')
     script(src='/components/angular-summernote/dist/angular-summernote.min.js')
+
+    if locale !== 'en'
+      script(src=`/components/summernote/dist/lang/summernote-${fullLocale}.min.js`)
+
     script(src='/components/iframe-resizer/js/iframeResizer.min.js')
     script(src='/components/autosize/dist/autosize.min.js')
     script(src='/components/offline/offline.min.js')
