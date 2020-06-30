@@ -32,6 +32,7 @@ module.exports = {
     maxSizeUpload: require('./maxSizeUpload'),
     session: require('./session'),
     oidc: require('./oidc'),
+    'openid-connect': require('./openid-connect'),
     userMetadata: require('./userMetadata'),
     applicationDiscoveryService: require('./applicationDiscoveryService'),
     user: RESTRICTED,
