@@ -26,6 +26,13 @@
       }, function(newValue, oldValue) {
         if (newValue && oldValue && newValue.valueOf() === oldValue.valueOf()) return;
         self.uiValue = esnDatetimeService.updateObjectToBrowserTimeZone(newValue);
+
+        if (self.uiValue && self.uiValue.isValid()) {
+          var formControlEle = $element.find('.form-control');
+          var ngModelController = formControlEle.controller('ngModel');
+
+          ngModelController.$setValidity('date', true);
+        }
       });
 
       $scope.$on('$destroy', function() {

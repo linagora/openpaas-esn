@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The esnDatePicker component', function() {
-  var $rootScope, $compile, moment;
+  var $rootScope, $compile, moment, form;
 
   beforeEach(function() {
     module('jadeTemplates');
@@ -32,6 +32,7 @@ describe('The esnDatePicker component', function() {
     )(scope);
 
     scope.$digest();
+    form = scope.form;
 
     return element;
   }
@@ -44,6 +45,25 @@ describe('The esnDatePicker component', function() {
     scope.model = initialMoment;
 
     var element = initComponent(scope);
+    expect(element.find('input[ng-model="$ctrl.uiValue"]')[0].value).to.equal(scope.model.toString());
+  });
+
+  it('should re-validate the input after change', function() {
+    var scope = $rootScope.$new();
+    var initialMoment = moment();
+
+    scope.model = 'A Random Invalid String';
+
+    var element = initComponent(scope);
+
+    form.date.$setViewValue('A Random Invalid String');
+    scope.$digest();
+    initialMoment.set({ second: 0, millisecond: 0 });
+    scope.model = initialMoment;
+
+    $rootScope.$digest();
+
+    expect(element.find('input[ng-model="$ctrl.uiValue"]')[0].className.split(/\s+/)).to.contain('ng-valid');
     expect(element.find('input[ng-model="$ctrl.uiValue"]')[0].value).to.equal(scope.model.toString());
   });
 });
