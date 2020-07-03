@@ -17,6 +17,9 @@ describe('The contacts backend/lib/pubsub module', function() {
     pubsubMock = {
       local: {
         topic: sinon.stub().returns({ publish() {} })
+      },
+      global: {
+        topic: sinon.stub().returns({ publish() {} })
       }
     };
 
@@ -64,8 +67,8 @@ describe('The contacts backend/lib/pubsub module', function() {
   });
 
   describe('On CONTACT_CREATED event', function() {
-    it('should publish event CONTACT_ADDED through local pubsub', function(done) {
-      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED).returns({
+    it('should publish event CONTACT_ADDED through global pubsub', function(done) {
+      pubsubMock.global.topic.withArgs(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED).returns({
         publish(data) {
           expect(data).to.shallowDeepEqual({
             userId,
@@ -138,8 +141,8 @@ describe('The contacts backend/lib/pubsub module', function() {
   });
 
   describe('On CONTACT_UPDATED event', function() {
-    it('should publish event CONTACT_UPDATED through local pubsub', function(done) {
-      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED).returns({
+    it('should publish event CONTACT_UPDATED through global pubsub', function(done) {
+      pubsubMock.global.topic.withArgs(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED).returns({
         publish(data) {
           expect(data).to.shallowDeepEqual({
             userId,
@@ -212,8 +215,8 @@ describe('The contacts backend/lib/pubsub module', function() {
   });
 
   describe('On CONTACT_DELETED event', function() {
-    it('should publish event CONTACT_DELETED through local pubsub', function(done) {
-      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED).returns({
+    it('should publish event CONTACT_DELETED through global pubsub', function(done) {
+      pubsubMock.global.topic.withArgs(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED).returns({
         publish(data) {
           expect(data).to.shallowDeepEqual({
             contactId,
@@ -283,12 +286,12 @@ describe('The contacts backend/lib/pubsub module', function() {
   });
 
   describe('On ADDRESSBOOK_CREATED event', function() {
-    it('should publish event ADDRESSBOOK_CREATED through local pubsub', function(done) {
+    it('should publish event ADDRESSBOOK_CREATED through global pubsub', function(done) {
       messageMock = {
         path: `addressbooks/${bookId}/${bookName}`,
         owner: `principals/users/${userId}`
       };
-      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_CREATED).returns({
+      pubsubMock.global.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_CREATED).returns({
         publish(data) {
           expect(data).to.shallowDeepEqual({
             userId,
@@ -305,12 +308,12 @@ describe('The contacts backend/lib/pubsub module', function() {
   });
 
   describe('On ADDRESSBOOK_DELETED event', function() {
-    it('should publish event ADDRESSBOOK_DELETED through local pubsub', function(done) {
+    it('should publish event ADDRESSBOOK_DELETED through global pubsub', function(done) {
       messageMock = {
         path: `addressbooks/${bookId}/${bookName}`,
         owner: `principals/users/${userId}`
       };
-      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_DELETED).returns({
+      pubsubMock.global.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_DELETED).returns({
         publish(data) {
           expect(data).to.shallowDeepEqual({
             userId,
@@ -327,11 +330,11 @@ describe('The contacts backend/lib/pubsub module', function() {
   });
 
   describe('On ADDRESSBOOK_UPDATED event', function() {
-    it('should publish event ADDRESSBOOK_UPDATED through local pubsub', function(done) {
+    it('should publish event ADDRESSBOOK_UPDATED through global pubsub', function(done) {
       messageMock = {
         path: `addressbooks/${bookId}/${bookName}`
       };
-      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_UPDATED).returns({
+      pubsubMock.global.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_UPDATED).returns({
         publish(data) {
           expect(data).to.shallowDeepEqual({
             bookId,
@@ -347,12 +350,12 @@ describe('The contacts backend/lib/pubsub module', function() {
   });
 
   describe('On ADDRESSBOOK_SUBSCRIPTION_DELETED event', function() {
-    it('should publish event ADDRESSBOOK_SUBSCRIPTION_DELETED through local pubsub', function(done) {
+    it('should publish event ADDRESSBOOK_SUBSCRIPTION_DELETED through global pubsub', function(done) {
       messageMock = {
         path: `addressbooks/${bookId}/${bookName}`,
         owner: `principals/users/${userId}`
       };
-      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_DELETED).returns({
+      pubsubMock.global.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_DELETED).returns({
         publish(data) {
           expect(data).to.shallowDeepEqual({
             userId,
@@ -369,11 +372,11 @@ describe('The contacts backend/lib/pubsub module', function() {
   });
 
   describe('On ADDRESSBOOK_SUBSCRIPTION_UPDATED event', function() {
-    it('should publish event ADDRESSBOOK_SUBSCRIPTION_UPDATED through local pubsub', function(done) {
+    it('should publish event ADDRESSBOOK_SUBSCRIPTION_UPDATED through global pubsub', function(done) {
       messageMock = {
         path: `addressbooks/${bookId}/${bookName}`
       };
-      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_UPDATED).returns({
+      pubsubMock.global.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_UPDATED).returns({
         publish(data) {
           expect(data).to.shallowDeepEqual({
             bookId,
@@ -389,11 +392,11 @@ describe('The contacts backend/lib/pubsub module', function() {
   });
 
   describe('On ADDRESSBOOK_SUBSCRIPTION_CREATED event', function() {
-    it('should publish event ADDRESSBOOK_SUBSCRIPTION_CREATED through local pubsub', function(done) {
+    it('should publish event ADDRESSBOOK_SUBSCRIPTION_CREATED through global pubsub', function(done) {
       messageMock = {
         path: `addressbooks/${bookId}/${bookName}`
       };
-      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_CREATED).returns({
+      pubsubMock.global.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_CREATED).returns({
         publish(data) {
           expect(data).to.shallowDeepEqual({
             bookId,
