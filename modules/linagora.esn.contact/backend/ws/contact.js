@@ -9,7 +9,7 @@ module.exports = {
 
 function init(dependencies) {
   const logger = dependencies('logger');
-  const pubsub = dependencies('pubsub').local;
+  const pubsub = dependencies('pubsub').global;
   const io = dependencies('wsserver').io;
 
   if (initialized) {
