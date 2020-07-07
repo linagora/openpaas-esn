@@ -52,6 +52,7 @@ e.b. `git` branch name `feature-friday-delivery` build will deliver:
 
 [Affero GPL v3](http://www.gnu.org/licenses/agpl-3.0.html)
 
+
 ## Special thanks
 
 <img src="https://cloud.githubusercontent.com/assets/7864462/12837037/452a17c6-cb73-11e5-9f39-fc96893bc9bf.png" alt="drawing" width="250"/>
