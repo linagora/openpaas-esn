@@ -1,9 +1,9 @@
 {
   "Edit Profile": "Editer le profil",
-  "Update Profile Picture": "Mettre à jour l'image du profil",
+  "Update Profile Picture": "Mettre à jour l'image de profil",
   "Main Phone": "Téléphone Principal",
-  "Followers": "Suiveurs",
-  "Followings": "Suivis",
+  "Followers": "Abonnés",
+  "Followings": "Abonnements",
   "Timeline": "Chronologie",
   "Profile Informations": "Informations sur le profil",
   "Updating profile...": "Mise à jour du profile...",
@@ -12,8 +12,8 @@
   "You did not modify anything": "Vous n'avez rien modifié",
   "View profile page": "Voir la page de profil",
   "Add email address": "Ajouter une adresse e-mail",
-  "Emails": "Emails",
+  "Emails": "E-mails",
   "Basic information": "Informations de base",
-  "Email is already in use. Try another.": "Cet email est déjà utilisé. Essayez un autre.",
-  "Email is invalid": "Le courriel est invalide"
+  "Email is already in use. Try another.": "Cet email est déjà utilisé. Essayez-en un autre.",
+  "Email is invalid": "Cette adresse e-mail est invalide"
 }
