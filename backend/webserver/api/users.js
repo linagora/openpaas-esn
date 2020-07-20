@@ -283,7 +283,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /users/provision:
+   * /api/users/provision:
    *   post:
    *     tags:
    *      - Users
@@ -292,7 +292,7 @@ module.exports = function(router) {
    *       - $ref: "#/parameters/uss_provision_source"
    *       - $ref: "#/parameters/uss_provision_data"
    *     responses:
-   *       204:
+   *       201:
    *         $ref: "#/responses/cm_201"
    *       400:
    *         $ref: "#/responses/cm_400"

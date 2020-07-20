@@ -41,5 +41,7 @@
  *     in: body
  *     description: The provisioning data
  *     schema:
- *       type: object
+ *       type: array
+ *       items:
+ *         type: object
  */
