@@ -4,7 +4,7 @@ services:
 
   esn:
     container_name: esn
-    image: linagora/esn:1.8.0-rc3
+    image: linagora/esn:1.8.0
     ports:
      - "8080:8080"
     volumes:
@@ -76,7 +76,7 @@ services:
 
   sabre:
     container_name: esn_sabre
-    image: linagora/esn-sabre:1.8.0-rc3
+    image: linagora/esn-sabre:1.8.0
     ports:
       - "8001:80"
     environment:
