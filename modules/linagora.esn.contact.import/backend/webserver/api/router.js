@@ -12,7 +12,7 @@ module.exports = function(dependencies, lib) {
 
   /**
    * @swagger
-   * /{type}:
+   * /import/api/{type}:
    *   post:
    *     tags:
    *       - Import
