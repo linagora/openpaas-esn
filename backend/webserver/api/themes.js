@@ -6,7 +6,7 @@ const themesMW = require('../middleware/themes');
 module.exports = router => {
   /**
    * @swagger
-   * /themes/:uuid:
+   * /api/themes/{domain_id}:
    *   get:
    *     tags:
    *      - themes
@@ -16,6 +16,8 @@ module.exports = router => {
    *     responses:
    *       200:
    *         $ref: "#/responses/tm_themes"
+   *       400:
+   *         $ref: "#/responses/cm_400"
    *       401:
    *         $ref: "#/responses/cm_401"
    *       404:
