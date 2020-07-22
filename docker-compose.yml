@@ -98,7 +98,7 @@ services:
   james:
     container_name: esn_james
     entrypoint: bash -c "java -Dlogback.configurationFile=/root/conf/logback.xml -Dworking.directory=/root/ -jar james-server.jar"
-    image: linagora/james-project:openpaas-1.7.10-rc2
+    image: linagora/james-memory:openpaas-1.7.10-rc2
     hostname: open-paas.org
     depends_on:
       - esn # to have configuration ready in shared volume
@@ -114,12 +114,3 @@ services:
     volumes:
       - ./docker/config/james:/root/conf
       - ./docker/config/jwt/public:/root/conf/jwt_publickey
-    links:
-      - cassandra:cassandra
-      - elasticsearch:elasticsearch
-
-  cassandra:
-    container_name: esn_cassandra
-    image: cassandra:3.11.3
-    ports:
-      - "9042:9042"

@@ -1,7 +1,6 @@
 {
-  "cassandra" : "cassandra:3.11.3",
   "elasticsearch": "docker.elastic.co/elasticsearch/elasticsearch:6.3.2",
-  "james": "linagora/james-project",
+  "james": "linagora/james-memory",
   "mongodb": "mongo:3.2",
   "redis": "redis:latest",
   "rabbitmq": "rabbitmq:3.6.5-management",

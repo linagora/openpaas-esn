@@ -87,7 +87,7 @@ services:
 
   james:
     entrypoint: bash -c "java -Dlogback.configurationFile=/root/conf/logback.xml -Dworking.directory=/root/ -jar james-server.jar"
-    image: linagora/james-project:branch-master
+    image: linagora/james-memory:branch-master
     container_name: esn_james
     hostname: open-paas.org
     ports:
@@ -103,7 +103,3 @@ services:
       - ${ESN_PATH}/docker/config/james:/root/conf:Z
       - ${ESN_PATH}/docker/config/jwt/public:/root/conf/jwt_publickey:Z
 
-  cassandra:
-    image: cassandra:3.11.3
-    ports:
-      - "9042:9042"
