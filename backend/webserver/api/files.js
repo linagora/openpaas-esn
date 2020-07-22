@@ -13,7 +13,7 @@ module.exports = function(router) {
    *   post:
    *     tags:
    *       - File
-   *     description: Post a new avatar.
+   *     description: Upload a file which is able to access by anyone on the platform.
    *     parameters:
    *       - $ref: "#/parameters/fi_name"
    *       - $ref: "#/parameters/fi_mimetype"

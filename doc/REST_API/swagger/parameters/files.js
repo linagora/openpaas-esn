@@ -21,11 +21,10 @@
  *     type: integer
  *   fi_raw_data:
  *     name: raw_data
- *     in: body
+ *     in: formData
+ *     type: file
  *     description: the raw file data.
  *     required: true
- *     schema:
- *       format: binary
  *   fi_id:
  *     name: id
  *     in: path
