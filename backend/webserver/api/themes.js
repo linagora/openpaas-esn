@@ -32,18 +32,21 @@ module.exports = router => {
 
   /**
    * @swagger
-   * /themes/:uuid:
+   * /api/themes/{domain_id}:
    *   put:
    *     tags:
    *      - themes
    *     description: Set the theme for a given domain.
    *     parameters:
    *       - $ref: "#/parameters/dm_id"
+   *       - $ref: "#/parameters/tm_themes"
    *     responses:
    *       200:
-   *         $ref: "#/responses/tm_themes"
+   *         $ref: "#/responses/cm_204"
    *       401:
    *         $ref: "#/responses/cm_401"
+   *       400:
+   *         $ref: "#/responses/cm_400"
    *       403:
    *         $ref: "#/responses/cm_403"
    *       404:
