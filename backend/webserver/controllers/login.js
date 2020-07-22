@@ -69,10 +69,10 @@ function login(req, res, next) {
           logger.error('Problem while setting login failure for user ' + username, err);
         }
 
-        return res.status(403).json({
+        return res.status(401).json({
           recaptcha: req.recaptchaFlag || false,
           error: {
-            code: 403,
+            code: 401,
             message: 'Login error',
             details: 'Bad username or password'
           }
