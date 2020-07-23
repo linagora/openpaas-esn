@@ -141,7 +141,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /users/{uuid}/profile/avatar:
+   * /api/users/{uuid}/profile/avatar:
    *   get:
    *     tags:
    *      - Users
@@ -156,6 +156,8 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_304"
    *       404:
    *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
    */
   router.get('/users/:uuid/profile/avatar', usersMW.loadTargetUser, users.getTargetUserAvatar);
 
