@@ -7,7 +7,7 @@ module.exports = function(dependencies, lib, router) {
 
   /**
    * @swagger
-   * /user-status/users/{id}:
+   * /user-status/api/users/{id}:
    *   get:
    *     tags:
    *       - Users-status
@@ -19,6 +19,8 @@ module.exports = function(dependencies, lib, router) {
    *         $ref: "#/responses/user.status_user_status"
    *       401:
    *         $ref: "#/responses/cm_401"
+   *       404:
+   *         $ref: "#/responses/cm_404"
    *       500:
    *         $ref: "#/responses/cm_500"
    */
