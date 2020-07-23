@@ -20,11 +20,11 @@
  -->
 
 <mailrepositorystore>
-    <defaultProtocol>cassandra</defaultProtocol>
+    <defaultProtocol>memory</defaultProtocol>
     <mailrepositories>
-        <mailrepository class="org.apache.james.mailrepository.cassandra.CassandraMailRepository">
+        <mailrepository class="org.apache.james.mailrepository.memory.MemoryMailRepository">
             <protocols>
-                <protocol>cassandra</protocol>
+                <protocol>memory</protocol>
             </protocols>
         </mailrepository>
     </mailrepositories>

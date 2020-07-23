@@ -4,8 +4,7 @@ We currently use several official images, and some custom ones:
 
 - Redis: redis:latest
 - MongoDB: mongo:3.2
-- Apache Cassandra: cassandra:3.11.3
-- Apache James: linagora/james-project
+- Apache James: linagora/james-memory
 - Elastic Search: linagora/esn-elasticsearch and elasticsearch:1.5.2
 - Sabre DAV: linagora/esn-sabre
 

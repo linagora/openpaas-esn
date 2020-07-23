@@ -44,11 +44,3 @@ services:
     extends:
       file: ../docker-compose-commons.yml
       service: james
-    links:
-      - cassandra:cassandra
-      - elasticsearch:elasticsearch
-
-  cassandra:
-    extends:
-      file: ../docker-compose-commons.yml
-      service: cassandra
