@@ -152,6 +152,9 @@
   *       properties:
   *         name:
   *           type: string
+  *           enum:
+  *              - login
+  *              - searchable
   *         value:
   *           type: string
   *           enum:
