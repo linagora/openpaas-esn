@@ -96,7 +96,7 @@ module.exports = function(router) {
    *     parameters:
    *       - $ref: "#/parameters/av_mimetype"
    *       - $ref: "#/parameters/av_size"
-   *       - $ref: "#/parameters/ct_raw_data"
+   *       - $ref: "#/parameters/av_raw_data"
    *     responses:
    *       200:
    *         $ref: "#/responses/ct_avatar"
@@ -104,6 +104,8 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_400"
    *       401:
    *         $ref: "#/responses/cm_401"
+   *       404:
+   *         $ref: "#/responses/cm_404"
    *       412:
    *         $ref: "#/responses/cm_412"
    *       415:
