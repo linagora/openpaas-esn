@@ -222,6 +222,8 @@ module.exports = function(router) {
    *     responses:
    *       200:
    *         $ref: "#/responses/dm_members"
+   *       400:
+   *         $ref: "#/responses/cm_400"
    *       401:
    *         $ref: "#/responses/cm_401"
    *       403:
