@@ -12,7 +12,7 @@
  *     name: email
  *     in: query
  *     description: The user email
- *     required: true
+ *     required: false
  *     type: string
  *   uss_states:
  *     name: states
