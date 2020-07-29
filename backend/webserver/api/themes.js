@@ -67,7 +67,7 @@ module.exports = router => {
 
   /**
    * @swagger
-   * /themes/:uuid/logo:
+   * /api/themes/{domain_id}/logo:
    *   get:
    *     tags:
    *      - themes
@@ -75,8 +75,10 @@ module.exports = router => {
    *     parameters:
    *       - $ref: "#/parameters/dm_id"
    *     responses:
-   *       200:
+   *       302:
    *         $ref: "#/responses/tm_logo"
+   *       400:
+   *         $ref: "#/responses/cm_400"
    *       401:
    *         $ref: "#/responses/cm_401"
    *       404:
