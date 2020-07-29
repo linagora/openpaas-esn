@@ -37,7 +37,7 @@ function setupAPI(application) {
 
   /**
    * @swagger
-   * /versions:
+   * /api/versions:
    *   get:
    *     tags:
    *       - Version
@@ -45,14 +45,14 @@ function setupAPI(application) {
    *     responses:
    *       200:
    *         $ref: "#/responses/vs_versions"
-   *       400:
-   *         $ref: "#/responses/cm_400"
+   *       404:
+   *         $ref: "#/responses/cm_404"
    */
   router.get('/versions', getVersions);
 
   /**
    * @swagger
-   * /versions/latest:
+   * /api/versions/latest:
    *   get:
    *     tags:
    *       - Version
@@ -60,12 +60,14 @@ function setupAPI(application) {
    *     responses:
    *       200:
    *         $ref: "#/responses/vs_latest"
+   *       404:
+   *         $ref: "#/responses/cm_404"
    */
   router.get('/versions/latest', getLatestVersion);
 
   /**
    * @swagger
-   * /versions/{id}:
+   * /api/versions/{id}:
    *   get:
    *     tags:
    *       - Version
