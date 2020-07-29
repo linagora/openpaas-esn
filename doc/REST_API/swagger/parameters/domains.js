@@ -120,4 +120,11 @@
  *     in: query
  *     description: Includes disabled searchable members when searching members
  *     type: boolean
+ *   dm_domain_create:
+ *     name: domain_create
+ *     required: true
+ *     in: body
+ *     description: Domain object for creation
+ *     schema:
+ *       $ref: '#/definitions/dm_domain_create'
  */

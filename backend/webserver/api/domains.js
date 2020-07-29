@@ -44,10 +44,7 @@ module.exports = function(router) {
    *     description: |
    *       Create an ESN domain.
    *     parameters:
-   *       - $ref: "#/parameters/dm_name"
-   *       - $ref: "#/parameters/dm_company_name"
-   *       - $ref: "#/parameters/dm_hostnames"
-   *       - $ref: "#/parameters/dm_administrator"
+   *       - $ref: "#/parameters/dm_domain_create"
    *     responses:
    *       201:
    *         $ref: "#/responses/dm_created_domain"
@@ -59,6 +56,8 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_403"
    *       404:
    *         $ref: "#/responses/cm_404"
+   *       409:
+   *         $ref: "#/responses/cm_409"
    *       500:
    *         $ref: "#/responses/cm_500"
    */
