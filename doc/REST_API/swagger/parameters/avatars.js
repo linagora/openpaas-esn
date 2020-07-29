@@ -56,4 +56,11 @@
   *       This size will be compared with the number of bytes recorded in the file storage service, thus ensuring that there were no data loss.
   *     required: true
   *     type: integer
+  *   av_raw_data:
+  *     name: raw_data
+  *     in: formData
+  *     type: file
+  *     description: the raw file data.
+  *     required: true
+  *     x-parameter-content-type: image/png
   */
