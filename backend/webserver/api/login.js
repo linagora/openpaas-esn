@@ -8,7 +8,7 @@ var cookielifetime = require('../middleware/cookie-lifetime');
 module.exports = function(router) {
   /**
    * @swagger
-   * /login:
+   * /api/login:
    *   post:
    *     tags:
    *      - Login
@@ -23,6 +23,8 @@ module.exports = function(router) {
    *         $ref: "#/responses/lg_authentication"
    *       400:
    *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
    *       403:
    *         $ref: "#/responses/cm_403"
    *       500:
