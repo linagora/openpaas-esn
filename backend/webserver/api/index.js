@@ -113,6 +113,7 @@ function setupAPI(application) {
   require('./themes')(router);
   require('./technicalusers')(router);
   require('./health-check')(router);
+  require('./application-discovery-service')(router);
 
   application.use('/api', router);
   application.use('/api/v0.1', router);

@@ -33,6 +33,7 @@ module.exports = {
     session: require('./session'),
     oidc: require('./oidc'),
     userMetadata: require('./userMetadata'),
+    applicationDiscoveryService: require('./applicationDiscoveryService'),
     user: RESTRICTED,
     amqp: RESTRICTED,
     redis: RESTRICTED,
