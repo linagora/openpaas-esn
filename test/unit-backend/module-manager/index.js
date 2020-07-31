@@ -54,6 +54,7 @@ describe('The module manager', function() {
       var coreModules = [
         'linagora.esn.core.activitystreams',
         'linagora.esn.core.amqp',
+        'linagora.esn.core.application-discovery-service',
         'linagora.esn.core.assets',
         'linagora.esn.core.auth',
         'linagora.esn.core.availability',
