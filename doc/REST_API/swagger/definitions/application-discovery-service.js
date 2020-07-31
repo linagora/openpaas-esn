@@ -26,7 +26,7 @@
  *      url:
  *        type: string
  *      name:
- *        $ref: "#/definition/spa_name"
+ *        $ref: "#/definitions/spa_name"
  *      weight:
  *        type: integer
  */
