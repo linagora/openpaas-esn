@@ -68,12 +68,12 @@ var MemberOfDomainSchema = new mongoose.Schema({
   domain_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Domain', required: true },
   joined_at: { type: Date, default: Date.now },
   status: { type: String, lowercase: true, trim: true }
-}, { _id: false });
+}, { _id: false, id: false });
 
 const UserStateSchema = new mongoose.Schema({
   name: { type: String, validate: validateUserAction },
   value: { type: String, validate: validateActionState }
-}, { _id: false });
+}, { _id: false, id: false });
 
 var UserSchema = new mongoose.Schema({
   firstname: { type: String, trim: true },
