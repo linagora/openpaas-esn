@@ -6,16 +6,54 @@
  *     schema:
  *       type: object
  *       properties:
+ *         timestamps:
+ *           $ref: "#/definitions/cm_timestamps"
+ *         hostnames:
+ *           type: array
+ *           items:
+ *             type: string
+ *         schemaVersion:
+ *           type: integer
+ *         _id:
+ *           $ref: "#/definitions/cm_uuid"
  *         name:
  *           type: string
  *         company_name:
  *           type: string
+ *         administrators:
+ *           type: object
+ *           properties:
+ *             timestamps:
+ *               $ref: "#/definitions/cm_timestamps"
+ *             user_id:
+ *               $ref: "#/definitions/us_id"
+ *         __v:
+ *           type: integer
  *     examples:
  *       application/json:
  *         {
- *           "name": "foo",
- *           "company_name": "bar"
- *         }
+ *           "timestamps": {
+ *             "creation": "2020-07-29T02:53:52.526Z"
+ *            },
+ *            "hostnames": [
+ *              "localhost",
+ *              "open-paas.org"
+ *            ],
+ *            "schemaVersion": 1,
+ *            "_id": "5f20e4c02350b0358803731a",
+ *            "name": "open-paas.org",
+ *            "company_name": "openpaas",
+ *            "administrators": [
+ *               {
+ *                 "timestamps": {
+ *                   "creation": "2020-07-29T02:53:52.526Z"
+ *                  },
+ *                 "user_id": "5f20e4c02350b03588037319"
+ *               }
+ *             ],
+ *             "injections": [],
+ *             "__v": 0
+ *           }
  *   dm_created_domain:
  *     description: Ok with the created domain object.
  *     schema:
