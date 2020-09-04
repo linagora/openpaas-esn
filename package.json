@@ -83,7 +83,7 @@
     "mailparser": "0.6.1",
     "moment-timezone": "0.5.17",
     "mongoconfig": "1.1.0",
-    "mongodb": "2.2.9",
+    "mongodb": "3.6.1",
     "mongoose": "5.7.12",
     "morgan": "1.9.1",
     "ng-annotate": "1.2.1",
