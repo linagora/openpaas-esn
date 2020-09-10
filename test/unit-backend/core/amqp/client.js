@@ -46,5 +46,46 @@ describe('The AmqpClient class', function() {
         expect(channel.ack).to.have.been.calledWith(message, true);
       });
     });
+
+    describe('The comsume method', function() {
+      let onMessageMock;
+
+      beforeEach(function() {
+        channel.ack = sinon.spy();
+        channel.consume = (queue, onMessage) => {
+          onMessageMock = originalMessage => onMessage(originalMessage);
+
+          return Promise.resolve({});
+        };
+      });
+
+      it('should send ack message when the callback is an asynchronous function', function(done) {
+        const originalMessage = { content: 'foo' };
+        const callback = sinon.stub().returns(Promise.resolve());
+
+        getInstanceOfAmqpClient(channel).consume(null, {}, callback, true)
+          .then(() => {
+            onMessageMock(originalMessage)
+              .then(() => {
+                expect(channel.ack).to.have.been.calledWith(originalMessage, false);
+                done();
+              });
+          })
+          .catch(err => done(err || new Error('should resolve')));
+      });
+
+      it('should send ack message when the callback is not a synchronous function', function(done) {
+        const originalMessage = { content: 'foo' };
+        const callback = sinon.stub().returns();
+
+        getInstanceOfAmqpClient(channel).consume(null, {}, callback, true)
+          .then(() => {
+            onMessageMock(originalMessage);
+            expect(channel.ack).to.have.been.calledWith(originalMessage, false);
+            done();
+          })
+          .catch(err => done(err || new Error('should resolve')));
+      });
+    });
   });
 });
