@@ -36,11 +36,19 @@ class AmqpClient {
   }
 
   consume(queue, options, callback, notOnlyJSONConsumer = false) {
-    return this.channel.consume(queue, onMessage, options)
-      .then(res => this._registerNewConsumerTag(callback, res.consumerTag));
+    const self = this;
+
+    return self.channel.consume(queue, onMessage, options)
+      .then(res => self._registerNewConsumerTag(callback, res.consumerTag));
 
     function onMessage(originalMessage) {
-      callback(notOnlyJSONConsumer ? originalMessage.content : JSON.parse(originalMessage.content), originalMessage);
+      const result = callback(notOnlyJSONConsumer ? originalMessage.content : JSON.parse(originalMessage.content), originalMessage);
+
+      if (result && result.then && typeof result.then === 'function') {
+        return result.then(() => self.ack(originalMessage));
+      }
+
+      return self.ack(originalMessage);
     }
   }
 
