@@ -12,6 +12,8 @@ const oidc = require('../../../core/auth/openid-connect');
 const userModule = require('../../../core/user');
 const domainModule = require('../../../core/domain');
 const BearerStrategy = require('passport-http-bearer').Strategy;
+const findByEmail = promisify(userModule.findByEmail);
+const provisionUser = promisify(userModule.provisionUser);
 
 module.exports = {
   name: 'openid-connect',
@@ -22,16 +24,17 @@ module.exports = {
 function oidcCallback(accessToken, done) {
   logger.debug('API Auth - OIDC : Authenticating user for accessToken', accessToken);
 
-  oidc.getUserInfo(accessToken)
-    .then(userInfo => {
-      logger.debug('API Auth - OIDC : UserInfo from OIDC server', userInfo);
-      if (!userInfo.email) {
-        throw new Error('API Auth - OIDC : userinfo must contain required "email" field');
+  oidc.validateAccessToken(accessToken)
+    .then(() => oidc.decodeToken(accessToken))
+    .then(payload => {
+      logger.debug('API Auth - OIDC : JWT Payload', payload);
+      if (!payload.email) {
+        throw new Error('API Auth - OIDC : Payload must contain required "email" field');
       }
 
-      return userInfo;
+      return payload;
     })
-    .then(userInfo => buildProfile(userInfo))
+    .then(payload => buildProfile(payload))
     .then(profile => findOrCreate(profile))
     .then(user => {
       if (!user) {
@@ -47,9 +50,6 @@ function oidcCallback(accessToken, done) {
 }
 
 function findOrCreate(profile) {
-  const findByEmail = promisify(userModule.findByEmail);
-  const provisionUser = promisify(userModule.provisionUser);
-
   return findByEmail(profile.email)
     .then(user => (user ? Promise.resolve(user) : provisionUser(userModule.translate(user, profile))));
 }
