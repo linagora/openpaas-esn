@@ -31,7 +31,6 @@ const schema = {
     }
   },
   required: [
-    'issuer_url',
     'clients'
   ]
 };
