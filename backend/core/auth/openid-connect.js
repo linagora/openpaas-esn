@@ -78,15 +78,14 @@ function getClientConfiguration(client_id) {
 }
 
 function getClientId(accessToken) {
-  const token = jsonwebtoken.decode(accessToken);
+  return getClientIdFromPayload(jsonwebtoken.decode(accessToken));
+}
 
-  // if 'aud' is a string, it is the clientId
-  if (typeof token.aud === 'string') {
-    return token.aud;
-  }
-
-  // if 'aud' is an array it must contain the clientId and must define it in 'azp'
-  return token.azp;
+function getClientIdFromPayload(token) {
+  // azp: authorized party is optional but takes higher priority than audience
+  return token.azp ||
+    (token.aud && typeof token.aud === 'string' && token.aud) ||
+    (token.aud && Array.isArray(token.aud) && token.length && token.aud[0]);
 }
 
 function validateAccessToken(accessToken) {
@@ -114,7 +113,7 @@ function validateAccessToken(accessToken) {
 }
 
 function validateTokenPayload(payload, assertions) {
-  const clientId = typeof payload.aud === 'string' ? payload.aud : payload.azp;
+  const clientId = getClientIdFromPayload(payload);
 
   if (!clientId) {
     throw new Error('OIDC : client_id not found');
