@@ -1,0 +1,106 @@
+/**
+ * OpenID Connect Strategy based on passport HTTP bearer strategy:
+ * - Get the accessToken from passport
+ * - Get the user information from OpenID Connect Auth provider
+ * - If user information is not found, do not send back error so that other startegies can be traversed
+ */
+
+const { promisify } = require('util');
+const { parseOneAddress } = require('email-addresses');
+const logger = require('../../../core/logger');
+const oidc = require('../../../core/auth/openid-connect');
+const userModule = require('../../../core/user');
+const domainModule = require('../../../core/domain');
+const ldapModule = require('../../../core/ldap');
+const BearerStrategy = require('passport-http-bearer').Strategy;
+const findByEmail = promisify(userModule.findByEmail);
+const provisionUser = promisify(userModule.provisionUser);
+const loadDomain = promisify(domainModule.load);
+const findDomainsBoundToEmail = promisify(ldapModule.findDomainsBoundToEmail);
+
+module.exports = {
+  name: 'openid-connect',
+  strategy: new BearerStrategy(oidcCallback),
+  oidcCallback
+};
+
+function oidcCallback(accessToken, done) {
+  let decodedToken;
+  logger.debug('API Auth - OIDC : Authenticating user for accessToken', accessToken);
+
+  oidc.validateAccessToken(accessToken)
+    .then(() => oidc.decodeToken(accessToken))
+    .then(payload => {
+      logger.debug('API Auth - OIDC : JWT Payload', payload);
+      decodedToken = payload;
+      if (!decodedToken.email) {
+        throw new Error('API Auth - OIDC : Payload must contain required "email" field');
+      }
+    })
+    .then(() => findByEmail(decodedToken.email))
+    .then(user => (user ? Promise.resolve(user) : buildAndProvisionUser(decodedToken)))
+    .then(user => {
+      if (!user) {
+        throw new Error('API Auth - OIDC : No user found nor created from accessToken');
+      }
+
+      done(null, user);
+    })
+    .catch(err => {
+      logger.error('API Auth - OIDC : Error while authenticating user from OpenID Connect accessToken', err);
+      done(null, false, { message: `Cannot validate OpenID Connect accessToken: ${err.message}` });
+    });
+}
+
+function buildAndProvisionUser(userInfo) {
+  return buildProfile(userInfo)
+    .then(profile => provisionUser(userModule.translate({}, profile)));
+}
+
+function buildProfile(userInfo) {
+  return searchDomainFromEmail(userInfo.email)
+    .then(domain => {
+      if (!domain) {
+        throw new Error(`API Auth - OIDC : Can not find any valid domain for ${userInfo.email}`);
+      }
+
+      return {
+        email: userInfo.email,
+        username: userInfo.email,
+        domainId: domain._id
+      };
+    });
+}
+
+/**
+ * Get the domain from email and fallback like:
+ *
+ * 1. Get the domain from the User if exists
+ * 2. Fallback by look into the LDAPs
+ * 3. Fallback by trying to find the domain from the email domain name
+ *
+ * @param {String} email
+ */
+function searchDomainFromEmail(email) {
+  return findDomainFromLDAP(email)
+    .then(domain => (domain ? Promise.resolve(domain) : findDomainFromEmailDomainName(email)));
+}
+
+/**
+ * Try to find the domain where email can be found in LDAP.
+ *
+ * @param {String} email
+ */
+function findDomainFromLDAP(email) {
+  return findDomainsBoundToEmail(email)
+    .then(domainIds => (domainIds && domainIds.length ? domainIds[0] : null))
+    .then(domainId => (domainId ? loadDomain(domainId) : null))
+    .catch(err => logger.debug('API Auth - OIDC : Domain can not be found nor loaded in LDAP', err));
+}
+
+function findDomainFromEmailDomainName(email) {
+  const domainName = parseOneAddress(email).domain;
+
+  return domainModule.getByName(domainName)
+    .catch(err => logger.debug(`API Auth - OIDC : Can not search domain from domain name ${domainName}`, err));
+}

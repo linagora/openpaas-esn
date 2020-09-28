@@ -1,4 +1,6 @@
 /**
+ * @deprecated The `oidc` strategy has been deprecated in favor of the `openid-connect` one.
+ *
  * OpenID Connect Strategy based on passport HTTP bearer strategy:
  * - Get the accessToken from passport
  * - Get the user information from OpenID Connect Auth provider
@@ -13,13 +15,20 @@ const userModule = require('../../../core/user');
 const domainModule = require('../../../core/domain');
 const BearerStrategy = require('passport-http-bearer').Strategy;
 
+deprecated();
+
 module.exports = {
   name: 'oidc',
   strategy: new BearerStrategy(oidcCallback),
   oidcCallback
 };
 
+function deprecated() {
+  logger.warn('API Auth - OIDC : The "oidc" API strategy is deprecated and must be replaced by the "openid-connect" one');
+}
+
 function oidcCallback(accessToken, done) {
+  deprecated();
   logger.debug('API Auth - OIDC : Authenticating user for accessToken', accessToken);
 
   oidc.getUserInfo(accessToken)

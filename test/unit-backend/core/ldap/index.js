@@ -193,6 +193,158 @@ describe('The ldap core module', function() {
     });
   });
 
+  describe('The findDomainsBoundToEmail function', function() {
+    let esnConfigMock, ClientMock, ldapSearch;
+
+    beforeEach(function() {
+      ldapSearch = sinon.stub().returns(Promise.resolve({
+        searchEntries: [{}]
+      }));
+      ClientMock = function() {
+        this.bind = () => Promise.resolve();
+        this.unbind = () => {};
+        this.search = () => ldapSearch;
+      };
+      esnConfigMock = {
+        getFromAllDomains: sinon.stub()
+      };
+
+      mockery.registerMock('ldapts', {
+        Client: ClientMock
+      });
+      mockery.registerMock('../user', coreUserMock);
+      mockery.registerMock('../esn-config', function(configName) {
+        expect(configName).to.equal('ldap');
+
+        return esnConfigMock;
+      });
+    });
+
+    it('should send back error if it fails to get LDAP configuration', function(done) {
+      const error = new Error('I failed');
+
+      esnConfigMock.getFromAllDomains.returns(Promise.reject(new Error('I failed')));
+
+      getModule().findDomainsBoundToEmail('foo@bar.com', err => {
+        expect(err.message).to.equal(error.message);
+        expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
+        done();
+      });
+    });
+
+    it('should send back empty array when no LDAP configuration is found', function(done) {
+      esnConfigMock.getFromAllDomains.returns(Promise.resolve());
+
+      getModule().findDomainsBoundToEmail('foo@bar.com', (err, result) => {
+        expect(err).to.not.exist;
+        expect(result).to.be.an('array').that.is.empty;
+        expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
+        done();
+      });
+    });
+
+    it('should send back empty array when LDAP configuration is empty', function(done) {
+      esnConfigMock.getFromAllDomains.returns(Promise.resolve([]));
+
+      getModule().findDomainsBoundToEmail('foo@bar.com', (err, result) => {
+        expect(err).to.not.exist;
+        expect(result).to.be.an('array').that.is.empty;
+        expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
+        done();
+      });
+    });
+
+    it('should send back empty array when LDAP is badly configured', function(done) {
+      esnConfigMock.getFromAllDomains.returns(Promise.resolve([{}, { notconfig: {}}]));
+
+      getModule().findDomainsBoundToEmail('foo@bar.com', (err, result) => {
+        expect(err).to.not.exist;
+        expect(result).to.be.an('array').that.is.empty;
+        expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
+        done();
+      });
+    });
+
+    it('should send back empty array when LDAP search fails', function(done) {
+      const ldaps = [{
+        config: {
+          domainId: 'domain1',
+          name: 'LDAP1',
+          configuration: { url: 'ldap://ldap1:389', searchFilter: '(mail={{username}})' }
+        }
+      }, {
+        config: {
+          domainId: 'domain2',
+          name: 'LDAP2',
+          configuration: { url: 'ldap://ldap2:389', searchFilter: '(mail={{username}})' }
+        }
+      }];
+
+      ClientMock = function({ url }) {
+        this.bind = () => Promise.resolve();
+        this.unbind = () => {};
+        this.search = () => {
+          if (url === ldaps[1].config.configuration.url) {
+            return Promise.reject(new Error('something wrong'));
+          }
+
+          return Promise.resolve({
+            searchEntries: [{}]
+          });
+        };
+      };
+
+      mockery.registerMock('ldapts', {
+        Client: ClientMock
+      });
+
+      esnConfigMock.getFromAllDomains.returns(Promise.resolve(ldaps));
+
+      getModule().findDomainsBoundToEmail('foo@bar.com', (err, result) => {
+        expect(err).to.not.exist;
+        expect(result.length).to.equal(1);
+        expect(result[0]).to.equal(ldaps[0].config.domainId);
+        expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
+        done();
+      });
+    });
+
+    it('should send back the domainIds where email is found in LDAP', function(done) {
+      const ldaps = [{
+        config: {
+          domainId: 'domain1',
+          name: 'LDAP1',
+          configuration: { url: 'ldap://ldap1:389', searchFilter: '(mail={{username}})' }
+        }
+      }, {
+        config: {
+          domainId: 'domain2',
+          name: 'LDAP2',
+          configuration: { url: 'ldap://ldap2:389', searchFilter: '(mail={{username}})' }
+        }
+      }];
+
+      ClientMock = function() {
+        this.bind = () => Promise.resolve();
+        this.unbind = () => {};
+        this.search = () => Promise.resolve({ searchEntries: [{}] });
+      };
+
+      mockery.registerMock('ldapts', {
+        Client: ClientMock
+      });
+
+      esnConfigMock.getFromAllDomains.returns(Promise.resolve(ldaps));
+
+      getModule().findDomainsBoundToEmail('foo@bar.com', (err, result) => {
+        expect(err).to.not.exist;
+        expect(result).to.deep.equal([ldaps[0].config.domainId, ldaps[1].config.domainId]);
+        expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
+        done();
+      });
+    });
+  });
+
   describe('The emailExists method', function() {
     let ldapSearchingResultMock, user, ldapConf;
     let unbindMock, bindMock;

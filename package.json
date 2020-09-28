@@ -90,7 +90,7 @@
     "ng-annotate": "1.2.1",
     "nodemailer": "2.6.0",
     "oauth2orize": "1.5.0",
-    "openid-client": "2.5.0",
+    "openid-client": "4.1.1",
     "passport": "0.3.2",
     "passport-facebook": "2.1.1",
     "passport-facebook-token": "3.3.0",

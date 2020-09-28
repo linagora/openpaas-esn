@@ -13,6 +13,7 @@ const SEARCH_SCOPE = 'sub';
 
 module.exports = {
   findLDAPForUser,
+  findDomainsBoundToEmail,
   emailExists,
   authenticate,
   translate,
@@ -132,6 +133,60 @@ function findLDAPForUser(email, callback) {
 
     async.filter(ldapConfigs, emailExistsInLdap, callback);
   }, callback);
+}
+
+/**
+ * Find the domains bound to the given email
+ *
+ * @param {String} email
+ */
+function findDomainsBoundToEmail(email, callback) {
+  const emailExistsInLdap = (ldap, _callback) => {
+    const errorMsg = `Error while finding user ${email} in LDAP directory "${ldap.name}"`;
+
+    emailExists(email, ldap.configuration, (err, user) => {
+      if (err) {
+        logger.debug(errorMsg, err);
+      }
+
+      _callback(null, !!user);
+    });
+  };
+
+  return esnConfig('ldap').getFromAllDomains()
+    .then(configs => {
+      if (!configs || configs.length === 0) {
+        return callback(null, []);
+      }
+
+      let ldapConfigs = configs.map(data => {
+        if (!data || !data.config) {
+          return;
+        }
+
+        const domainId = data.domainId;
+        const ldaps = Array.isArray(data.config) ? data.config : [data.config];
+
+        ldaps.forEach(ldap => {
+          if (!ldap.domainId) {
+            ldap.domainId = domainId;
+          }
+        });
+
+        return ldaps;
+      })
+      .filter(Boolean);
+
+      ldapConfigs = [].concat.apply([], ldapConfigs);
+
+      if (!ldapConfigs || ldapConfigs.length === 0) {
+        return callback(null, []);
+      }
+
+      async.filter(ldapConfigs, emailExistsInLdap, (err, results) => {
+        callback(err, (results || []).filter(Boolean).map(ldap => ldap.domainId));
+      });
+    }, callback);
 }
 
 /**
