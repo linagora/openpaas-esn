@@ -19,6 +19,16 @@ const i18nConfigTemplate = {
     'zh-*': 'zh',
     'ru-*': 'ru'
   },
+  /**
+   * This mapping is to support Moment's datetime formatting with locales.
+   * Note that 'en' is loaded in Moment by default so we don't need it here.
+   */
+  momentLocales: {
+    fr: 'fr',
+    vi: 'vi',
+    zh: 'zh-cn',
+    ru: 'ru'
+  },
   updateFiles: false,
   indent: '  ',
   extension: '.json',
