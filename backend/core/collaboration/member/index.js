@@ -293,6 +293,7 @@ module.exports = function(collaborationModule) {
     Model.findById(id).populate('creator').exec((err, collaboration) => {
       // there is no creator on the "general" channel in chat :-(
       const response = collaboration && collaboration.creator ? [collaboration.creator] : [];
+
       callback(err, response);
     });
   }
@@ -310,10 +311,18 @@ module.exports = function(collaborationModule) {
         return callback(err);
       }
 
-      const offset = query.offset || CONSTANTS.DEFAULT_OFFSET;
-      const limit = query.limit || CONSTANTS.DEFAULT_LIMIT;
+      // TODO: We should also handle the cases when the collaboration is not found or when there are no members in it.
+      // But our code may have already adapted to this missing logic, so we need to check everywhere to make sure it's
+      // OK and does not break anything when we add the logic below:
+      // if (!collaboration || !Array.isArray(collaboration.members) || !collaboration.members.length) {
+      //   return callback(null, []);
+      // }
+
+      const offset = Number.isInteger(query.offset) && query.offset >= 0 ? query.offset : CONSTANTS.DEFAULT_OFFSET;
+      const limit = Number.isInteger(query.limit) && query.limit >= 0 ? query.limit : CONSTANTS.DEFAULT_LIMIT;
       let members = collaboration.members;
 
+      // TODO: This whole part of logic is missing tests. We should write tests for them.
       if (query.objectTypeFilter) {
         let operation;
 
@@ -334,10 +343,14 @@ module.exports = function(collaborationModule) {
 
       const total_count = members.length;
 
-      members = members.slice(offset, offset + limit);
+      members = limit === 0 ? members.slice(offset) : members.slice(offset, offset + limit);
 
       async.map(members, function(member, callback) {
         return fetchMember(member.member, function(err, loaded) {
+          // TODO: We should be able to check if there's an error while calling fetchMember and handle it properly.
+          // But our code may have already adapted to this missing logic, so we need to check everywhere to make sure it's
+          // OK and does not break anything to add the missing logic.
+
           member = member.toObject();
           member.objectType = member.member.objectType;
           member.id = member.member.id;
