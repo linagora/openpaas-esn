@@ -4,7 +4,7 @@ const sinon = require('sinon');
 const ObjectId = require('bson').ObjectId;
 
 describe('The collaboration member module', function() {
-  let lib, modelMock, getModule;
+  let lib, modelMock, getModule, CONSTANTS;
 
   beforeEach(function() {
     modelMock = {};
@@ -14,6 +14,9 @@ describe('The collaboration member module', function() {
       }
     };
     getModule = () => this.helpers.requireBackend('core/collaboration/member')(lib);
+    CONSTANTS = this.helpers.requireBackend('core/collaboration/constants');
+
+    mockery.registerMock('../constants', CONSTANTS);
   });
 
   describe('The addMembers function', function() {
@@ -360,6 +363,190 @@ describe('The collaboration member module', function() {
       });
     });
 
+  });
+
+  describe('The getMembers function', function() {
+    let memberModelMock;
+
+    beforeEach(function() {
+      memberModelMock = {
+        findById: function() {
+          return this;
+        },
+        populate: function() {
+          return this;
+        }
+      };
+
+      mockery.registerMock('./resolver', {
+        resolve: () => Promise.resolve()
+      });
+    });
+
+    function transformMembers(members, objectType = 'user') {
+      return members.map(member => {
+        const transformedMember = {
+          ...member,
+          objectType,
+          member: {
+            ...member,
+            id: member._id,
+            objectType
+          }
+        };
+
+        transformedMember.toObject = () => transformedMember;
+
+        return transformedMember;
+      });
+    }
+
+    it('should return an error when the model is not found', function() {
+      const collaboration = { _id: '123', objectType: 'group' };
+
+      modelMock = undefined;
+
+      getModule().getMembers(collaboration, 'group', {}, err => {
+        expect(err).to.exist;
+        expect(err.message).to.equal(`Collaboration model ${collaboration.objectType} is unknown`);
+      });
+    });
+
+    // TODO: It should return an empty array instead of throwing an error. Read the comments at
+    // backend/core/collaboration/member/index.js#314
+    it('should throw an error when the collaboration is not found', function(done) {
+      const collaboration = { _id: '123', objectType: 'group' };
+
+      modelMock = memberModelMock;
+      modelMock.findById = function(id, callback) {
+        return callback(null, null);
+      };
+
+      try {
+        getModule().getMembers(collaboration, 'group');
+        done(new Error('This should not happen'));
+      } catch (err) {
+        expect(err).to.exist;
+        expect(err.message).to.equal('Cannot read property \'members\' of null');
+        done();
+      }
+    });
+
+    // TODO: It should return an empty array instead of throwing an error. Read the comments at
+    // backend/core/collaboration/member/index.js#314
+    it('should throw an error when the collaboration\'s members do not exist', function(done) {
+      const collaboration = { _id: '123', objectType: 'group' };
+
+      modelMock = memberModelMock;
+      modelMock.findById = function(id, callback) {
+        return callback(null, { members: undefined });
+      };
+
+      try {
+        getModule().getMembers(collaboration, 'group');
+        done(new Error('This should not happen'));
+      } catch (err) {
+        expect(err).to.exist;
+        expect(err.message).to.equal('Cannot read property \'length\' of undefined');
+        done();
+      }
+    });
+
+    it('should return an array with the collaboration\'s members when they exist with the default offset & limit', function(done) {
+      const collaboration = { _id: '123', objectType: 'group' };
+      const memberObjectType = 'user';
+      const fakeMembers = transformMembers([{ _id: 'user1' }, { _id: 'user2' }, { _id: 'user3' }, { _id: 'user4' }], memberObjectType);
+
+      modelMock = memberModelMock;
+      modelMock.findById = function(id, callback) {
+        return callback(null, { members: fakeMembers });
+      };
+
+      CONSTANTS.DEFAULT_OFFSET = 0;
+      CONSTANTS.DEFAULT_LIMIT = 2;
+
+      getModule().getMembers(collaboration, 'group', {}, (err, members) => {
+        const expectedMembers = fakeMembers.map(fakeMember => ({ ...fakeMember.toObject(), id: fakeMember._id, objectType: memberObjectType }))
+          .slice(CONSTANTS.DEFAULT_OFFSET, CONSTANTS.DEFAULT_LIMIT);
+        expectedMembers.total_count = fakeMembers.length;
+
+        expect(err).to.not.exist;
+        expect(members).to.deep.equal(expectedMembers);
+        done();
+      });
+    });
+
+    it('should return an array with the collaboration\'s members when they exist with the default offset & limit when the provided offset & limit are invalid', function(done) {
+      const offset = -1;
+      const limit = 'INVALID';
+      const collaboration = { _id: '123', objectType: 'group' };
+      const memberObjectType = 'user';
+      const fakeMembers = transformMembers([{ _id: 'user1' }, { _id: 'user2' }, { _id: 'user3' }, { _id: 'user4' }, { _id: 'user5' }], memberObjectType);
+
+      modelMock = memberModelMock;
+      modelMock.findById = function(id, callback) {
+        return callback(null, { members: fakeMembers });
+      };
+
+      CONSTANTS.DEFAULT_OFFSET = 0;
+      CONSTANTS.DEFAULT_LIMIT = 2;
+
+      getModule().getMembers(collaboration, 'group', { offset, limit }, (err, members) => {
+        const expectedMembers = fakeMembers.map(fakeMember => ({ ...fakeMember.toObject(), id: fakeMember._id, objectType: memberObjectType }))
+          .slice(CONSTANTS.DEFAULT_OFFSET, CONSTANTS.DEFAULT_LIMIT);
+        expectedMembers.total_count = fakeMembers.length;
+
+        expect(err).to.not.exist;
+        expect(members).to.deep.equal(expectedMembers);
+        done();
+      });
+    });
+
+    it('should return an array with the collaboration\'s members when they exist with the provided offset & limit', function(done) {
+      const offset = 1;
+      const limit = 3;
+      const collaboration = { _id: '123', objectType: 'group' };
+      const memberObjectType = 'user';
+      const fakeMembers = transformMembers([{ _id: 'user1' }, { _id: 'user2' }, { _id: 'user3' }, { _id: 'user4' }, { _id: 'user5' }], memberObjectType);
+
+      modelMock = memberModelMock;
+      modelMock.findById = function(id, callback) {
+        return callback(null, { members: fakeMembers });
+      };
+
+      getModule().getMembers(collaboration, 'group', { offset, limit }, (err, members) => {
+        const expectedMembers = fakeMembers.map(fakeMember => ({ ...fakeMember.toObject(), id: fakeMember._id, objectType: memberObjectType }))
+          .slice(offset, offset + limit);
+        expectedMembers.total_count = fakeMembers.length;
+
+        expect(err).to.not.exist;
+        expect(members).to.deep.equal(expectedMembers);
+        done();
+      });
+    });
+
+    it('should return an array with all the collaboration\'s members when they exist from the provided offset with limit = 0', function(done) {
+      const offset = 1;
+      const limit = 0;
+      const collaboration = { _id: '123', objectType: 'group' };
+      const memberObjectType = 'user';
+      const fakeMembers = transformMembers([{ _id: 'user1' }, { _id: 'user2' }, { _id: 'user3' }, { _id: 'user4' }, { _id: 'user5' }], memberObjectType);
+
+      modelMock = memberModelMock;
+      modelMock.findById = function(id, callback) {
+        return callback(null, { members: fakeMembers });
+      };
+
+      getModule().getMembers(collaboration, 'group', { offset, limit }, (err, members) => {
+        const expectedMembers = fakeMembers.map(fakeMember => ({ ...fakeMember.toObject(), id: fakeMember._id, objectType: memberObjectType }))
+          .slice(offset);
+        expectedMembers.total_count = fakeMembers.length;
+
+        expect(err).to.not.exist;
+        expect(members).to.deep.equal(expectedMembers);
+        done();
+      });
+    });
   });
 
   describe('The isManager function', function() {
@@ -1008,6 +1195,7 @@ describe('The collaboration member module', function() {
 
     it('should return an array with the collaboration creator when it exists', function() {
       const creator = {_id: 'user1'};
+
       modelMock = managersModelMock;
       modelMock.exec = function(callback) {
         return callback(null, {creator});
