@@ -209,7 +209,9 @@ function getMembers(req, res) {
         );
     })
     .catch(err => {
-      logger.error(errorMessage, err);
+      const errDetail = err.stack ? err.stack : err;
+
+      logger.error(`${errorMessage}: ${errDetail}`);
 
       res.status(500).json({
         error: {
