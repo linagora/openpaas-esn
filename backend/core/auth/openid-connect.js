@@ -1,38 +1,66 @@
 const { Issuer } = require('openid-client');
-const jsonwebtoken = require('jsonwebtoken');
-const jose = require('jose');
 const esnConfig = require('../esn-config');
 const logger = require('../logger');
 const CONFIG_KEY = 'openid-connect';
 const OIDC_ISSUERS = new Map();
 
 module.exports = {
-  decodeToken,
-  getUserInfo,
-  getClientConfiguration,
-  validateAccessToken
+  getUserInfosFromProvider
 };
 
-function getUserInfo(accessToken) {
-  // TODO: We may not need to get the user info from the OIDC server
-  // Returning an object from accessToken claims should be enough if token is valid
-  let clientId;
+/**
+ * Tries the access token against all the registered OIDC providers to fetch
+ * the user email
+ *
+ * Returns either a nullish value, or an object:
+ * {
+ *    provider: an object with keys: client_id, client_secret, issuer_url, ...
+ *    infos: an object with user information. Depends on the OIDC provider type and configuration. We expect a email key.
+ * }
+ *
+ * @param {string} accessToken The access toekn sent by the user-agent
+ */
+function getUserInfosFromProvider(accessToken) {
+  return esnConfig(CONFIG_KEY).get()
+    .then(configuration => {
+      if (!configuration || !configuration.clients || !configuration.clients.length) {
+        return null;
+      }
 
-  try {
-    clientId = getClientId(accessToken);
-  } catch (err) {
-    logger.error('OIDC : Error while getting clientID from access token', err);
+      return testAllProviders(accessToken, configuration.clients);
+    });
+}
 
-    return Promise.reject(new Error('OIDC : Cannot decode access token'));
-  }
+function testAllProviders(accessToken, providers) {
+  const _providers = [...providers];
 
-  if (!clientId) {
-    return Promise.reject(new Error('OIDC : ClientID was not found in access token'));
-  }
+  return new Promise(resolve => {
+    testOneAccessToken();
 
-  return getClientConfiguration(clientId)
-    .then(configuration => getIssuerClient(configuration))
-    .then(client => client.userinfo(accessToken));
+    function testOneAccessToken() {
+      if (!_providers.length) {
+        return resolve();
+      }
+
+      const provider = _providers.shift();
+
+      getIssuerClient(provider)
+        .then(client => client.userinfo(accessToken))
+        .then(infos => {
+          if (!infos.email) {
+            logger.warn(`OIDC provider ${provider.issuer_url}: authentication succeed, but there is no email in the user informations.`);
+            throw new Error('No email key in user informations');
+          }
+
+          return infos;
+        })
+        .then(infos => resolve({infos, provider}))
+        .catch(e => {
+          logger.debug(`Core Auth - OIDC : Provider failed - ${provider.issuer_url}`, e);
+          testOneAccessToken();
+        });
+    }
+  });
 }
 
 function getIssuer(issuer_url) {
@@ -54,82 +82,4 @@ function getIssuerClient({ issuer_url, client_id, client_secret }) {
       client_id,
       client_secret
     }));
-}
-
-function getClientConfiguration(client_id) {
-  if (!client_id) {
-    return Promise.reject(new Error('OIDC : client_id is required to get configuration'));
-  }
-
-  return esnConfig(CONFIG_KEY).get()
-    .then(configuration => {
-      if (!configuration || !configuration.clients || !configuration.clients.length) {
-        throw new Error(`OIDC : OpenID Connect is not configured correctly for client ${client_id}`);
-      }
-
-      const clientConfiguration = configuration.clients.find(element => element.client_id === client_id);
-
-      if (!clientConfiguration) {
-        throw new Error(`OIDC : OpenID Connect is not configured for client ${client_id}`);
-      }
-
-      return { ...{ issuer_url: configuration.issuer_url }, ...clientConfiguration };
-    });
-}
-
-function getClientId(accessToken) {
-  return getClientIdFromPayload(jsonwebtoken.decode(accessToken));
-}
-
-function getClientIdFromPayload(token) {
-  // azp: authorized party is optional but takes higher priority than audience
-  return token.azp ||
-    (token.aud && typeof token.aud === 'string' && token.aud) ||
-    (token.aud && Array.isArray(token.aud) && token.length && token.aud[0]);
-}
-
-function validateAccessToken(accessToken) {
-  let clientId;
-  let oidcConfiguration;
-
-  try {
-    clientId = getClientId(accessToken);
-  } catch (err) {
-    logger.error('OIDC : Error while getting clientID from access token', err);
-
-    return Promise.reject(new Error('OIDC : Cannot decode access token'));
-  }
-
-  if (!clientId) {
-    return Promise.reject(new Error('OIDC : ClientID was not found in access token'));
-  }
-
-  return getClientConfiguration(clientId)
-    .then(configuration => (oidcConfiguration = configuration))
-    .then(() => getIssuer(oidcConfiguration.issuer_url))
-    .then(issuer => issuer.keystore())
-    .then(keystore => jose.JWT.verify(accessToken, keystore, { ignoreExp: true }))
-    .then(verifiedPayload => validateTokenPayload(verifiedPayload, { iss: oidcConfiguration.issuer_url, client_id: oidcConfiguration.client_id }));
-}
-
-function validateTokenPayload(payload, assertions) {
-  const clientId = getClientIdFromPayload(payload);
-
-  if (!clientId) {
-    throw new Error('OIDC : client_id not found');
-  }
-
-  if (clientId !== assertions.client_id) {
-    throw new Error('OIDC : Cannot validate access token due to client_id mismatch');
-  }
-
-  if (payload.iss !== assertions.iss) {
-    throw new Error('OIDC : Cannot validate access token due to Issuer mismatch');
-  }
-
-  return payload;
-}
-
-function decodeToken(token) {
-  return jsonwebtoken.decode(token);
 }
