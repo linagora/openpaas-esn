@@ -22,7 +22,7 @@ module.exports = dependencies => {
     // https://tools.ietf.org/html/rfc6350#section-6.2.4
     if (photo) {
       if (photo.indexOf('data:image') === 0) {
-        return new Buffer(photo.split(',')[1], 'base64');
+        return Buffer.from(photo.split(',')[1], 'base64');
       } else if (photo.indexOf('http') === 0) {
         return photo;
       }
