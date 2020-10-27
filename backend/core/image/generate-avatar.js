@@ -1,4 +1,4 @@
-const Canvas = require('canvas');
+const { createCanvas, Canvas } = require('canvas');
 
 const DEFAULT_AVATAR_SIZE = 256;
 const FONT_RATIO = 66;
@@ -70,7 +70,7 @@ function generateFromText(options) {
   const avatarSize = parseInt(options.size, 10) || DEFAULT_AVATAR_SIZE;
   const bgColor = options.bgColor || DEFAULT_COLOR.bgColor;
   const fgColor = options.fgColor || DEFAULT_COLOR.fgColor;
-  const canvas = new Canvas(avatarSize, avatarSize);
+  const canvas = createCanvas(avatarSize, avatarSize);
   const ctx = canvas.getContext('2d');
   let fontSize = 1;
 

@@ -1,5 +1,6 @@
 'use strict';
 
+const { createCanvas } = require('canvas');
 var expect = require('chai').expect;
 
 describe('The image avatar module', function() {
@@ -17,7 +18,7 @@ describe('The image avatar module', function() {
     beforeEach(function() {
       canvasSize = 100;
 
-      var canvas = new avatarModule.Canvas(canvasSize, canvasSize);
+      var canvas = createCanvas(canvasSize, canvasSize);
       canvasContext = canvas.getContext('2d');
     });
 

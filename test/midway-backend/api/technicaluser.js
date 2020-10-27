@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const request = require('supertest');
-const {ObjectId} = require('bson').ObjectId;
+const {ObjectId} = require('bson');
 
 describe('The technicalusers API', function() {
   let app;
@@ -24,7 +24,6 @@ describe('The technicalusers API', function() {
       helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         expect(err).to.not.exist;
         domain = models.domain;
-
         technicalUser1 = {
           _id: new ObjectId(),
           name: 'Sabre',

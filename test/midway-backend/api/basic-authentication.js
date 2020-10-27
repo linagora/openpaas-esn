@@ -7,7 +7,7 @@ describe('The Basic authentication on REST API', function() {
   var app, email = 'itadmin@lng.net', password = 'secret';
 
   function encoreAuthorization(email, password) {
-    return 'Basic ' + new Buffer(`${email}:${password}`).toString('base64');
+    return 'Basic ' + Buffer.from(`${email}:${password}`).toString('base64');
   }
 
   beforeEach(function(done) {
