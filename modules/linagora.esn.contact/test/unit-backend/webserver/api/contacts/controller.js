@@ -12,7 +12,7 @@ describe('The contacts api controller', function() {
     imageModuleMock = {
       avatarGenerationModule: {
         generateFromText: function() {
-          return new Buffer('some data');
+          return Buffer.from('some data');
         },
         getColorsFromUuid: function() {
           return { bgColor: 'red', fgColor: 'white' };
@@ -180,7 +180,7 @@ describe('The contacts api controller', function() {
       ];
 
       imageModuleMock.avatarGenerationModule.generateFromText = function() {
-        return new Buffer('some data');
+        return Buffer.from('some data');
       };
 
       expect(controller._getContactAvatar(contact)).to.be.an.instanceof(Buffer);

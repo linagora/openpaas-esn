@@ -529,10 +529,10 @@ describe('The collaborations members API', function() {
 
     it('should return the sliced members list', function(done) {
       simulatedCollaboration.members = simulatedCollaboration.members.concat([
-        {member: {id: ObjectId(), objectType: 'user'}},
-        {member: {id: ObjectId(), objectType: 'user'}},
-        {member: {id: ObjectId(), objectType: 'user'}},
-        {member: {id: ObjectId(), objectType: 'user'}}
+        {member: {id: new ObjectId(), objectType: 'user'}},
+        {member: {id: new ObjectId(), objectType: 'user'}},
+        {member: {id: new ObjectId(), objectType: 'user'}},
+        {member: {id: new ObjectId(), objectType: 'user'}}
       ]);
 
       simulatedCollaboration.save(err => {
@@ -556,10 +556,10 @@ describe('The collaborations members API', function() {
 
     it('should return number of members in the header', function(done) {
       simulatedCollaboration.members = simulatedCollaboration.members.concat([
-        {member: {id: ObjectId(), objectType: 'user'}},
-        {member: {id: ObjectId(), objectType: 'user'}},
-        {member: {id: ObjectId(), objectType: 'user'}},
-        {member: {id: ObjectId(), objectType: 'user'}}
+        {member: {id: new ObjectId(), objectType: 'user'}},
+        {member: {id: new ObjectId(), objectType: 'user'}},
+        {member: {id: new ObjectId(), objectType: 'user'}},
+        {member: { id: new ObjectId(), objectType: 'user'}}
       ]);
 
       simulatedCollaboration.save(err => {
@@ -919,10 +919,10 @@ describe('The collaborations members API', function() {
 
     it('should return the sliced members list', function(done) {
       simulatedCollaboration.members = simulatedCollaboration.members.concat([
-        { member: { id: ObjectId(), objectType: 'user' } },
-        { member: { id: ObjectId(), objectType: 'user' } },
-        { member: { id: ObjectId(), objectType: 'user' } },
-        { member: { id: ObjectId(), objectType: 'user' } }
+        { member: { id: new ObjectId(), objectType: 'user' } },
+        { member: { id: new ObjectId(), objectType: 'user' } },
+        { member: { id: new ObjectId(), objectType: 'user' } },
+        { member: { id: new ObjectId(), objectType: 'user' } }
       ]);
 
       simulatedCollaboration.save(err => {
@@ -946,10 +946,10 @@ describe('The collaborations members API', function() {
 
     it('should return number of collaboration members in the header', function(done) {
       simulatedCollaboration.members = simulatedCollaboration.members.concat([
-        { member: { id: ObjectId(), objectType: 'user' } },
-        { member: { id: ObjectId(), objectType: 'user' } },
-        { member: { id: ObjectId(), objectType: 'user' } },
-        { member: { id: ObjectId(), objectType: 'user' } }
+        { member: { id: new ObjectId(), objectType: 'user' } },
+        { member: { id: new ObjectId(), objectType: 'user' } },
+        { member: { id: new ObjectId(), objectType: 'user' } },
+        { member: { id: new ObjectId(), objectType: 'user' } }
       ]);
 
       simulatedCollaboration.save(err => {

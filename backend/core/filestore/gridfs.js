@@ -41,7 +41,7 @@ module.exports.find = function find(query, callback) {
 
       return callback(
         null,
-        meta.map(m => ObjectId(m._id))
+        meta.map(m => new ObjectId(m._id))
       );
     });
 };
