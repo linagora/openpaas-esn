@@ -25,7 +25,7 @@ module.exports = {
   populateDomainConfigurationAndTechnicalUsers
 };
 
-function populateDomainConfigurationAndTechnicalUsers(host, [admin, domain]) {
+function populateDomainConfigurationAndTechnicalUsers(host, admin, domain) {
   _log('[INFO] POPULATE Domain configuration and technical user');
 
   const technicalUsers = require('./data/technical-users');
@@ -42,7 +42,7 @@ function populateAll(host) {
 
   return _populateAdmin()
     .then(_populateDomain.bind(null, null))
-    .then(populateDomainConfigurationAndTechnicalUsers.bind(null, host))
+    .then(([admin, domain]) => populateDomainConfigurationAndTechnicalUsers(host, admin, domain))
     .then(_joinDomain)
     .then(_populateMembers);
 }
