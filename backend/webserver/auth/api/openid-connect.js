@@ -12,6 +12,7 @@ const { getUserInfosFromProvider } = require('../../../core/auth/openid-connect'
 const userModule = require('../../../core/user');
 const domainModule = require('../../../core/domain');
 const ldapModule = require('../../../core/ldap');
+const { get, set } = require('../../../core/auth/openid-connect/cache');
 const BearerStrategy = require('passport-http-bearer').Strategy;
 const findByEmail = promisify(userModule.findByEmail);
 const provisionUser = promisify(userModule.provisionUser);
@@ -25,6 +26,12 @@ module.exports = {
 };
 
 function oidcCallback(accessToken, done) {
+  const user = get(accessToken);
+  if (user) {
+    done(null, user);
+    return;
+  }
+
   getUserInfosFromProvider(accessToken)
     .then(({ infos }) => {
       if (!infos || !infos.email) {
@@ -38,6 +45,8 @@ function oidcCallback(accessToken, done) {
       if (!user) {
         throw new Error('API Auth - OIDC : No user found nor created from accessToken');
       }
+
+      set(accessToken, user);
 
       done(null, user);
     })
