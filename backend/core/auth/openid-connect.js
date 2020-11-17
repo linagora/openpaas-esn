@@ -49,7 +49,7 @@ function testAllProviders(accessToken, providers) {
         .then(infos => {
           if (!infos.email) {
             logger.warn(`OIDC provider ${provider.issuer_url}: authentication succeeded, but there is no email in the user information.`);
-            throw new Error('No email key in user informations');
+            throw new Error('No email key in user information');
           }
 
           return infos;
