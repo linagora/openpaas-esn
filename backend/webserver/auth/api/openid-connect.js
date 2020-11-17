@@ -33,10 +33,12 @@ function oidcCallback(accessToken, done) {
   }
 
   getUserInfosFromProvider(accessToken)
-    .then(({ infos }) => {
-      if (!infos || !infos.email) {
+    .then((response) => {
+      if (!response || !response.infos || !response.infos.email) {
         throw new Error('API Auth - OIDC : Payload must contain required "email" field');
       }
+
+      const { infos } = response;
 
       return findByEmail(infos.email)
         .then(user => (user ? Promise.resolve(user) : buildAndProvisionUser(infos)));
