@@ -2,16 +2,17 @@
  * OpenID Connect Strategy based on passport HTTP bearer strategy:
  * - Get the accessToken from passport
  * - Get the user information from OpenID Connect Auth provider
- * - If user information is not found, do not send back error so that other startegies can be traversed
+ * - If user information is not found, do not send back error so that other strategies can be traversed
  */
 
 const { promisify } = require('util');
 const { parseOneAddress } = require('email-addresses');
 const logger = require('../../../core/logger');
-const oidc = require('../../../core/auth/openid-connect');
+const { getUserInfosFromProvider } = require('../../../core/auth/openid-connect');
 const userModule = require('../../../core/user');
 const domainModule = require('../../../core/domain');
 const ldapModule = require('../../../core/ldap');
+const { get, set } = require('../../../core/auth/openid-connect/cache');
 const BearerStrategy = require('passport-http-bearer').Strategy;
 const findByEmail = promisify(userModule.findByEmail);
 const provisionUser = promisify(userModule.provisionUser);
@@ -21,34 +22,37 @@ const findDomainsBoundToEmail = promisify(ldapModule.findDomainsBoundToEmail);
 module.exports = {
   name: 'openid-connect',
   strategy: new BearerStrategy(oidcCallback),
-  oidcCallback
+  oidcCallback: oidcCallback
 };
 
 function oidcCallback(accessToken, done) {
-  let decodedToken;
-  logger.debug('API Auth - OIDC : Authenticating user for accessToken', accessToken);
+  const user = get(accessToken);
+  if (user) {
+    done(null, user);
+    return;
+  }
 
-  oidc.validateAccessToken(accessToken)
-    .then(() => oidc.decodeToken(accessToken))
-    .then(payload => {
-      logger.debug('API Auth - OIDC : JWT Payload', payload);
-      decodedToken = payload;
-      if (!decodedToken.email) {
+  getUserInfosFromProvider(accessToken)
+    .then(({ infos }) => {
+      if (!infos || !infos.email) {
         throw new Error('API Auth - OIDC : Payload must contain required "email" field');
       }
+
+      return findByEmail(infos.email)
+        .then(user => (user ? Promise.resolve(user) : buildAndProvisionUser(infos)));
     })
-    .then(() => findByEmail(decodedToken.email))
-    .then(user => (user ? Promise.resolve(user) : buildAndProvisionUser(decodedToken)))
     .then(user => {
       if (!user) {
         throw new Error('API Auth - OIDC : No user found nor created from accessToken');
       }
 
+      set(accessToken, user);
+
       done(null, user);
     })
     .catch(err => {
       logger.error('API Auth - OIDC : Error while authenticating user from OpenID Connect accessToken', err);
-      done(null, false, { message: `Cannot validate OpenID Connect accessToken: ${err.message}` });
+      done(null, false, { message: `Cannot validate OpenID Connect accessToken: ${err.message} ${err.stack}` });
     });
 }
 

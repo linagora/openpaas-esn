@@ -11,8 +11,7 @@ describe('The openid-connect passport strategy', function() {
       accessToken = 'accessToken1978';
       user = { email: `chamerling@${domainName}` };
       oidcModule = {
-        validateAccessToken: sinon.stub(),
-        decodeToken: sinon.stub()
+        getUserInfosFromProvider: sinon.stub()
       };
       userModule = {
         findByEmail: sinon.stub(),
@@ -37,56 +36,102 @@ describe('The openid-connect passport strategy', function() {
       module = this.helpers.requireBackend('webserver/auth/api/openid-connect');
     });
 
-    it('should call the callback with (null, false, message) token is not valid', function(done) {
-      oidcModule.validateAccessToken.returns(Promise.reject(new Error('I failed')));
-
+    it('should call the callback with (null, false, message) if no provider matches the access token', function(done) {
+      oidcModule.getUserInfosFromProvider.returns(Promise.reject('getUserInfosFromProvider failed'));
       module.oidcCallback(accessToken, (err, result, message) => {
         expect(err).to.not.exist;
         expect(result).to.be.false;
         expect(message.message).to.match(/Cannot validate OpenID Connect accessToken/);
-        expect(oidcModule.validateAccessToken).to.have.been.calledWith(accessToken);
+        expect(oidcModule.getUserInfosFromProvider).to.have.been.calledWith(accessToken);
         done();
       });
     });
 
-    it('should call the callback with (null, false, message) token can not be decoded', function(done) {
-      oidcModule.validateAccessToken.returns(Promise.resolve());
-      oidcModule.decodeToken.returns(Promise.reject(new Error('I failed')));
-
-      module.oidcCallback(accessToken, (err, result, message) => {
-        expect(err).to.not.exist;
-        expect(result).to.be.false;
-        expect(message.message).to.match(/Cannot validate OpenID Connect accessToken/);
-        expect(oidcModule.validateAccessToken).to.have.been.calledWith(accessToken);
-        expect(oidcModule.decodeToken).to.have.been.calledWith(accessToken);
-        done();
+    describe('when provider matches access token', function() {
+      it('sould call the callback with (null, false, message) if the response is invalid', function(done) {
+        oidcModule.getUserInfosFromProvider.returns(Promise.resolve(null));
+        module.oidcCallback(accessToken, (err, result, message) => {
+          expect(err).to.not.exist;
+          expect(result).to.be.false;
+          expect(message.message).to.match(/Cannot validate OpenID Connect accessToken/);
+          expect(oidcModule.getUserInfosFromProvider).to.have.been.calledWith(accessToken);
+          done();
+        });
       });
-    });
 
-    it('should call the callback with (null, false, message) when token does not contain email', function(done) {
-      oidcModule.validateAccessToken.returns(Promise.resolve());
-      oidcModule.decodeToken.returns(Promise.resolve({}));
+      it('sould call the callback with (null, false, message) if there is no infos property', function(done) {
+        oidcModule.getUserInfosFromProvider.returns(Promise.resolve({}));
+        module.oidcCallback(accessToken, (err, result, message) => {
+          expect(err).to.not.exist;
+          expect(result).to.be.false;
+          expect(message.message).to.match(/Cannot validate OpenID Connect accessToken/);
+          expect(oidcModule.getUserInfosFromProvider).to.have.been.calledWith(accessToken);
+          done();
+        });
+      });
 
-      module.oidcCallback(accessToken, (err, result, message) => {
-        expect(err).to.not.exist;
-        expect(result).to.be.false;
-        expect(message.message).to.match(/Cannot validate OpenID Connect accessToken/);
-        expect(message.message).to.contain('API Auth - OIDC : Payload must contain required "email" field');
-        expect(oidcModule.validateAccessToken).to.have.been.calledWith(accessToken);
-        expect(oidcModule.decodeToken).to.have.been.calledWith(accessToken);
-        done();
+      it('sould call the callback with (null, false, message) if there is no email field in the user\'s profile', function(done) {
+        oidcModule.getUserInfosFromProvider.returns(Promise.resolve({infos: {user: 'user1'}}));
+        module.oidcCallback(accessToken, (err, result, message) => {
+          expect(err).to.not.exist;
+          expect(result).to.be.false;
+          expect(message.message).to.match(/Cannot validate OpenID Connect accessToken/);
+          expect(oidcModule.getUserInfosFromProvider).to.have.been.calledWith(accessToken);
+          done();
+        });
+      });
+
+      describe('and the response is valid', function() {
+        const userEmail = 'user1@acme.org';
+        const domainId = 'ABDC';
+
+        it('should call user.findByEmail', function(done) {
+          oidcModule.getUserInfosFromProvider.returns(Promise.resolve({infos: {email: userEmail}}));
+          module.oidcCallback(accessToken, () => {});
+          Promise.resolve(true).then(() => {
+            expect(userModule.findByEmail).to.have.been.calledWith(userEmail);
+            done();
+          });
+        });
+
+        describe('and user.findByEmail answers', function() {
+          it('should returns with the user object if the user is returned', function(done) {
+            oidcModule.getUserInfosFromProvider.returns(Promise.resolve({infos: {email: userEmail}}));
+            userModule.findByEmail.callsArgWithAsync(1, null, {email: userEmail});
+            module.oidcCallback(accessToken, (err, result) => {
+              expect(err).to.not.exist;
+              expect(result).to.shallowDeepEqual({email: userEmail});
+              done();
+            });
+          });
+
+          it('should autoProvision user if the user is not returned', function(done) {
+            oidcModule.getUserInfosFromProvider.returns(Promise.resolve({infos: {email: userEmail}}));
+            userModule.findByEmail.callsArgWithAsync(1, null, null);
+            ldapModule.findDomainsBoundToEmail.callsArgWithAsync(1, null, [domainId]);
+            domainModule.load.callsArgWithAsync(1, null, { _id: domainId, name: 'domainname'});
+            userModule.provisionUser.callsArgWithAsync(1, null, { _id: 'user1', email: userEmail});
+            userModule.translate.returnsArg(1);
+            module.oidcCallback(accessToken, err => {
+              expect(err).to.not.exist;
+              expect(ldapModule.findDomainsBoundToEmail).to.have.been.called;
+              expect(userModule.provisionUser).to.have.been.called;
+              done();
+            });
+          });
+        });
       });
     });
 
     describe('When token is valid', function() {
       beforeEach(function() {
-        oidcModule.validateAccessToken.returns(Promise.resolve());
-        oidcModule.decodeToken.returns(Promise.resolve({ email: user.email }));
+        oidcModule.getUserInfosFromProvider.returns(Promise.resolve({infos: {email: user.email}}));
       });
 
       describe('When searching user from email', function() {
         it('should send back user when found', function(done) {
           const user = { id: 1 };
+
           userModule.findByEmail.yields(null, user);
 
           module.oidcCallback(accessToken, (err, result, message) => {
