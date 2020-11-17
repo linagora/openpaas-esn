@@ -33,7 +33,7 @@ function oidcCallback(accessToken, done) {
   }
 
   getUserInfosFromProvider(accessToken)
-    .then((response) => {
+    .then(response => {
       if (!response || !response.infos || !response.infos.email) {
         throw new Error('API Auth - OIDC : Payload must contain required "email" field');
       }
