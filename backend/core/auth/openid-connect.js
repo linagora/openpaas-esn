@@ -56,7 +56,7 @@ function testAllProviders(accessToken, providers) {
         })
         .then(infos => resolve({infos, provider}))
         .catch(e => {
-          logger.debug(`Core Auth - OIDC : Provider failed - ${provider.issuer_url}`, e);
+          logger.debug(`Core Auth - OIDC: Provider failed - ${provider.issuer_url}`, e);
           testOneAccessToken();
         });
     }
