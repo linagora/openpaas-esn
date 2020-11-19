@@ -47,6 +47,17 @@ describe('The openid-connect passport strategy', function() {
       });
     });
 
+    it('should call the callback with (null, false, message) if nothing is returned from getUserInfosFromProvider()', function(done) {
+      oidcModule.getUserInfosFromProvider.returns(Promise.resolve(undefined));
+      module.oidcCallback(accessToken, (err, result, message) => {
+        expect(err).to.not.exist;
+        expect(result).to.be.false;
+        expect(message.message).to.match(/Cannot validate OpenID Connect accessToken/);
+        expect(oidcModule.getUserInfosFromProvider).to.have.been.calledWith(accessToken);
+        done();
+      });
+    });
+
     describe('when provider matches access token', function() {
       it('sould call the callback with (null, false, message) if the response is invalid', function(done) {
         oidcModule.getUserInfosFromProvider.returns(Promise.resolve(null));
