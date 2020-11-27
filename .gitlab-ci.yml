@@ -260,6 +260,7 @@ deploy-dev:
     - docker
   services:
       - name: docker-registry.linagora.com:5000/linshare-snapshots/linshare-dind:latest
+        command: ["--registry-mirror", "https://mirror.gcr.io"]
         alias: docker-dind
 
 ####### Build & publish branch base docker images (master branch, release maintaining branches, feature branches)
