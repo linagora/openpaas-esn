@@ -26,7 +26,6 @@ stages:
   variables:
       TZ: "America/New_York"
   before_script:
-    - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
     - npm install -g grunt-cli
     - npm install
     - 'echo "INFO: NB node packages : $(ls node_modules | wc -l)"'
@@ -45,8 +44,6 @@ prepare:
   cache:
     <<: *cache-tpl
     policy: pull-push
-  before_script:
-    - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
   script:
     - npm install
     # Weird behaviour: at the time, npm postinstall was not called.
