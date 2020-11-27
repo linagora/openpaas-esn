@@ -1,4 +1,5 @@
 # vim: syntax=sshconfig textwidth=120 expandtab tabstop=2 softtabstop=2 shiftwidth=2 autoindent
+#
 
 stages:
   - prepare
