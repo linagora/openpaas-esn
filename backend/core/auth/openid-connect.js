@@ -48,7 +48,7 @@ function testAllProviders(accessToken, providers) {
         .then(client => client.userinfo(accessToken))
         .then(infos => {
           if (!infos.email) {
-            logger.warn(`OIDC provider ${provider.issuer_url}: authentication succeeded, but there is no email in the user information.`);
+            logger.warn(`Core Auth - OIDC: OIDC provider ${provider.issuer_url}: authentication succeeded, but there is no email in the user information.`);
             throw new Error('No email key in user information');
           }
 
@@ -56,7 +56,7 @@ function testAllProviders(accessToken, providers) {
         })
         .then(infos => resolve({infos, provider}))
         .catch(e => {
-          logger.debug(`Core Auth - OIDC: Provider failed - ${provider.issuer_url}`, e);
+          logger.warn(`Core Auth - OIDC: Provider failed - ${provider.issuer_url}`, e && e.message || e);
           testOneAccessToken();
         });
     }

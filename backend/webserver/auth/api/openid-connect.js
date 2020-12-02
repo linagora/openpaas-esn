@@ -25,8 +25,15 @@ module.exports = {
   oidcCallback: oidcCallback
 };
 
+const callbackId = 0;
+
 function oidcCallback(accessToken, done) {
+  const myId = ++callbackId;
+
+  logger.debug(`API Auth - OIDC: [${myId}] oidcCallback starts`)
+
   const user = get(accessToken);
+
   if (user) {
     done(null, user);
     return;
@@ -34,8 +41,9 @@ function oidcCallback(accessToken, done) {
 
   getUserInfosFromProvider(accessToken)
     .then(response => {
+      logger.debug(`API Auth - OIDC: [${myId}] provider response: ${JSON.stringify(response)}`);
       if (!response || !response.infos || !response.infos.email) {
-        throw new Error('API Auth - OIDC : Payload must contain required "email" field');
+        throw new Error(`API Auth - OIDC: [${myId}] Payload must contain required "email" field`);
       }
 
       const { infos } = response;
@@ -45,7 +53,7 @@ function oidcCallback(accessToken, done) {
     })
     .then(user => {
       if (!user) {
-        throw new Error('API Auth - OIDC : No user found nor created from accessToken');
+        throw new Error(`API Auth - OIDC: [${myId}] No user found nor created from accessToken`);
       }
 
       set(accessToken, user);
@@ -53,7 +61,7 @@ function oidcCallback(accessToken, done) {
       done(null, user);
     })
     .catch(err => {
-      logger.error('API Auth - OIDC : Error while authenticating user from OpenID Connect accessToken', err);
+      logger.error(`API Auth - OIDC: [${myId}] Error while authenticating user from OpenID Connect accessToken`, err);
       done(null, false, { message: `Cannot validate OpenID Connect accessToken: ${err.message} ${err.stack}` });
     });
 }
@@ -67,7 +75,7 @@ function buildProfile(userInfo) {
   return searchDomainFromEmail(userInfo.email)
     .then(domain => {
       if (!domain) {
-        throw new Error(`API Auth - OIDC : Can not find any valid domain for ${userInfo.email}`);
+        throw new Error(`API Auth - OIDC: Can not find any valid domain for ${userInfo.email}`);
       }
 
       return {

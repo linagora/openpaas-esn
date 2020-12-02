@@ -50,7 +50,7 @@ function oidcCallback(accessToken, done) {
       done(null, user);
     })
     .catch(err => {
-      logger.error('API Auth - OIDC : Error while authenticating user from OpenID Connect accessToken', err);
+      logger.warn('API Auth - OIDC : authentication from OpenID Connect accessToken failed', err && err.message || err);
       done(null, false, { message: `Can not validate OpenID Connect accessToken. ${err}` });
     });
 }
