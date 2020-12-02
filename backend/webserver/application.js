@@ -13,6 +13,7 @@ const sessionSetup = require('./session');
 const pubsubSetup = require('./pubsub');
 const routesSetup = require('./routes');
 const passportSetup = require('./passport');
+const requestLoggerMiddleware = require('./middleware/request-logger');
 
 const application = express();
 
@@ -28,6 +29,8 @@ if (process.env.NODE_ENV === 'dev') {
   format = 'dev';
 }
 application.use(morgan(format, { stream: logger.stream }));
+
+application.use(requestLoggerMiddleware);
 
 staticAssets(application, '/images', FRONTEND_PATH + '/images');
 staticAssets(application, '/components', FRONTEND_PATH + '/components');
@@ -54,7 +57,18 @@ application.use(flash());
 
 application.locals.appName = config.app && config.app.name ? config.app.name : '';
 
+application.use((req, res, next) => {
+  req.logging.log('bootstrap completed');
+  next();
+});
+
 passportSetup(application);
+
+application.use((req, res, next) => {
+  req.logging.log('authentication completed');
+  next();
+});
+
 pubsubSetup(application);
 routesSetup(application);
 

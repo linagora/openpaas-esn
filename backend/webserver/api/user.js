@@ -29,7 +29,15 @@ module.exports = function(router) {
    *       404:
    *         $ref: "#/responses/cm_404"
    */
-  router.get('/user', authorize.requiresAPILogin, users.user);
+  router.get(
+    '/user',
+    authorize.requiresAPILogin,
+    (req, res, next) => {
+      req.logging.log('/api/user: requiresAPILogin completed');
+      next();
+    },
+    users.user
+  );
 
   /**
    * @swagger

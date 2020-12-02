@@ -284,8 +284,11 @@ function updatePassword(req, res) {
  * @param {Response} res
  */
 function user(req, res) {
+  req.logging.log('/api/user: start of controller init');
   if (!req.user) {
-    return res.status(404).json({error: 404, message: 'Not found', details: 'User not found'});
+    req.logging.log('/api/user: response code 404 sent to user-agent');
+
+return res.status(404).json({error: 404, message: 'Not found', details: 'User not found'});
   }
 
   const denormalizeOption = {
@@ -296,7 +299,12 @@ function user(req, res) {
     includeFollow: true
   };
 
-  denormalizeUser(req.user, denormalizeOption).then(denormalized => res.status(200).json(denormalized));
+  req.logging.log('/api/user: end of controller init');
+
+  denormalizeUser(req.user, denormalizeOption)
+    .then(denormalized => res.status(200).json(denormalized))
+    .then(() => req.logging.log('/api/user: response sent to user-agent'))
+    .catch(e => req.logging.log(`/api/user: failed with error "${e && e.message}"`));
 }
 
 function postProfileAvatar(req, res) {
