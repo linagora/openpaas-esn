@@ -42,13 +42,20 @@ function requiresLogin(req, res, next) {
 
 function _requiresAPILoginAndFailWithError(failWithError = false) {
   return (req, res, next) => {
+    req.logging.log('authorization middleware: start');
     if (req.isAuthenticated()) {
+      req.logging.log('authorization middleware: end. User is authenticated');
+
       return next();
     }
 
     if (config.auth && config.auth.apiStrategies) {
+      req.logging.log('authorization middleware: calling apiStrategies');
+
       return passport.authenticate(config.auth.apiStrategies, { session: false, failWithError: failWithError })(req, res, next);
     }
+
+    req.logging.log('authorization middleware: no apiStrategies. respond with 401 to user-agent');
 
     res.set('Content-Type', 'application/json; charset=utf-8');
     res.status(401).json({
