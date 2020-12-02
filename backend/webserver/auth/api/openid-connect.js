@@ -21,25 +21,39 @@ const findDomainsBoundToEmail = promisify(ldapModule.findDomainsBoundToEmail);
 
 module.exports = {
   name: 'openid-connect',
-  strategy: new BearerStrategy(oidcCallback),
+  strategy: new BearerStrategy({passReqToCallback: true}, oidcCallback),
   oidcCallback: oidcCallback
 };
 
-const callbackId = 0;
+let callbackId = 0;
 
-function oidcCallback(accessToken, done) {
+function oidcCallback(req, accessToken, done) {
   const myId = ++callbackId;
 
-  logger.debug(`API Auth - OIDC: [${myId}] oidcCallback starts`)
+  logger.debug(`API Auth - OIDC: [${myId}] oidcCallback starts`);
+
+  req.logging.log('auth:api:openid-connect start');
 
   const user = get(accessToken);
 
   if (user) {
+    req.logging.log('auth:api:openid-connect end. User sent from cache');
     done(null, user);
+
     return;
   }
 
   getUserInfosFromProvider(accessToken)
+    .then(response => {
+      req.logging.log('auth:api:openid-connect response from providers');
+
+      return response;
+    })
+    .catch(e => {
+      req.logging.log(`auth:api:openid-connect exception response from providers "${e && e.message || e}`);
+
+      throw e;
+    })
     .then(response => {
       logger.debug(`API Auth - OIDC: [${myId}] provider response: ${JSON.stringify(response)}`);
       if (!response || !response.infos || !response.infos.email) {
@@ -52,16 +66,19 @@ function oidcCallback(accessToken, done) {
         .then(user => (user ? Promise.resolve(user) : buildAndProvisionUser(infos)));
     })
     .then(user => {
+      req.logging.log(`auth:api:openid-connect OP user response ${user ? user._if : 'user not provided after DB lookup and auto-provisioning'}`);
+
       if (!user) {
         throw new Error(`API Auth - OIDC: [${myId}] No user found nor created from accessToken`);
       }
 
       set(accessToken, user);
-
+      req.logging.log('auth:api:openid-connect end. Sending user to auth caller');
       done(null, user);
     })
     .catch(err => {
       logger.error(`API Auth - OIDC: [${myId}] Error while authenticating user from OpenID Connect accessToken`, err);
+      req.logging.log('auth:api:openid-connect end. User auth failed');
       done(null, false, { message: `Cannot validate OpenID Connect accessToken: ${err.message} ${err.stack}` });
     });
 }
