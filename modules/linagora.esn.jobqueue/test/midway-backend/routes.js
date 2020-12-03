@@ -1,7 +1,7 @@
 const request = require('supertest');
 const { expect } = require('chai');
 
-describe('The Jobqueue module API', function() {
+describe.skip('The Jobqueue module API', function() {
   let helpers, models, app, user;
   const password = 'secret';
 

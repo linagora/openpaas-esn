@@ -24,7 +24,7 @@ describe('The Autoconf module API', function() {
     helpers.api.cleanDomainDeployment(models, done);
   });
 
-  describe('GET /api/user/autoconf', function() {
+  describe.skip('GET /api/user/autoconf', function() {
 
     function loadJSONFixture(basePath, filename) {
       return JSON.parse(fs.readFileSync(path.resolve(basePath, 'modules/linagora.esn.autoconf/test/fixtures/autoconf', filename), 'utf-8'));

@@ -5,6 +5,7 @@ const sinon = require('sinon');
 
 describe('The authorization middleware', function() {
   var domainModuleMock;
+  let logging;
 
   beforeEach(function() {
     domainModuleMock = {};
@@ -12,6 +13,8 @@ describe('The authorization middleware', function() {
     mockery.registerMock('../../core/user', {});
     mockery.registerMock('../../core/platformadmin', {});
     mockery.registerMock('../../core/domain', domainModuleMock);
+
+    logging = { log: () => {} };
   });
 
   describe('The loginAndContinue fn', function() {
@@ -22,7 +25,8 @@ describe('The authorization middleware', function() {
       var req = {
         isAuthenticated: function() {
           return true;
-        }
+        },
+        logging
       };
       var res = {
         redirect: function(target) {
@@ -42,7 +46,8 @@ describe('The authorization middleware', function() {
         originalUrl: 'http://localhost/oauth/authorize',
         isAuthenticated: function() {
           return false;
-        }
+        },
+        logging
       };
       var res = {
         redirect: function(target) {
@@ -73,7 +78,8 @@ describe('The authorization middleware', function() {
         },
         query: {
           jwt: 'myJWT'
-        }
+        },
+        logging
       };
 
       middleware(req, {});
@@ -88,7 +94,8 @@ describe('The authorization middleware', function() {
       const req = {
         isAuthenticated: function() {
           return false;
-        }
+        },
+        logging
       };
       const res = this.helpers.express.jsonResponse(
         function(code, data, headers, set) {
@@ -108,7 +115,8 @@ describe('The authorization middleware', function() {
       var req = {
         isAuthenticated: function() {
           return true;
-        }
+        },
+        logging
       };
       var res = {};
       var next = function() {
@@ -143,7 +151,8 @@ describe('The authorization middleware', function() {
       var req = {
         isAuthenticated: function() {
           return false;
-        }
+        },
+        logging
       };
       const res = {};
       const next = sinon.spy();
@@ -165,7 +174,8 @@ describe('The authorization middleware', function() {
       const req = {
         isAuthenticated: function() {
           return false;
-        }
+        },
+        logging
       };
       const res = this.helpers.express.jsonResponse(
         function(code, data, headers, set) {
@@ -185,7 +195,8 @@ describe('The authorization middleware', function() {
       var req = {
         isAuthenticated: function() {
           return true;
-        }
+        },
+        logging
       };
       var res = {};
       var next = function() {
@@ -220,7 +231,8 @@ describe('The authorization middleware', function() {
       var req = {
         isAuthenticated: function() {
           return false;
-        }
+        },
+        logging
       };
       const res = {};
       const next = sinon.spy();
@@ -248,7 +260,8 @@ describe('The authorization middleware', function() {
       var req = {
         domain: {
           _id: 123456789
-        }
+        },
+        logging
       };
       var res = this.helpers.express.jsonResponse(
         function(status) {
@@ -265,7 +278,8 @@ describe('The authorization middleware', function() {
       var req = {
         user: {
           _id: 123456789
-        }
+        },
+        logging
       };
       var res = this.helpers.express.jsonResponse(
         function(status) {
@@ -283,7 +297,8 @@ describe('The authorization middleware', function() {
         user: {
         },
         domain: {
-        }
+        },
+        logging
       };
       var res = this.helpers.express.jsonResponse(
         function(status) {
@@ -304,7 +319,8 @@ describe('The authorization middleware', function() {
         domain: {
           _id: 111,
           administrators: []
-        }
+        },
+        logging
       };
       var res = this.helpers.express.jsonResponse(
         function(status) {
@@ -331,7 +347,8 @@ describe('The authorization middleware', function() {
         domain: {
           _id: 111,
           administrators: []
-        }
+        },
+        logging
       };
       var res = {};
       var next = done.bind(null, null);
@@ -357,7 +374,8 @@ describe('The authorization middleware', function() {
 
     it('should send back 400 is there are no user in request', function(done) {
       var req = {
-        domain: {}
+        domain: {},
+        logging
       };
       var next = function() {};
       var res = this.helpers.express.jsonResponse(
@@ -372,7 +390,8 @@ describe('The authorization middleware', function() {
 
     it('should send back 400 is there are no domain in request', function(done) {
       var req = {
-        user: {}
+        user: {},
+        logging
       };
       var next = function() {};
       var res = this.helpers.express.jsonResponse(
@@ -392,7 +411,8 @@ describe('The authorization middleware', function() {
         },
         user: {
           _id: new ObjectId()
-        }
+        },
+        logging
       };
       var res = {};
       var next = done;
@@ -414,7 +434,8 @@ describe('The authorization middleware', function() {
         },
         user: {
           _id: user_id
-        }
+        },
+        logging
       };
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -451,7 +472,8 @@ describe('The authorization middleware', function() {
         domain: {
           _id: 111,
           administrators: []
-        }
+        },
+        logging
       };
       const res = {};
       const next = done.bind(null, null);
@@ -473,7 +495,8 @@ describe('The authorization middleware', function() {
       const req = {
         user: {
           id: 123
-        }
+        },
+        logging
       };
       const res = {};
       const next = done.bind(null, null);
@@ -496,7 +519,8 @@ describe('The authorization middleware', function() {
         domain: {
           _id: 111,
           administrators: []
-        }
+        },
+        logging
       };
 
       const next = done.bind(null, null);
@@ -529,7 +553,8 @@ describe('The authorization middleware', function() {
         domain: {
           _id: 111,
           administrators: []
-        }
+        },
+        logging
       };
 
       const next = done.bind(null, null);
@@ -560,7 +585,8 @@ describe('The authorization middleware', function() {
         domain: {
           _id: 111,
           administrators: []
-        }
+        },
+        logging
       };
 
       const next = done.bind(null, null);

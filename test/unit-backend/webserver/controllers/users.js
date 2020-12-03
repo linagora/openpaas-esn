@@ -4,15 +4,19 @@ const q = require('q');
 
 describe('The User controller', function() {
 
+  let logging;
+
   beforeEach(function(done) {
     this.testEnv.initCore(done);
+    logging = { log: () => {} };
   });
 
   describe('The logout fn', function() {
     it('should call req.logout()', function(done) {
       const users = this.helpers.requireBackend('webserver/controllers/users');
       const req = {
-        logout: done
+        logout: done,
+        logging
       };
       const res = {
         redirect: function() {}
@@ -23,7 +27,8 @@ describe('The User controller', function() {
     it('should redirect to "/"', function(done) {
       const users = this.helpers.requireBackend('webserver/controllers/users');
       const req = {
-        logout: function() {}
+        logout: function() {},
+        logging
       };
       const res = {
         redirect: function(path) {
@@ -42,7 +47,8 @@ describe('The User controller', function() {
       const req = {
         user: {
           emails: ['foo@bar.com']
-        }
+        },
+        logging
       };
       const res = {
         redirect: function(path) {
@@ -58,7 +64,8 @@ describe('The User controller', function() {
       const users = this.helpers.requireBackend('webserver/controllers/users');
       const req = {
         user: {
-        }
+        },
+        logging
       };
       const res = this.helpers.express.response(
         function(status) {
@@ -72,7 +79,7 @@ describe('The User controller', function() {
 
     it('should return HTTP 500 if user is not set in request', function(done) {
       const users = this.helpers.requireBackend('webserver/controllers/users');
-      const req = {};
+      const req = { logging };
       const res = this.helpers.express.response(
         function(status) {
           expect(status).to.equal(500);
@@ -98,7 +105,8 @@ describe('The User controller', function() {
             type: 'email',
             emails: ['foo@bar.com']
           }]
-        }
+        },
+        logging
       };
       const res = this.helpers.express.jsonResponse(
         function(code, data) {
@@ -114,8 +122,7 @@ describe('The User controller', function() {
 
     it('should return HTTP 404 if user is not defined in the request', function(done) {
       const users = this.helpers.requireBackend('webserver/controllers/users');
-      const req = {
-      };
+      const req = { logging };
       const res = this.helpers.express.jsonResponse(
         function(status) {
           expect(status).to.equal(404);
