@@ -143,6 +143,10 @@ function getPassword() {
   return process.env.MONGO_PASSWORD;
 }
 
+function getReadPreference() {
+  return process.env.MONGO_READ_PREFERENCE;
+}
+
 function openDatabase(connectionString, callback) {
   MongoClient.connect(connectionString, (err, db) => {
     if (err && db && ('close' in db)) {
@@ -305,6 +309,11 @@ function getConnectionStringAndOptions() {
   // See https://ci.linagora.com/linagora/lgs/openpaas/esn/issues/2412
   dbConfig.connectionString = dbConfig.connectionString || getConnectionStringFromEnvOrDefaults();
   const connectionOptions = dbConfig.connectionOptions || getDefaultOptions();
+  const readPreference = getReadPreference();
+
+  if (readPreference) {
+    connectionOptions.readPreference = readPreference;
+  }
 
   return {
     url: dbConfig.connectionString,
