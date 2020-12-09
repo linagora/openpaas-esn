@@ -1,11 +1,5 @@
 'use strict';
 
-<<<<<<< HEAD
-const config = require('./backend/core/config')('default');
-
-if (config.apm && config.apm.enabled) {
-  require('elastic-apm-node').start(config.apm.configuration);
-=======
 if (process.env.APM_SERVER_URL) {
   const opts = {
     serverUrl: process.env.APM_SERVER_URL,
@@ -15,7 +9,6 @@ if (process.env.APM_SERVER_URL) {
   console.log('Starting APM', opts);
 
   require('elastic-apm-node').start(opts);
->>>>>>> faf5c5f7e...  #3055 enable and use Elastic APM
 }
 
 var async = require('async');
