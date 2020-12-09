@@ -15,7 +15,7 @@ var async = require('async');
 var moduleManager = require('./backend/module-manager');
 var core = require('./backend/core');
 var logger = core.logger;
-
+var config = core.config('default');
 var modules = config.modules;
 
 if (config.hasOwnProperty("modules_append")){
