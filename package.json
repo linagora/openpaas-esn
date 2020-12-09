@@ -36,6 +36,7 @@
     "cron": "1.1.0",
     "dotty": "0.0.2",
     "ejs": "2.6.1",
+    "elastic-apm-node": "^3.9.0",
     "elasticsearch": "15.1.1",
     "email-addresses": "2.0.2",
     "email-templates": "2.7.1",

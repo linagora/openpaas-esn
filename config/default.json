@@ -144,5 +144,11 @@
   ],
   "email": {
     "templatesDir": "./templates/email"
+  },
+  "apm": {
+    "enabled": false,
+    "configuration": {
+      "secretToken": "APM token"
+    }
   }
 }
