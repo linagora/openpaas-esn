@@ -4,6 +4,8 @@ const logger = require('../logger');
 const PeopleSearcher = require('./searcher');
 const PeopleResolver = require('./resolver');
 
+const PEOPLE_SEARCH_MAX_REQUEST_TIME = 10 * 1000; // 10 seconds
+
 class PeopleService {
   constructor() {
     this.searchers = new Map();
@@ -31,15 +33,38 @@ class PeopleService {
     function search(searcher, { term, context, pagination, excludes }) {
       const startTime = Date.now();
       const searcherObjectType = searcher.objectType;
-      return searcher.search({ term, context, pagination, excludes: excludes.filter(tuple => tuple.objectType === searcher.objectType) })
-        .then(results => {
-          logger.debug(`Search result: ${searcherObjectType} ${Date.now() - startTime}ms`);
-          return results;
-        })
-        .then(results => denormalizeAll(results, searcher, context))
-        .catch(error => {
-          logger.error(`Failed to search ${searcherObjectType}`, error);
-        });
+
+      return Q.Promise((resolve, reject) => {
+        let promiseAnswered = false;
+        let timeoutId = setTimeout(() => {
+          const errMessage = `Search ${searcherObjectType}: time exhausted. Request took more than ${PEOPLE_SEARCH_MAX_REQUEST_TIME}ms`;
+          logger.debug(errMessage);
+          promiseAnswered = true;
+          timeoutId = null;
+          return reject(errMessage)
+        }, PEOPLE_SEARCH_MAX_REQUEST_TIME);
+
+        return searcher.search({ term, context, pagination, excludes: excludes.filter(tuple => tuple.objectType === searcher.objectType) })
+          .then(results => {
+            logger.debug(`Search result: ${searcherObjectType} ${Date.now() - startTime}ms`);
+            return results;
+          })
+          .then(results => denormalizeAll(results, searcher, context))
+          .then(response => {
+            timeoutId && clearTimeout(timeoutId);
+            if (!promiseAnswered) {
+              resolve(response);
+            }
+          })
+          .catch(error => {
+            logger.error(`Failed to search ${searcherObjectType}`, error);
+            if (!promiseAnswered) {
+              timeoutId && clearTimeout(timeoutId);
+            }
+            reject(error);
+          });
+      });
+
     }
 
     function denormalizeAll(data, searcher, context) {
