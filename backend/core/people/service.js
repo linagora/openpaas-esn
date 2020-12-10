@@ -29,10 +29,16 @@ class PeopleService {
       .then(people => [].concat(...people));
 
     function search(searcher, { term, context, pagination, excludes }) {
+      const startTime = Date.now();
+      const searcherObjectType = searcher.objectType;
       return searcher.search({ term, context, pagination, excludes: excludes.filter(tuple => tuple.objectType === searcher.objectType) })
+        .then(results => {
+          logger.debug(`Search result: ${searcherObjectType} ${Date.now() - startTime}ms`);
+          return results;
+        })
         .then(results => denormalizeAll(results, searcher, context))
         .catch(error => {
-          logger.error(`Failed to search ${searcher.objectType}`, error);
+          logger.error(`Failed to search ${searcherObjectType}`, error);
         });
     }
 

@@ -3,7 +3,10 @@ const { SHARING_INVITE_STATUS } = require('../constants');
 const { parseAddressbookPath, parseContactPath } = require('../helper');
 const { ADDRESSBOOK_ROOT_PATH } = require('./constants');
 
+let searchId = 0;
+
 module.exports = function(dependencies, options = {}) {
+  const logger = dependencies('logger');
   const searchClient = require('../search')(dependencies);
   const { getGroupAddressbookHomes } = require('./group-addressbook-home')(dependencies);
   const {
@@ -33,8 +36,23 @@ module.exports = function(dependencies, options = {}) {
    *    - If there is no addressbooks, will search in the user book home and group address book homes which the user belongs to
    */
   function searchContacts(options = {}) {
+    const internalSearchId = ++searchId;
+    const startTime = Date.now();
+
+    logger.debug(`CONTACT-SEARCH-${internalSearchId}`);
+
     return _buildSearchingTargetAddressbooks(options)
+      .then(response => {
+        logger.debug(`CONTACT-SEARCH-${internalSearchId}: _buildSearchingTargetAddressbooks ${Date.now() - startTime}ms`);
+
+        return response;
+      })
       .then(addressbooks => Promise.all(addressbooks.map(({ bookHome, bookNames }) => _getSearchableAddressbooks(bookHome, bookNames))))
+      .then(response => {
+        logger.debug(`CONTACT-SEARCH-${internalSearchId}: _getSearchableAddressbooks ${Date.now() - startTime}ms`);
+
+        return response;
+      })
       .then(results => [].concat.apply([], results))
       .then(searchableAddressbooks => {
         const addressbooksToSearch = [];
@@ -68,10 +86,17 @@ module.exports = function(dependencies, options = {}) {
           limit: options.limit,
           page: options.page,
           addressbooks: addressbooksToSearch,
-          excludeIds: options.excludeIds
+          excludeIds: options.excludeIds,
+          internalSearchId
         };
 
-        return Q.ninvoke(searchClient, 'searchContacts', searchOptions).then(result => {
+        return Q.ninvoke(searchClient, 'searchContacts', searchOptions)
+        .then(response => {
+          logger.debug(`CONTACT-SEARCH-${internalSearchId}: searchClient.searchContacts ${Date.now() - startTime}ms`);
+
+          return response;
+        })
+        .then(result => {
           const output = {
             total_count: result.total_count,
             current_page: result.current_page,
@@ -99,6 +124,11 @@ module.exports = function(dependencies, options = {}) {
                 output.results[index]['openpaas:addressbook'] = mappingSubscriptionsAndSources[`${bookHome}/${bookName}`];
               }
             }))
+            .then(response => {
+              logger.debug(`CONTACT-SEARCH-${internalSearchId}: getMultipleContactsFromPaths ${Date.now() - startTime}ms`);
+
+              return response;
+            })
             .then(() => output);
         });
       });

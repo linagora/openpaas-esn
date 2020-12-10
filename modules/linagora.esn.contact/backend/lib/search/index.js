@@ -68,6 +68,7 @@ module.exports = dependencies => {
   }
 
   function searchContacts(query, callback) {
+    const internalSearchId = query.internalSearchId;
     const terms = query.search;
     const page = query.page || 1;
     let offset = query.offset;
@@ -145,6 +146,8 @@ module.exports = dependencies => {
       offset = (page - 1) * limit;
     }
 
+    logger.debug(`CONTACT-SEARCH-${internalSearchId}: QUERY ${JSON.stringify(elasticsearchQuery)}, index ${SEARCH.INDEX_NAME} type ${SEARCH.TYPE_NAME} offset ${offset} size ${limit}`);
+
     elasticsearch.searchDocuments({
       index: SEARCH.INDEX_NAME,
       type: SEARCH.TYPE_NAME,
@@ -155,6 +158,7 @@ module.exports = dependencies => {
       if (err) {
         return callback(err);
       }
+
       return callback(null, {
         current_page: page,
         total_count: result.hits.total,
