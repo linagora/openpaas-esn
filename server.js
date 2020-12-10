@@ -1,15 +1,10 @@
 'use strict';
 
-const config = require('./backend/core/config')('default');
-
-if (config.apm && config.apm.enabled) {
-  require('elastic-apm-node').start(config.apm.configuration);
-}
-
 var async = require('async');
 var moduleManager = require('./backend/module-manager');
 var core = require('./backend/core');
 var logger = core.logger;
+var config = core.config('default');
 
 var modules = config.modules;
 
