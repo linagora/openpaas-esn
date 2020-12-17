@@ -18,20 +18,22 @@ function advancedSearch(req, res) {
   const objectTypes = req.body.objectTypes || [];
   const pagination = { limit: req.body.limit || req.query.limit, offset: req.body.offset || req.query.offset };
   const excludes = req.body.excludes || [];
+  const maximumSearchTimeAllowed = req.query.timeout;
 
-  return _search({ objectTypes, term, context, pagination, excludes }, req, res);
+  return _search({ objectTypes, term, context, pagination, excludes }, maximumSearchTimeAllowed, req, res);
 }
 
 function search(req, res) {
   const context = { user: req.user, domain: req.domain };
   const term = req.query.q || '';
   const pagination = { limit: req.query.limit, offset: req.query.offset };
+  const maximumSearchTimeAllowed = req.query.timeout;
 
-  return _search({ term, context, pagination }, req, res);
+  return _search({ term, context, pagination }, maximumSearchTimeAllowed, req, res);
 }
 
-function _search(options, req, res) {
-  return peopleService.search(options)
+function _search(options, timeout, req, res) {
+  return peopleService.search(options, timeout)
     .then(people => denormalizePeople(req, people))
     .then(people => res.status(200).json(people || []))
     .catch(err => {
