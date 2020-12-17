@@ -1,8 +1,18 @@
 const Q = require('q');
-const { LIMIT, OFFSET } = require('./constants');
+const { LIMIT, OFFSET, REQUEST_MAX_SEARCH_TIME } = require('./constants');
 const logger = require('../logger');
 const PeopleSearcher = require('./searcher');
 const PeopleResolver = require('./resolver');
+
+const timeout = ms => new Promise((resolve, reject) => {
+  setTimeout(() => reject('Provider timeout'), ms);
+});
+
+const waitForSearchProvider = (searchProvider, duration) => {
+  if (!duration) return searchProvider;
+
+  return Promise.race([searchProvider, timeout(duration)]);
+};
 
 class PeopleService {
   constructor() {
@@ -15,7 +25,7 @@ class PeopleService {
    * It is up to each searcher to deal with the term matching.
    * Note: If no objectTypes is defined or if empty, search in ALL searchers.
    */
-  search(query = { objectTypes: [], term: '', context: {}, pagination: { limit: LIMIT, offset: OFFSET }, excludes: [] }) {
+  search(query = { objectTypes: [], term: '', context: {}, pagination: { limit: LIMIT, offset: OFFSET }, excludes: [] }, maximumSearchTimeAllowed = REQUEST_MAX_SEARCH_TIME) {
     query.pagination = { ...{ limit: LIMIT, offset: OFFSET }, ...query.pagination };
     query.excludes = query.excludes || [];
     const localSearchers = ((!query.objectTypes || !query.objectTypes.length) ?
@@ -23,7 +33,9 @@ class PeopleService {
       query.objectTypes.map(objectType => this.searchers.get(objectType)).filter(Boolean))
       .sort((a, b) => (b.priority || 0) - (a.priority || 0));
 
-    return Q.allSettled(localSearchers.map(searcher => search(searcher, query)))
+    const searchPromises = localSearchers.map(searcher => waitForSearchProvider(search(searcher, query), maximumSearchTimeAllowed));
+
+    return Q.allSettled(searchPromises)
       .then(allPromises => allPromises.filter(promise => promise.state === 'fulfilled').map(promise => promise.value))
       .then(fulFilled => fulFilled.filter(Boolean))
       .then(people => [].concat(...people));

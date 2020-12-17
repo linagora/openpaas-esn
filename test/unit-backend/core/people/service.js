@@ -12,6 +12,14 @@ describe('The people service module', function() {
       debug: sinon.spy()
     };
     mockery.registerMock('../logger', logger);
+    mockery.registerMock('./constants', {
+      LIMIT: 10,
+      OFFSET: 0,
+      FIELD_TYPES: {
+        EMAIL_ADDRESS: 'emailaddress'
+      },
+      REQUEST_MAX_SEARCH_TIME: 900 // 900 ms limit
+    });
     Service = this.helpers.requireBackend('core/people/service');
     PeopleSearcher = this.helpers.requireBackend('core/people/searcher');
     PeopleResolver = this.helpers.requireBackend('core/people/resolver');
@@ -172,6 +180,127 @@ describe('The people service module', function() {
         service.search({ objectTypes: ['user', 'contact', 'ldap'], term, context, pagination, excludes }).then(result => {
           expect(result).to.have.lengthOf(5);
           expect(result).to.deep.equals([contact1, ldap1, ldap2, user1, user2]);
+          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
+          expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
+          expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
+          done();
+        }).catch(done);
+      });
+
+      it('should use the default timeout if it wasn\'t specified and ignore the providers exceeding it', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.spy(function() {
+          return new Promise(resolve => {
+            setTimeout(() => resolve([user1, user2]), 1000); // wait 1 second
+          });
+        });
+        const resolveContact = sinon.spy(function() {
+          return new Promise(resolve => {
+            setTimeout(() => resolve([contact1]), 1000); // wait 1 second
+          });
+        });
+        const resolveLdap = sinon.stub().returns(Promise.resolve([ldap1, ldap2]));
+        const denormalizeUser = sinon.stub();
+        const denormalizeLdap = sinon.stub();
+        const denormalizeContact = sinon.stub();
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact, 100);
+        const ldapsearcher = new PeopleSearcher('ldap', resolveLdap, denormalizeLdap, 50);
+
+        denormalizeLdap.withArgs({ context, source: ldap1 }).returns(Promise.resolve(ldap1));
+        denormalizeLdap.withArgs({ context, source: ldap2 }).returns(Promise.resolve(ldap2));
+        service.addSearcher(ldapsearcher);
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
+
+        service.search({ objectTypes: ['user', 'contact', 'ldap'], term, context, pagination, excludes } /* nothing extra passed here */).then(result => {
+          expect(result).to.have.lengthOf(2); // only 2 providers responded in time
+          expect(result).to.deep.equals([ldap1, ldap2]); // the users provider is excluded
+          expect(denormalizeUser).to.not.have.been.calledWith({ context, source: user1 });
+          expect(denormalizeUser).to.not.have.been.calledWith({ context, source: user2 });
+          expect(denormalizeContact).to.not.have.been.calledWith({ context, source: contact1 });
+          expect(denormalizeLdap).to.have.been.calledWith({ context, source: ldap1 });
+          expect(denormalizeLdap).to.have.been.calledWith({ context, source: ldap2 });
+          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
+          expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
+          expect(resolveLdap).to.have.been.calledWith({ term, context, pagination, excludes });
+          done();
+        }).catch(done);
+      });
+
+      it('should not wait for the providers that exceeded the specified timeout', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.spy(function() {
+          return new Promise(resolve => {
+            setTimeout(() => resolve([user1, user2]), 1000); // wait 1 second
+          });
+        });
+        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
+        const resolveLdap = sinon.stub().returns(Promise.resolve([ldap1, ldap2]));
+        const denormalizeUser = sinon.stub();
+        const denormalizeLdap = sinon.stub();
+        const denormalizeContact = sinon.stub();
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact, 100);
+        const ldapsearcher = new PeopleSearcher('ldap', resolveLdap, denormalizeLdap, 50);
+        const timeout = 500; // maximum allowed search time is 500 ms
+
+        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
+        denormalizeLdap.withArgs({ context, source: ldap1 }).returns(Promise.resolve(ldap1));
+        denormalizeLdap.withArgs({ context, source: ldap2 }).returns(Promise.resolve(ldap2));
+        service.addSearcher(ldapsearcher);
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
+
+        service.search({ objectTypes: ['user', 'contact', 'ldap'], term, context, pagination, excludes }, timeout).then(result => {
+          expect(result).to.have.lengthOf(3); // only 3 providers responded in time
+          expect(result).to.deep.equals([contact1, ldap1, ldap2]); // the users provider is excluded
+          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
+          expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
+          expect(denormalizeUser).to.not.have.been.calledWith({ context, source: user1 });
+          expect(denormalizeUser).to.not.have.been.calledWith({ context, source: user2 });
+          expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
+          expect(denormalizeLdap).to.have.been.calledWith({ context, source: ldap1 });
+          expect(denormalizeLdap).to.have.been.calledWith({ context, source: ldap2 });
+          done();
+        }).catch(done);
+      });
+
+      it('should wait for all the providers when the specified timeout is 0 even, if they exceed the default timeout', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.spy(function() {
+          return new Promise(resolve => {
+            setTimeout(() => resolve([user1, user2]), 1000); // wait 1 second
+          });
+        });
+        const resolveContact = sinon.spy(function() {
+          return new Promise(resolve => {
+            setTimeout(() => resolve([contact1]), 1000); // wait 1 second
+          });
+        });
+        const resolveLdap = sinon.stub().returns(Promise.resolve([ldap1, ldap2]));
+        const denormalizeUser = sinon.stub();
+        const denormalizeLdap = sinon.stub();
+        const denormalizeContact = sinon.stub();
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact, 100);
+        const ldapsearcher = new PeopleSearcher('ldap', resolveLdap, denormalizeLdap, 50);
+        const timeout = 0; // maximum allowed search time is 0 ms, means no time limit
+
+        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
+        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
+        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
+        denormalizeLdap.withArgs({ context, source: ldap1 }).returns(Promise.resolve(ldap1));
+        denormalizeLdap.withArgs({ context, source: ldap2 }).returns(Promise.resolve(ldap2));
+        service.addSearcher(ldapsearcher);
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
+
+        service.search({ objectTypes: ['user', 'contact', 'ldap'], term, context, pagination, excludes }, timeout).then(result => {
+          expect(result).to.have.lengthOf(5); // all providers responded
+          expect(result).to.deep.equals([contact1, ldap1, ldap2, user1, user2]); // the users provider is excluded
           expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
           expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
           expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
