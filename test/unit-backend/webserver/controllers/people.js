@@ -20,7 +20,9 @@ describe('The people controller', function() {
       res = { status: sinon.stub().returns({ json }) };
       search = sinon.stub();
       req = {
-        query: {},
+        query: {
+          timeout: 2000 // 2 seconds
+        },
         protocol,
         get: sinon.stub().returns(host),
         user: {
@@ -155,6 +157,21 @@ describe('The people controller', function() {
           expect(args).to.have.deep.property('[2].photos[0].url', `${base_url}/foo/bar/3`);
           expect(args).to.have.deep.property('[3].photos[0].url', `${base_url}/foo/bar/4`);
 
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should call the PeopleService.search with the specified timeout in the query', function(done) {
+      getConfig.returns(Promise.resolve({}));
+      search.returns(Promise.resolve(people));
+      mockery.registerMock('../../core/people', { service: { search } });
+      mockery.registerMock('../../core/esn-config', esnConfigStub);
+      const peopleController = this.helpers.requireBackend('webserver/controllers/people');
+
+      peopleController.search(req, res)
+        .then(() => {
+          expect(search).to.have.been.calledWith(sinon.match.any /* we just need to check the second argument */, 2000);
           done();
         })
         .catch(done);
