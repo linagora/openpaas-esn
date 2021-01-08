@@ -144,6 +144,7 @@
     "linagora.esn.chat",
     "linagora.esn.lemonldap",
     "linagora.esn.linshare",
+    "linagora.esn.todo",
     "linagora.esn.community"
   ],
   "email": {
