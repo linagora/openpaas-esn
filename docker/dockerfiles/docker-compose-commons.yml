@@ -84,6 +84,8 @@ services:
       - REDIS_PORT=6379
       - AMQP_HOST=rabbitmq
       - AMQP_PORT=5672
+    volumes:
+      - ${ESN_PATH}/docker/config/jwt/public:/var/www/config/esn.key.pub
 
   james:
     entrypoint: bash -c "java -Dlogback.configurationFile=/root/conf/logback.xml -Dworking.directory=/root/ -jar james-server.jar"
