@@ -94,6 +94,8 @@ services:
       - AMQP_PORT=5672
     links:
       - mongo
+    volumes:
+      - ${ESN_PATH}/docker/config/jwt/public:/var/www/config/esn.key.pub
 
   james:
     container_name: esn_james
