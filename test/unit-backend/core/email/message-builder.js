@@ -7,7 +7,9 @@ describe('The message-builder module', function() {
 
   beforeEach(function() {
     template = {};
-    options = {};
+    options = {
+      defaultTemplatesDir: 'The default template path'
+    };
     message = {};
     locals = {
       filter: true
@@ -15,216 +17,228 @@ describe('The message-builder module', function() {
     from = 'from@mail.com';
   });
 
-  it('should use the template.path if defined', function(done) {
-    const templateSpy = sinon.spy(function(template, callback) {
-      callback(new Error());
-    });
-
-    template.path = 'The template path';
-    mockery.registerMock('email-templates', templateSpy);
-
-    messageBuilder = this.helpers.requireBackend('core/email/message-builder');
-    messageBuilder(options)(message, template, locals).then(done, function() {
-      expect(templateSpy).to.have.been.calledWith(template.path);
-      done();
-    });
-  });
-
-  it('should use defaultTemplatePath if template.path is not defined', function(done) {
-    const templateSpy = sinon.spy(function(template, callback) {
-      callback(new Error());
-    });
-
-    options.defaultTemplatesDir = 'The default template path';
-    mockery.registerMock('email-templates', templateSpy);
-
-    messageBuilder = this.helpers.requireBackend('core/email/message-builder');
-    messageBuilder(options)(message, template, locals).then(done, function() {
-      expect(templateSpy).to.have.been.calledWith(options.defaultTemplatesDir);
-      done();
-    });
-  });
-
-  it('should use template.name if template is an object', function(done) {
-    const templateSpy = sinon.spy(function(template, callback) {
-      callback(new Error());
-    });
-
-    options.defaultTemplatesDir = 'The default template path';
-    mockery.registerMock('email-templates', templateSpy);
-
-    messageBuilder = this.helpers.requireBackend('core/email/message-builder');
-    messageBuilder(options)(message, template, locals).then(done, function() {
-      expect(templateSpy).to.have.been.calledWith(options.defaultTemplatesDir);
-      done();
-    });
-  });
-
-  it('should use template as template name if template is not an object', function(done) {
-    const templateName = 'The template name';
-    const templateSpy = sinon.spy(function(template, callback) {
-      callback(new Error());
-    });
-
-    options.defaultTemplatesDir = 'The default template path';
-    mockery.registerMock('email-templates', templateSpy);
-
-    messageBuilder = this.helpers.requireBackend('core/email/message-builder');
-    messageBuilder(options)(message, templateName, locals).then(done, function() {
-      expect(templateSpy).to.have.been.calledWith(options.defaultTemplatesDir);
-      done();
-    });
-  });
-
-  it('should reject if email-templates send back error', function(done) {
-    const error = new Error('I failed to get the template');
-    const templateSpy = sinon.spy(function(template, callback) {
-      callback(error);
-    });
-
-    mockery.registerMock('email-templates', templateSpy);
-
-    messageBuilder = this.helpers.requireBackend('core/email/message-builder');
-    messageBuilder(options)(message, template, locals).then(done, function(err) {
-      expect(err.message).to.match(/Can not get the template generator/);
-      done();
-    });
-  });
-
-  it('should call the template with right parameters', function(done) {
-    const error = new Error('I failed');
-    const templateFunctionSpy = sinon.spy(function(templateName, locals, callback) {
-      return callback(error);
-    });
-    const templateSpy = sinon.spy(function(template, callback) {
-      callback(null, templateFunctionSpy);
-    });
-
-    template.name = 'The template name';
-    mockery.registerMock('email-templates', templateSpy);
-
-    messageBuilder = this.helpers.requireBackend('core/email/message-builder');
-    messageBuilder(options)(message, template, locals).then(done, function() {
-      expect(templateFunctionSpy).to.have.been.calledWith(template.name, locals);
-      done();
-    });
-  });
-
-  it('should reject if template generation fails', function(done) {
-    const error = new Error('I failed');
-    const templateFunctionSpy = sinon.spy(function(templateName, locals, callback) {
-      return callback(error);
-    });
-    const templateSpy = sinon.spy(function(template, callback) {
-      callback(null, templateFunctionSpy);
-    });
-
-    mockery.registerMock('email-templates', templateSpy);
-
-    messageBuilder = this.helpers.requireBackend('core/email/message-builder');
-    messageBuilder(options)(message, template, locals).then(done, function(err) {
-      expect(err.message).to.match(/Template generation failed/);
-      done();
-    });
-  });
-
-  it('should reject if attachments generation fails', function(done) {
-    const html = '<body>The text</body>';
-    const text = 'The text';
-    const error = new Error('Attachment generation failed');
-    const getAttachmentsSpy = sinon.spy(function(templatesDir, templateName, filter, callback) {
-      callback(error);
-    });
-    const templateFunctionSpy = sinon.spy(function(templateName, locals, callback) {
-      return callback(null, html, text);
-    });
-    const templateSpy = sinon.spy(function(template, callback) {
-      callback(null, templateFunctionSpy);
-    });
-
-    mockery.registerMock('email-templates', templateSpy);
-    mockery.registerMock('./attachment-helpers', {
-      hasAttachments: function() {
-        return true;
-      },
-      getAttachments: getAttachmentsSpy
-    });
-
-    messageBuilder = this.helpers.requireBackend('core/email/message-builder');
-    messageBuilder(options)(message, template, locals).then(done, function(err) {
-      expect(err.message).to.match(/Failed to get attachments/);
-      done();
-    });
-  });
-
-  it('should resolve without attachments if no attachments are defined for the template', function(done) {
-    const html = '<body>The text</body>';
-    const text = 'The text';
-    const getAttachmentsSpy = sinon.spy();
-    const templateFunctionSpy = sinon.spy(function(templateName, locals, callback) {
-      return callback(null, html, text);
-    });
-    const templateSpy = sinon.spy(function(template, callback) {
-      callback(null, templateFunctionSpy);
-    });
-
-    template.name = 'The template name';
-    message.from = from;
-    mockery.registerMock('email-templates', templateSpy);
-    mockery.registerMock('./attachment-helpers', {
-      hasAttachments: function() {
-        return false;
-      },
-      getAttachments: getAttachmentsSpy
-    });
-
-    messageBuilder = this.helpers.requireBackend('core/email/message-builder');
-    messageBuilder(options)(message, template, locals).then(function(result) {
-      expect(templateFunctionSpy).to.have.been.calledWith(template.name, locals);
-      expect(getAttachmentsSpy).to.not.have.been.called;
-      expect(result).to.deep.equals({
-        from: message.from,
-        html: html,
-        text: text
+  describe('The buildWithEmailTemplates function', function() {
+    it('should reject when something went wrong while getting the template generator', function(done) {
+      const templatePath = 'The template path';
+      const getTemplatesDirStub = sinon.stub().returns(templatePath);
+      const error = new Error('I am dead');
+      const templateSpy = sinon.spy(function(template, callback) {
+        callback(error);
       });
-      done();
-    }, done);
-  });
 
-  it('should fill message with attachments', function(done) {
-    const attachments = [1, 2, 3];
-    const html = '<body>The text</body>';
-    const text = 'The text';
-    const getAttachmentsSpy = sinon.spy(function(templatesDir, templateName, filter, callback) {
-      callback(null, attachments);
-    });
-    const templateFunctionSpy = sinon.spy(function(templateName, locals, callback) {
-      return callback(null, html, text);
-    });
-    const templateSpy = sinon.spy(function(template, callback) {
-      callback(null, templateFunctionSpy);
-    });
-
-    template.name = 'The template name';
-    mockery.registerMock('email-templates', templateSpy);
-    mockery.registerMock('./attachment-helpers', {
-      hasAttachments: function() {
-        return true;
-      },
-      getAttachments: getAttachmentsSpy
-    });
-
-    messageBuilder = this.helpers.requireBackend('core/email/message-builder');
-    messageBuilder(options)(message, template, locals).then(function(result) {
-      expect(templateFunctionSpy).to.have.been.calledWith(template.name, locals);
-      expect(getAttachmentsSpy).to.have.been.calledWith(template.path, template.name, locals.filter);
-      expect(result).to.deep.equals({
-        from: message.from,
-        html: html,
-        text: text,
-        attachments: attachments
+      mockery.registerMock('email-templates', templateSpy);
+      mockery.registerMock('./helpers', {
+        getTemplatesDir: getTemplatesDirStub
       });
-      done();
-    }, done);
+      template.name = 'The template name';
+
+      messageBuilder = this.helpers.requireBackend('core/email/message-builder');
+      messageBuilder(options).buildWithEmailTemplates(message, template, locals)
+        .then(() => done(new Error('should not resolve')))
+        .catch(err => {
+          expect(err).to.exist;
+          expect(err.message).to.equal(`Can not get the template generator: ${error.message}`);
+          expect(getTemplatesDirStub).to.have.been.calledWith(template, options.defaultTemplatesDir);
+          expect(templateSpy).to.have.been.calledWith(templatePath);
+          done();
+        });
+    });
+
+    it('should use template.name if template is an object', function(done) {
+      const templatePath = 'The template path';
+      const getTemplatesDirStub = sinon.stub().returns(templatePath);
+      const error = new Error('I am dead');
+      const templateSpy = sinon.spy(function(template, callback) {
+        callback(error);
+      });
+
+      mockery.registerMock('email-templates', templateSpy);
+      mockery.registerMock('./helpers', {
+        getTemplatesDir: getTemplatesDirStub
+      });
+
+      messageBuilder = this.helpers.requireBackend('core/email/message-builder');
+      messageBuilder(options).buildWithEmailTemplates(message, template, locals)
+        .then(() => done(new Error('should not resolve')))
+        .catch(err => {
+          expect(err).to.exist;
+          expect(err.message).to.equal(`Can not get the template generator: ${error.message}`);
+          expect(getTemplatesDirStub).to.have.been.calledWith(template, options.defaultTemplatesDir);
+          expect(templateSpy).to.have.been.calledWith(templatePath);
+          done();
+        });
+    });
+
+    it('should use template as template name if template is not an object', function(done) {
+      const templateName = 'Some template name';
+      const templatePath = 'The template path';
+      const getTemplatesDirStub = sinon.stub().returns(templatePath);
+      const error = new Error('I am dead');
+      const templateSpy = sinon.spy(function(template, callback) {
+        callback(error);
+      });
+
+      mockery.registerMock('email-templates', templateSpy);
+      mockery.registerMock('./helpers', {
+        getTemplatesDir: getTemplatesDirStub
+      });
+
+      messageBuilder = this.helpers.requireBackend('core/email/message-builder');
+      messageBuilder(options).buildWithEmailTemplates(message, templateName, locals)
+        .then(() => done(new Error('should not resolve')))
+        .catch(err => {
+          expect(err).to.exist;
+          expect(err.message).to.equal(`Can not get the template generator: ${error.message}`);
+          expect(getTemplatesDirStub).to.have.been.calledWith(templateName, options.defaultTemplatesDir);
+          expect(templateSpy).to.have.been.calledWith(templatePath);
+          done();
+        });
+    });
+
+    it('should call the template with right parameters and reject when there is an error while generating the template', function(done) {
+      const templatePath = 'The template path';
+      const getTemplatesDirStub = sinon.stub().returns(templatePath);
+      const error = new Error('I failed');
+      const templateFunctionSpy = sinon.spy(function(templateName, locals, callback) {
+        return callback(error);
+      });
+      const templateSpy = sinon.spy(function(template, callback) {
+        callback(null, templateFunctionSpy);
+      });
+
+      template.name = 'The template name';
+      mockery.registerMock('email-templates', templateSpy);
+      mockery.registerMock('./helpers', {
+        getTemplatesDir: getTemplatesDirStub
+      });
+
+      messageBuilder = this.helpers.requireBackend('core/email/message-builder');
+      messageBuilder(options).buildWithEmailTemplates(message, template, locals)
+        .then(() => done(new Error('should not resolve')))
+        .catch(err => {
+          expect(err).to.exist;
+          expect(err.message).to.equal(`Template generation failed: ${error.message}`);
+          expect(getTemplatesDirStub).to.have.been.calledWith(template, options.defaultTemplatesDir);
+          expect(templateSpy).to.have.been.calledWith(templatePath);
+          expect(templateFunctionSpy).to.have.been.calledWith(template.name, locals);
+          done();
+        });
+    });
+
+    it('should reject if attachments generation fails', function(done) {
+      const html = '<body>The text</body>';
+      const text = 'The text';
+      const templatePath = 'The template path';
+      const getTemplatesDirStub = sinon.stub().returns(templatePath);
+      const error = new Error('Attachment generation failed');
+      const templateFunctionSpy = sinon.spy(function(templateName, locals, callback) {
+        return callback(null, html, text);
+      });
+      const hasAttachmentsStub = sinon.stub().returns(true);
+      const getAttachmentsStub = sinon.stub().throws(error);
+      const templateSpy = sinon.spy(function(template, callback) {
+        callback(null, templateFunctionSpy);
+      });
+
+      template.name = 'The template name';
+      mockery.registerMock('email-templates', templateSpy);
+      mockery.registerMock('./helpers', {
+        hasAttachments: hasAttachmentsStub,
+        getAttachments: getAttachmentsStub,
+        getTemplatesDir: getTemplatesDirStub
+      });
+
+      messageBuilder = this.helpers.requireBackend('core/email/message-builder');
+      messageBuilder(options).buildWithEmailTemplates(message, template, locals)
+        .then(() => done(new Error('should not resolve')))
+        .catch(err => {
+          expect(err).to.exist;
+          expect(err.message).to.equal(`Failed to get attachments: ${error.message}`);
+          expect(hasAttachmentsStub).to.have.been.calledWith(templatePath, template.name);
+          expect(getAttachmentsStub).to.have.been.calledWith(templatePath, template.name, locals.filter);
+          expect(getTemplatesDirStub).to.have.been.calledWith(template, options.defaultTemplatesDir);
+          expect(templateSpy).to.have.been.calledWith(templatePath);
+          done();
+        });
+    });
+
+    it('should resolve without attachments if no attachments are defined for the template', function(done) {
+      const html = '<body>The text</body>';
+      const text = 'The text';
+      const templatePath = 'The template path';
+      const getTemplatesDirStub = sinon.stub().returns(templatePath);
+      const templateFunctionSpy = sinon.spy(function(templateName, locals, callback) {
+        return callback(null, html, text);
+      });
+      const hasAttachmentsStub = sinon.stub().returns(false);
+      const templateSpy = sinon.spy(function(template, callback) {
+        callback(null, templateFunctionSpy);
+      });
+
+      template.name = 'The template name';
+      message.from = from;
+      mockery.registerMock('email-templates', templateSpy);
+      mockery.registerMock('./helpers', {
+        hasAttachments: hasAttachmentsStub,
+        getTemplatesDir: getTemplatesDirStub
+      });
+
+      messageBuilder = this.helpers.requireBackend('core/email/message-builder');
+      messageBuilder(options).buildWithEmailTemplates(message, template, locals)
+        .then(result => {
+          expect(getTemplatesDirStub).to.have.been.calledWith(template, options.defaultTemplatesDir);
+          expect(templateSpy).to.have.been.calledWith(templatePath);
+          expect(templateFunctionSpy).to.have.been.calledWith(template.name, locals);
+          expect(hasAttachmentsStub).to.have.been.calledWith();
+          expect(result).to.deep.equals({
+            from: message.from,
+            html: html,
+            text: text
+          });
+          done();
+        })
+        .catch(err => done(err || new Error('should not resolve')));
+    });
+
+    it('should fill message with attachments', function(done) {
+      const attachments = [1, 2, 3];
+      const html = '<body>The text</body>';
+      const text = 'The text';
+      const templatePath = 'The template path';
+      const getTemplatesDirStub = sinon.stub().returns(templatePath);
+      const getAttachmentsStub = sinon.stub().returns(attachments);
+      const templateFunctionSpy = sinon.spy(function(templateName, locals, callback) {
+        return callback(null, html, text);
+      });
+      const hasAttachmentsStub = sinon.stub().returns(true);
+      const templateSpy = sinon.spy(function(template, callback) {
+        callback(null, templateFunctionSpy);
+      });
+
+      template.name = 'The template name';
+      mockery.registerMock('email-templates', templateSpy);
+      mockery.registerMock('./helpers', {
+        hasAttachments: hasAttachmentsStub,
+        getAttachments: getAttachmentsStub,
+        getTemplatesDir: getTemplatesDirStub
+      });
+
+      messageBuilder = this.helpers.requireBackend('core/email/message-builder');
+      messageBuilder(options).buildWithEmailTemplates(message, template, locals)
+        .then(function(result) {
+          expect(getTemplatesDirStub).to.have.been.calledWith(template, options.defaultTemplatesDir);
+          expect(templateSpy).to.have.been.calledWith(templatePath);
+          expect(templateFunctionSpy).to.have.been.calledWith(template.name, locals);
+          expect(getAttachmentsStub).to.have.been.calledWith(templatePath, template.name, locals.filter);
+          expect(result).to.deep.equals({
+            from: message.from,
+            html: html,
+            text: text,
+            attachments: attachments
+          });
+          done();
+        })
+        .catch(err => done(err || new Error('should resolve')));
+    });
   });
 });
