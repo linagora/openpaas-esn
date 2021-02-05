@@ -1,3 +1,4 @@
+const path = require('path');
 const mockery = require('mockery');
 const sinon = require('sinon');
 const expect = require('chai').expect;
@@ -8,7 +9,7 @@ describe('The message-builder module', function() {
   beforeEach(function() {
     template = {};
     options = {
-      defaultTemplatesDir: 'The default template path'
+      defaultTemplatesDir: '/default/templates/dir'
     };
     message = {};
     locals = {
@@ -239,6 +240,182 @@ describe('The message-builder module', function() {
           done();
         })
         .catch(err => done(err || new Error('should resolve')));
+    });
+  });
+
+  describe('The buildWithCustomTemplateFunction function', function() {
+    let templateFn;
+
+    beforeEach(function() {
+      templateFn = sinon.spy(html => html.replace('transform_this', 'transformed'));
+    });
+
+    it('should get the default noreply email as the sender when the message has no \'from\' email', function() {
+      const templatePath = '/path/to/template';
+      const untransformedHtml = '<p>whatever transform_this</p>';
+
+      message.from = undefined;
+      options.noreply = 'noreply@whatever.com';
+      template.name = 'some.template.name';
+      mockery.registerMock('./helpers', {
+        getTemplatesDir: () => templatePath,
+        hasAttachments: () => false
+      });
+      mockery.registerMock('pug', {
+        renderFile: () => untransformedHtml
+      });
+
+      messageBuilder = this.helpers.requireBackend('core/email/message-builder');
+      messageBuilder(options).buildWithCustomTemplateFunction({
+        message,
+        template,
+        templateFn
+      });
+
+      expect(message.from).to.equal(options.noreply);
+    });
+
+    it('should transform pug into html and then use the custom template function to transform it one more time', function() {
+      const templatePath = '/path/to/template';
+      const getTemplatesDirStub = sinon.stub().returns(templatePath);
+      const untransformedHtml = '<p>whatever transform_this</p>';
+      const pugRenderFileStub = sinon.stub().returns(untransformedHtml);
+      const hasAttachmentsStub = sinon.stub().returns(false);
+
+      template.name = 'some.template.name';
+      mockery.registerMock('./helpers', {
+        getTemplatesDir: getTemplatesDirStub,
+        hasAttachments: hasAttachmentsStub
+      });
+      mockery.registerMock('pug', {
+        renderFile: pugRenderFileStub
+      });
+
+      messageBuilder = this.helpers.requireBackend('core/email/message-builder');
+      messageBuilder(options).buildWithCustomTemplateFunction({
+        message,
+        template,
+        templateFn
+      });
+
+      expect(getTemplatesDirStub).to.have.been.calledWith(template, options.defaultTemplatesDir);
+      expect(pugRenderFileStub).to.have.been.calledWith(path.resolve(templatePath, template.name, 'index.pug'), { cache: true });
+      expect(templateFn).to.have.been.calledWith(untransformedHtml);
+      expect(hasAttachmentsStub).to.have.been.calledWith(templatePath, template.name);
+      expect(message.html).to.equal('<p>whatever transformed</p>');
+    });
+
+    it('should get all the attachments in the templates directory if no filter is provided', function() {
+      const templatePath = '/path/to/template';
+      const getTemplatesDirStub = sinon.stub().returns(templatePath);
+      const untransformedHtml = '<p>whatever transform_this</p>';
+      const pugRenderFileStub = sinon.stub().returns(untransformedHtml);
+      const hasAttachmentsStub = sinon.stub().returns(true);
+      const attachments = ['attachment1.png', 'attachment2.png', 'attachment3.png'];
+      const getAttachmentsStub = sinon.stub().returns(attachments);
+
+      template.name = 'some.template.name';
+      mockery.registerMock('./helpers', {
+        getTemplatesDir: getTemplatesDirStub,
+        hasAttachments: hasAttachmentsStub,
+        getAttachments: getAttachmentsStub
+      });
+      mockery.registerMock('pug', {
+        renderFile: pugRenderFileStub
+      });
+
+      messageBuilder = this.helpers.requireBackend('core/email/message-builder');
+      messageBuilder(options).buildWithCustomTemplateFunction({
+        message,
+        template,
+        templateFn
+      });
+
+      expect(getTemplatesDirStub).to.have.been.calledWith(template, options.defaultTemplatesDir);
+      expect(pugRenderFileStub).to.have.been.calledWith(path.resolve(templatePath, template.name, 'index.pug'), { cache: true });
+      expect(templateFn).to.have.been.calledWith(untransformedHtml);
+      expect(hasAttachmentsStub).to.have.been.calledWith(templatePath, template.name);
+      expect(getAttachmentsStub).to.have.been.calledWith(templatePath, template.name);
+      expect(message.html).to.equal('<p>whatever transformed</p>');
+      expect(message.attachments).to.deep.equal(attachments);
+    });
+
+    it('should get the filtered attachments in the templates directory if a filter is provided', function() {
+      const templatePath = '/path/to/template';
+      const getTemplatesDirStub = sinon.stub().returns(templatePath);
+      const untransformedHtml = '<p>whatever transform_this</p>';
+      const pugRenderFileStub = sinon.stub().returns(untransformedHtml);
+      const hasAttachmentsStub = sinon.stub().returns(true);
+      const attachments = ['attachment1.png', 'whatever.png', 'attachment2.png', 'attachment3.png', 'filtermeplease.png', 'svp.png'];
+      const getAttachmentsSpy = sinon.spy(function(_, __, filter) {
+        if (filter) return attachments.filter(filter);
+
+        return attachments;
+      });
+      const locals = { filter: attachment => attachment.includes('attachment') };
+
+      template.name = 'some.template.name';
+      mockery.registerMock('./helpers', {
+        getTemplatesDir: getTemplatesDirStub,
+        hasAttachments: hasAttachmentsStub,
+        getAttachments: getAttachmentsSpy
+      });
+      mockery.registerMock('pug', {
+        renderFile: pugRenderFileStub
+      });
+
+      messageBuilder = this.helpers.requireBackend('core/email/message-builder');
+      messageBuilder(options).buildWithCustomTemplateFunction({
+        message,
+        template,
+        templateFn,
+        locals
+      });
+
+      expect(getTemplatesDirStub).to.have.been.calledWith(template, options.defaultTemplatesDir);
+      expect(pugRenderFileStub).to.have.been.calledWith(path.resolve(templatePath, template.name, 'index.pug'), { ...locals, cache: true });
+      expect(templateFn).to.have.been.calledWith(untransformedHtml);
+      expect(hasAttachmentsStub).to.have.been.calledWith(templatePath, template.name);
+      expect(getAttachmentsSpy).to.have.been.calledWith(templatePath, template.name, locals.filter);
+      expect(message.html).to.equal('<p>whatever transformed</p>');
+      expect(message.attachments).to.deep.equal(['attachment1.png', 'attachment2.png', 'attachment3.png']);
+    });
+
+    it('should append the attachments in the templates directory to the list of existing attachments in the message', function() {
+      const templatePath = '/path/to/template';
+      const getTemplatesDirStub = sinon.stub().returns(templatePath);
+      const untransformedHtml = '<p>whatever transform_this</p>';
+      const pugRenderFileStub = sinon.stub().returns(untransformedHtml);
+      const hasAttachmentsStub = sinon.stub().returns(true);
+      const existingAttachments = ['existing1.png', 'existing2.png'];
+      const attachments = ['attachment1.png', 'attachment2.png', 'attachment3.png'];
+      const getAttachmentsStub = sinon.stub().returns(attachments);
+
+      template.name = 'some.template.name';
+      message.attachments = existingAttachments;
+      mockery.registerMock('./helpers', {
+        getTemplatesDir: getTemplatesDirStub,
+        hasAttachments: hasAttachmentsStub,
+        getAttachments: getAttachmentsStub
+      });
+      mockery.registerMock('pug', {
+        renderFile: pugRenderFileStub
+      });
+
+      messageBuilder = this.helpers.requireBackend('core/email/message-builder');
+      messageBuilder(options).buildWithCustomTemplateFunction({
+        message,
+        template,
+        templateFn
+      });
+
+      expect(getTemplatesDirStub).to.have.been.calledWith(template, options.defaultTemplatesDir);
+      expect(pugRenderFileStub).to.have.been.calledWith(path.resolve(templatePath, template.name, 'index.pug'), { cache: true });
+      expect(templateFn).to.have.been.calledWith(untransformedHtml);
+      expect(hasAttachmentsStub).to.have.been.calledWith(templatePath, template.name);
+      expect(getAttachmentsStub).to.have.been.calledWith(templatePath, template.name);
+      expect(message.html).to.equal('<p>whatever transformed</p>');
+      expect(message.attachments).to.deep.equal(existingAttachments.concat(attachments));
     });
   });
 });

@@ -15,9 +15,18 @@ function getMailer(user) {
 
   return {
     send: send.bind(null, 'send'),
-    sendHTML: send.bind(null, 'sendHTML')
+    sendHTML: send.bind(null, 'sendHTML'),
+    sendWithCustomTemplateFunction: sendUsingNativePromise('sendWithCustomTemplateFunction')
   };
 
+  function sendUsingNativePromise(type) {
+    return function() {
+      return mailSenderPromise
+        .then(mailSender => mailSender[type].apply(null, arguments));
+    };
+  }
+
+  // TODO: Refactor this code and the related code to use native Promise instead of Q.
   function send(type) {
     const args = Array.prototype.slice.call(arguments, 1);
     let callback = args.length ? args[args.length - 1] : null;

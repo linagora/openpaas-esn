@@ -26,9 +26,7 @@ describe('The email module', function() {
     };
 
     esnConfigMock = {
-      get: function() {
-        return Promise.resolve(mailConfigMock);
-      }
+      get: sinon.stub().returns(Promise.resolve(mailConfigMock))
     };
 
     message = {
@@ -108,6 +106,60 @@ describe('The email module', function() {
         expect(sendSpy).to.have.been.calledWith(message);
         done();
       }).catch(done);
+    });
+
+    describe('The sendWithCustomTemplateFunction function', function() {
+      it('should send the mail with the custom template function after getting the mail sender', function(done) {
+        const result = 'The mail send result';
+        const user = { _id: 'fake' };
+        const sendWithCustomTemplateFunctionStub = sinon.stub().returns(Promise.resolve(result));
+
+        mockery.registerMock('./mail-sender', function() {
+          return {
+            sendWithCustomTemplateFunction: sendWithCustomTemplateFunctionStub
+          };
+        });
+
+        const options = { message, templateFn: () => {} };
+
+        emailModule = this.helpers.requireBackend('core/email');
+        emailModule.getMailer(user).sendWithCustomTemplateFunction(options)
+          .then(_result => {
+            expect(_result).to.equal(result);
+            expect(sendWithCustomTemplateFunctionStub).to.have.been.calledWith(options);
+            done();
+          })
+          .catch(err => done(err || new Error('should resolve')));
+
+        expect(esnConfigMock.forUser).to.have.been.calledWith(user);
+        expect(esnConfigMock.get).to.have.been.calledOnce;
+      });
+
+      it('should reject when something went wrong while sending the mail', function(done) {
+        const user = { _id: 'fake' };
+        const error = new Error('Something went wrong');
+        const sendWithCustomTemplateFunctionStub = sinon.stub().returns(Promise.reject(error));
+
+        mockery.registerMock('./mail-sender', function() {
+          return {
+            sendWithCustomTemplateFunction: sendWithCustomTemplateFunctionStub
+          };
+        });
+
+        const options = { message, templateFn: () => {} };
+
+        emailModule = this.helpers.requireBackend('core/email');
+        emailModule.getMailer(user).sendWithCustomTemplateFunction(options)
+          .then(() => done('should not resolve'))
+          .catch(err => {
+            expect(err).to.exist;
+            expect(err.message).to.equal(error.message);
+            done();
+          });
+
+        expect(esnConfigMock.forUser).to.have.been.calledWith(user);
+        expect(esnConfigMock.get).to.have.been.calledOnce;
+      });
     });
   });
 
