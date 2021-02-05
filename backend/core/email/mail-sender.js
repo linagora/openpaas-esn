@@ -26,10 +26,10 @@ function mailSender(mailConfig) {
   /**
    * Send an HTML email rendered from a template
    *
-   * @param {object} message      - message object forwarded to nodemailer
-   * @param {string} template     - template object with name + optional path
-   * @param {object} locals       - locals object forwarded to email-templates
-   * @param {function} callback   - callback function like fn(err, response)
+   * @param {object} message            A message object forwarded to nodemailer
+   * @param {object|string} template    A template object (with its name and optional path) or a template's name
+   * @param {object} locals             A locals object forwarded to email-templates
+   * @param {function} callback         A callback function like fn(err, response)
    * @return {*}
    */
   function sendHTML(message, template, locals, callback) {
@@ -39,7 +39,7 @@ function mailSender(mailConfig) {
 
     Q.all([
       _getTransport(),
-      messageBuilder({ noreply, defaultTemplatesDir: TEMPLATES_DIR})(message, template, locals)
+      messageBuilder({ noreply, defaultTemplatesDir: TEMPLATES_DIR }).buildWithEmailTemplates(message, template, locals)
     ])
     .spread((transport, htmlMessage) => {
       _sendRaw(transport, htmlMessage, callback);
