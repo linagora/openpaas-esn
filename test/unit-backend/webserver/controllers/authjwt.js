@@ -20,7 +20,7 @@ describe('The authjwt controller', function() {
     it('should return HTTP 500 if jwt.generateWebToken sends back error', function(done) {
 
       var jwt = {
-        generateWebToken: function(payload, callback) {
+        generateWebToken: function(payload, options, callback) {
           return callback(new Error());
         }
       };
@@ -44,7 +44,7 @@ describe('The authjwt controller', function() {
     it('should return HTTP 500 if jwt.generateWebToken sends back empty token', function(done) {
 
       var jwt = {
-        generateWebToken: function(payload, callback) {
+        generateWebToken: function(payload, options, callback) {
           return callback(null, null);
         }
       };
@@ -68,7 +68,7 @@ describe('The authjwt controller', function() {
     it('should return HTTP 200 if jwt.generateWebToken sends back token', function(done) {
 
       var jwt = {
-        generateWebToken: function(payload, callback) {
+        generateWebToken: function(payload, options, callback) {
           return callback(null, {});
         }
       };
@@ -126,6 +126,57 @@ describe('The authjwt controller', function() {
           preferredEmail: 'expected@email'
         }
       }, {sub: 'expected@email'});
+    });
+
+    it('should use the expiresIn if specified in the request', function(done) {
+      const jwt = {
+        generateWebToken: function(payload, options, callback) {
+          expect(payload).to.deep.equal({ sub: 'expected@email' });
+          expect(options.expiresIn).to.equal('13h');
+          done();
+
+          return callback(null, {});
+        }
+      };
+
+      setupMocks(jwt);
+
+      const controller = self.helpers.requireBackend('webserver/controllers/authjwt');
+      const res = self.helpers.express.jsonResponse(() => {});
+      const req = {
+        user: {
+          preferredEmail: 'expected@email'
+        },
+        query: {
+          expiresIn: '13h'
+        }
+      };
+
+      controller.generateWebToken(req, res);
+    });
+
+    it('should use the default expiresIn value if not specified in the request', function(done) {
+      const jwt = {
+        generateWebToken: function(payload, options, callback) {
+          expect(payload).to.deep.equal({ sub: 'expected@email' });
+          expect(options.expiresIn).to.equal('12h');
+          done();
+
+          return callback(null, {});
+        }
+      };
+
+      setupMocks(jwt);
+
+      const controller = self.helpers.requireBackend('webserver/controllers/authjwt');
+      const res = self.helpers.express.jsonResponse(() => { });
+      const req = {
+        user: {
+          preferredEmail: 'expected@email'
+        }
+      };
+
+      controller.generateWebToken(req, res);
     });
   });
 
