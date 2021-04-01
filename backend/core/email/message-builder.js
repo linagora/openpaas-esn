@@ -1,12 +1,17 @@
 const emailTemplates = require('email-templates');
+const path = require('path');
 const Q = require('q');
-const attachmentHelpers = require('./attachment-helpers');
+const pug = require('pug');
+const { hasAttachments, getAttachments, getTemplatesDir } = require('./helpers');
 
 module.exports = options => {
-  return build;
+  return {
+    buildWithEmailTemplates,
+    buildWithCustomTemplateFunction
+  };
 
-  function build(message, template, locals = {}) {
-    const templatesDir = getTemplatesDir(template);
+  function buildWithEmailTemplates(message, template, locals = {}) {
+    const templatesDir = getTemplatesDir(template, options.defaultTemplatesDir);
     const templateName = template.name || template;
     const deferred = Q.defer();
 
@@ -27,22 +32,18 @@ module.exports = options => {
         message.html = html;
         message.text = text;
 
-        if (attachmentHelpers.hasAttachments(templatesDir, templateName)) {
-          attachmentHelpers.getAttachments(templatesDir, templateName, locals.filter, (err, attachments) => {
-            if (err) {
-              return deferred.reject(new Error(`Failed to get attachments: ${err.message}`));
-            }
+        if (!hasAttachments(templatesDir, templateName)) {
+          return deferred.resolve(message);
+        }
 
-            if (Array.isArray(message.attachments)) {
-              message.attachments = message.attachments.concat(attachments);
-            } else {
-              message.attachments = attachments;
-            }
+        try {
+          const attachments = getAttachments(templatesDir, templateName, locals.filter);
 
-            return deferred.resolve(message);
-          });
-        } else {
+          message.attachments = Array.isArray(message.attachments) ? message.attachments.concat(attachments) : attachments;
+
           deferred.resolve(message);
+        } catch (err) {
+          deferred.reject(new Error(`Failed to get attachments: ${err.message}`));
         }
       });
     });
@@ -50,7 +51,22 @@ module.exports = options => {
     return deferred.promise;
   }
 
-  function getTemplatesDir(template) {
-    return (template && template.path) ? template.path : options.defaultTemplatesDir;
+  function buildWithCustomTemplateFunction({ message, template, templateFn, locals = {} }) {
+    const templatesDir = getTemplatesDir(template, options.defaultTemplatesDir);
+    const templateName = template.name || template;
+    const untransformedHtml = pug.renderFile(path.resolve(templatesDir, templateName, 'index.pug'), { ...locals, cache: true });
+
+    message.from = message.from || options.noreply;
+    message.html = templateFn(untransformedHtml);
+
+    if (!hasAttachments(templatesDir, templateName)) {
+      return message;
+    }
+
+    const attachments = getAttachments(templatesDir, templateName, locals.filter);
+
+    message.attachments = Array.isArray(message.attachments) ? message.attachments.concat(attachments) : attachments;
+
+    return message;
   }
 };

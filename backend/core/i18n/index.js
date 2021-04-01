@@ -1,6 +1,7 @@
 'use strict';
 
 const i18n = require('@linagora/i18n-node');
+const momentI18n = require('./moment');
 
 const i18nConfigTemplate = {
   defaultLocale: 'en',
@@ -19,16 +20,7 @@ const i18nConfigTemplate = {
     'zh-*': 'zh',
     'ru-*': 'ru'
   },
-  /**
-   * This mapping is to support Moment's datetime formatting with locales.
-   * Note that 'en' is loaded in Moment by default so we don't need it here.
-   */
-  momentLocales: {
-    fr: 'fr',
-    vi: 'vi',
-    zh: 'zh-cn',
-    ru: 'ru'
-  },
+  moment: momentI18n, // We need to update this every time we add support for a new language
   updateFiles: false,
   indent: '  ',
   extension: '.json',
