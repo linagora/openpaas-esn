@@ -20,16 +20,42 @@ function mailSender(mailConfig) {
 
   return {
     send,
-    sendHTML
+    sendHTML,
+    sendWithCustomTemplateFunction
   };
+
+  /**
+   * Send an HTML email rendered from a PUG template and then transformed by a
+   * custom template engine/function.
+   *
+   * @param {object} options                    An options object
+   * @param {object} options.message            A message object forwarded to nodemailer
+   * @param {object|string} options.template    A template object (with its name and optional path) or a template's name
+   * @param {Function} options.templateFn       A template function to transform the HTML rendered from the PUG template
+   * @param {object} options.locals             A locals object forwarded to email-templates
+   * @return {Promise}                          The promise that resolves when the email finishes being sent
+   */
+  function sendWithCustomTemplateFunction({ message, template, templateFn, locals = {} }) {
+    if (!_validate(message, false)) {
+      return Promise.reject(new Error('Invalid email message'));
+    }
+
+    return _getTransport()
+      .then(transport => {
+        const htmlMessage = messageBuilder({ noreply, defaultTemplatesDir: TEMPLATES_DIR })
+          .buildWithCustomTemplateFunction({ message, template, templateFn, locals});
+
+        return Q.nfcall(_sendRaw, transport, htmlMessage);
+      });
+  }
 
   /**
    * Send an HTML email rendered from a template
    *
-   * @param {object} message      - message object forwarded to nodemailer
-   * @param {string} template     - template object with name + optional path
-   * @param {object} locals       - locals object forwarded to email-templates
-   * @param {function} callback   - callback function like fn(err, response)
+   * @param {object} message            A message object forwarded to nodemailer
+   * @param {object|string} template    A template object (with its name and optional path) or a template's name
+   * @param {object} locals             A locals object forwarded to email-templates
+   * @param {function} callback         A callback function like fn(err, response)
    * @return {*}
    */
   function sendHTML(message, template, locals, callback) {
@@ -39,7 +65,7 @@ function mailSender(mailConfig) {
 
     Q.all([
       _getTransport(),
-      messageBuilder({ noreply, defaultTemplatesDir: TEMPLATES_DIR})(message, template, locals)
+      messageBuilder({ noreply, defaultTemplatesDir: TEMPLATES_DIR }).buildWithEmailTemplates(message, template, locals)
     ])
     .spread((transport, htmlMessage) => {
       _sendRaw(transport, htmlMessage, callback);
@@ -93,19 +119,19 @@ function mailSender(mailConfig) {
    */
   function _validate(message, requireContent, callback) {
     if (!message) {
-      callback(new Error('message must be an object'));
+      typeof callback === 'function' && callback(new Error('message must be an object'));
 
       return false;
     }
 
     if (!message.to) {
-      callback(new Error('message.to can not be null'));
+      typeof callback === 'function' && callback(new Error('message.to can not be null'));
 
       return false;
     }
 
     if (requireContent && !message.text && !message.html) {
-      callback(new Error('message content can not be null'));
+      typeof callback === 'function' && callback(new Error('message content can not be null'));
 
       return false;
     }

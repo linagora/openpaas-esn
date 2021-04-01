@@ -48,13 +48,13 @@ describe('The mail-sender module', function() {
     mockery.registerMock('../esn-config', function() { return esnConfigMock; });
   });
 
+  it('should throw expection when mailConfig is not defined', function() {
+    mailSender = this.helpers.requireBackend('core/email/mail-sender');
+
+    expect(mailSender).to.throw('mailConfig cannot be null');
+  });
+
   describe('The sendHTML function', function() {
-    it('should throw expection when mailConfig is not defined', function() {
-      mailSender = this.helpers.requireBackend('core/email/mail-sender');
-
-      expect(mailSender).to.throw('mailConfig cannot be null');
-    });
-
     it('should fail when message is not defined', function(done) {
       mailSender = this.helpers.requireBackend('core/email/mail-sender');
 
@@ -75,8 +75,8 @@ describe('The mail-sender module', function() {
 
     it('should fail if mail transport can not be found', function(done) {
       mockery.registerMock('./message-builder', function() {
-        return function() {
-          return Promise.resolve();
+        return {
+          buildWithEmailTemplates: function() { return Promise.resolve(); }
         };
       });
 
@@ -116,9 +116,9 @@ describe('The mail-sender module', function() {
       });
     });
 
-    it('should fail if message builder fails', function(done) {
+    it('should fail if message builder fails to build the message with email-templates', function(done) {
       const error = new Error('I failed to build message');
-      const messageBuilderSpy = sinon.spy(function() {
+      const buildWithEmailTemplatesSpy = sinon.spy(function() {
         return Promise.reject(error);
       });
 
@@ -131,21 +131,23 @@ describe('The mail-sender module', function() {
       });
 
       mockery.registerMock('./message-builder', function() {
-        return messageBuilderSpy;
+        return {
+          buildWithEmailTemplates: buildWithEmailTemplatesSpy
+        };
       });
 
       mailSender = this.helpers.requireBackend('core/email/mail-sender');
       mailSender(mailConfig).sendHTML(message, template, locals, function(err) {
         expect(err).to.equal(error);
         expect(getMailTransportSpy).to.have.been.called;
-        expect(messageBuilderSpy).to.have.been.calledWith(message, template, locals);
+        expect(buildWithEmailTemplatesSpy).to.have.been.calledWith(message, template, locals);
         done();
       });
     });
 
-    it('should fail if mail transport send fails', function(done) {
+    it('should fail if the mail transport fails to send the message', function(done) {
       const error = new Error('I failed to send message');
-      const messageBuilderSpy = sinon.spy(function() {
+      const buildWithEmailTemplatesSpy = sinon.spy(function() {
         return Promise.resolve(htmlMessage);
       });
 
@@ -162,7 +164,9 @@ describe('The mail-sender module', function() {
       });
 
       mockery.registerMock('./message-builder', function() {
-        return messageBuilderSpy;
+        return {
+          buildWithEmailTemplates: buildWithEmailTemplatesSpy
+        };
       });
 
       mailSender = this.helpers.requireBackend('core/email/mail-sender');
@@ -170,13 +174,13 @@ describe('The mail-sender module', function() {
         expect(err).to.equal(error);
         expect(getMailTransportSpy).to.have.been.called;
         expect(transport.sendMail).to.have.been.calledWith(htmlMessage);
-        expect(messageBuilderSpy).to.have.been.calledWith(message, template, locals);
+        expect(buildWithEmailTemplatesSpy).to.have.been.calledWith(message, template, locals);
         done();
       });
     });
 
     it('should send back transport send result', function(done) {
-      const messageBuilderSpy = sinon.spy(function() {
+      const buildWithEmailTemplatesSpy = sinon.spy(function() {
         return Promise.resolve(htmlMessage);
       });
 
@@ -193,7 +197,9 @@ describe('The mail-sender module', function() {
       });
 
       mockery.registerMock('./message-builder', function() {
-        return messageBuilderSpy;
+        return {
+          buildWithEmailTemplates: buildWithEmailTemplatesSpy
+        };
       });
 
       mailSender = this.helpers.requireBackend('core/email/mail-sender');
@@ -202,9 +208,173 @@ describe('The mail-sender module', function() {
         expect(result).to.equal(transportResult);
         expect(getMailTransportSpy).to.have.been.called;
         expect(transport.sendMail).to.have.been.calledWith(htmlMessage);
-        expect(messageBuilderSpy).to.have.been.calledWith(message, template, locals);
+        expect(buildWithEmailTemplatesSpy).to.have.been.calledWith(message, template, locals);
         done();
       });
+    });
+  });
+
+  describe('The sendWithCustomTemplateFunction function', function() {
+    let templateFn;
+
+    beforeEach(function() {
+      templateFn = () => {};
+    });
+
+    it('should reject when message is not defined', function(done) {
+      mailSender = this.helpers.requireBackend('core/email/mail-sender');
+
+      mailSender(mailConfig).sendWithCustomTemplateFunction({ template, templateFn, locals })
+        .then(() => done('should not resolve'))
+        .catch(err => {
+          expect(err.message).to.equal('Invalid email message');
+          done();
+        });
+    });
+
+    it('should reject if message.to is not defined', function(done) {
+      mailSender = this.helpers.requireBackend('core/email/mail-sender');
+
+      mailSender(mailConfig).sendWithCustomTemplateFunction({ message: { from: 'whoever@nowhere.com' }, template, templateFn, locals })
+        .then(() => done('should not resolve'))
+        .catch(err => {
+          expect(err.message).to.equal('Invalid email message');
+          done();
+        });
+    });
+
+    it('should reject if the mail transport cannot be found', function(done) {
+      mockery.registerMock('./message-builder', () => () => Promise.resolve());
+
+      const getMailTransportStub = sinon.stub().returns(Promise.resolve());
+
+      mockery.registerMock('./mail-transport', {
+        get: getMailTransportStub
+      });
+
+      mailSender = this.helpers.requireBackend('core/email/mail-sender');
+
+      mailSender(mailConfig).sendWithCustomTemplateFunction({ message, template, templateFn, locals })
+        .then(() => done('should not resolve'))
+        .catch(err => {
+          expect(err).to.exist;
+          expect(err.message).to.equal('Transport can not be found');
+          expect(getMailTransportStub).to.have.been.calledWith(mailConfig);
+          done();
+        });
+    });
+
+    it('should reject if it fails to get the mail transport', function(done) {
+      const error = new Error('I failed to get transport');
+
+      const getMailTransportStub = sinon.stub().returns(Promise.reject(error));
+
+      mockery.registerMock('./mail-transport', {
+        get: getMailTransportStub
+      });
+
+      mailSender = this.helpers.requireBackend('core/email/mail-sender');
+
+      mailSender(mailConfig).sendWithCustomTemplateFunction({ message, template, templateFn, locals })
+        .then(() => done('should not resolve'))
+        .catch(err => {
+          expect(err).to.equal(error);
+          expect(getMailTransportStub).to.have.been.calledWith(mailConfig);
+          done();
+        });
+    });
+
+    it('should reject if the message builder fails to build the message', function(done) {
+      const error = new Error('I failed to build the message');
+      const buildWithCustomTemplateFunctionStub = sinon.stub().throws(error);
+
+      const getMailTransportStub = sinon.stub().returns(Promise.resolve(transport));
+
+      mockery.registerMock('./mail-transport', {
+        get: getMailTransportStub
+      });
+
+      mockery.registerMock('./message-builder', () => ({
+        buildWithCustomTemplateFunction: buildWithCustomTemplateFunctionStub
+      }));
+
+      const options = { message, template, templateFn, locals };
+
+      mailSender = this.helpers.requireBackend('core/email/mail-sender');
+
+      mailSender(mailConfig).sendWithCustomTemplateFunction(options)
+        .then(() => done('should not resolve'))
+        .catch(err => {
+          expect(err).to.equal(error);
+          expect(getMailTransportStub).to.have.been.called;
+          expect(buildWithCustomTemplateFunctionStub).to.have.been.calledWith(options);
+          done();
+        });
+    });
+
+    it('should reject if the mail transport fails to send the message', function(done) {
+      const error = new Error('I failed to send the message');
+      const buildWithCustomTemplateFunctionStub = sinon.stub().returns(htmlMessage);
+
+      transport.sendMail = sinon.stub().throws(error);
+
+      const getMailTransportStub = sinon.stub().returns(Promise.resolve(transport));
+
+      mockery.registerMock('./mail-transport', {
+        get: getMailTransportStub
+      });
+
+      mockery.registerMock('./message-builder', () => ({
+        buildWithCustomTemplateFunction: buildWithCustomTemplateFunctionStub
+      }));
+
+      const options = { message, template, templateFn, locals };
+
+      mailSender = this.helpers.requireBackend('core/email/mail-sender');
+
+      mailSender(mailConfig).sendWithCustomTemplateFunction(options)
+      .then(() => done('should not resolve'))
+      .catch(err => {
+        expect(err).to.equal(error);
+        expect(getMailTransportStub).to.have.been.called;
+        expect(transport.sendMail).to.have.been.calledWith(htmlMessage);
+        expect(buildWithCustomTemplateFunctionStub).to.have.been.calledWith(options);
+        done();
+      });
+    });
+
+    it('should send back transport send result', function(done) {
+      const buildWithCustomTemplateFunctionStub = sinon.stub().returns(htmlMessage);
+
+      transport.sendMail = sinon.spy(function(message, callback) {
+        callback(null, transportResult);
+      });
+
+      const getMailTransportStub = sinon.stub().returns(Promise.resolve(transport));
+
+      mockery.registerMock('./mail-transport', {
+        get: getMailTransportStub
+      });
+
+      mockery.registerMock('./message-builder', function() {
+        return {
+          buildWithCustomTemplateFunction: buildWithCustomTemplateFunctionStub
+        };
+      });
+
+      const options = { message, template, templateFn, locals };
+
+      mailSender = this.helpers.requireBackend('core/email/mail-sender');
+
+      mailSender(mailConfig).sendWithCustomTemplateFunction(options)
+        .then(result => {
+          expect(result).to.equal(transportResult);
+          expect(getMailTransportStub).to.have.been.called;
+          expect(transport.sendMail).to.have.been.calledWith(htmlMessage);
+          expect(buildWithCustomTemplateFunctionStub).to.have.been.calledWith(options);
+          done();
+        })
+        .catch(err => done(err || new Error('should resolve')));
     });
   });
 });
