@@ -5,9 +5,11 @@ const logger = require('../logger');
 const mongoose = require('mongoose');
 const uuidV4 = require('uuid/v4');
 const AuthToken = mongoose.model('AuthToken');
+const jwt = require('../../core/auth').jwt;
 
 module.exports = {
   getNewToken,
+  getUnexpiredToken,
   getToken,
   validateToken
 };
@@ -37,6 +39,39 @@ function getNewToken(options = {}, callback) {
     }
 
     return callback(null, options);
+  });
+}
+
+//Generate a long lived token : used to generate a public ics link
+function getUnexpiredToken(options, callback) {
+
+  const payload = { user: options.user };
+
+  jwt.generateWebToken(payload, function(err, token) {
+    if (err || !token) {
+      logger.error('Can not generate the long-lived JWT', err);
+
+      return callback(err);
+    }
+
+    options.ttl = 0;
+    options.token = token;
+    options.created_at = new Date();
+
+    if (options.user) {
+      options.user = String(options.user);
+    }
+    const authToken = new AuthToken({ token: token, expiresAt: 0, data: options });
+
+    authToken.save(err => {
+      if (err) {
+        logger.error('Can not save auth long-lived token', err);
+
+        return callback(err);
+      }
+
+      return callback(null, options);
+    });
   });
 }
 

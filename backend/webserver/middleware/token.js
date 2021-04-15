@@ -7,13 +7,14 @@ var logger = require('../../core/logger');
 
 module.exports.generateNewToken = function(ttl) {
 
-  return function(req, res, next) {
+return function(req, res, next) {
     authToken.getNewToken({ttl: ttl || DEFAULT_TIMEOUT, user: req.user._id}, function(err, token) {
       if (err || !token) {
         if (err) {
           logger.error('Can not generate new token', err);
         }
-        return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not generate token'}});
+
+return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not generate token'}});
       }
 
       req.token = token;
@@ -21,6 +22,24 @@ module.exports.generateNewToken = function(ttl) {
     });
   };
 };
+module.exports.generateUnexpiredToken = function() {
+
+  return function(req, res, next) {
+
+      authToken.getUnexpiredToken({ user: req.user._id}, function(err, token) {
+        if (err || !token) {
+          if (err) {
+            logger.error('Can not generate a long-lived  token', err);
+          }
+
+  return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not generate a long-lived token'}});
+        }
+
+        req.token = token;
+        next();
+      });
+    };
+  };
 
 function getToken(req, res, next) {
   if (!req.params.token) {
