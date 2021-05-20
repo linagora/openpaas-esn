@@ -24,7 +24,7 @@ function getUserInfosFromProvider(accessToken) {
   return esnConfig(CONFIG_KEY).get()
     .then(configuration => {
       if (!configuration || !configuration.clients || !configuration.clients.length) {
-        return null;
+        throw new Error(`OIDC: ${CONFIG_KEY} configuration was not found`);
       }
 
       return testAllProviders(accessToken, configuration.clients);
