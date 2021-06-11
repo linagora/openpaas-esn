@@ -88,7 +88,6 @@ module.exports = router => {
    */
   router.get(
     '/themes/:uuid/logo',
-    authorize.requiresAPILogin,
     domainMiddleware.load,
     controller.getLogo
   );

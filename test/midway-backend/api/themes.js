@@ -211,9 +211,6 @@ describe('The Themes API', function() {
   });
 
   describe('GET /api/themes/:uuid/logo', function() {
-    it('should HTTP 401 when not logged in', function(done) {
-      helpers.api.requireLogin(app, 'get', `${API_PATH}/${domain._id}/logo`, done);
-    });
 
     it('should send back 404 when domain is not found', function(done) {
       sendRequestAsUser(userDomainMember, requestAsMember => {
