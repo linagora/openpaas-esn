@@ -159,7 +159,7 @@ module.exports = function(grunt) {
       dev: {
         script: 'server.js',
         options: {
-          nodeArgs: ['--preserve-symlinks'],
+          nodeArgs: ['--preserve-symlinks', '--inspect'],
           env: {NODE_ENV: 'dev'},
           ignore: ['frontend', '.git', 'README.md', 'node_modules', 'test', 'doc', 'fixtures', 'log', 'bin', 'Gruntfile*.js', 'tasks', 'docker', 'packaging'],
           watchedExtensions: ['js'],
