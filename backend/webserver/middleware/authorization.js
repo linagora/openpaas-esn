@@ -47,7 +47,11 @@ function _requiresAPILoginAndFailWithError(failWithError = false) {
     }
 
     if (config.auth && config.auth.apiStrategies) {
-      return passport.authenticate(config.auth.apiStrategies, { session: false, failWithError: failWithError })(req, res, next);
+      try {
+        return passport.authenticate(config.auth.apiStrategies, { session: false, failWithError: failWithError })(req, res, next);
+      } catch (error) {
+        logger.error('failed to authenticate user with passport', error);
+      }
     }
 
     res.set('Content-Type', 'application/json; charset=utf-8');
