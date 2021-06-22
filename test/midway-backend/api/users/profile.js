@@ -1061,7 +1061,7 @@ describe('The profile API', function() {
 
   describe('GET /api/user route', function() {
 
-    it('should return 200 with the profile of the user, including his configurations and follows', function(done) {
+    it('should return 200 with the profile of the user, including his configurations', function(done) {
       helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
@@ -1090,8 +1090,6 @@ describe('The profile API', function() {
                   }]
                 }]
               });
-              expect(res.body.followers).to.equal(0);
-              expect(res.body.followings).to.equal(0);
 
               done();
             });
