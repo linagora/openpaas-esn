@@ -4,22 +4,7 @@ module.exports = dependencies => {
   const { Model } = dependencies('people');
 
   return ({ source }) => {
-    const vcard = new ICAL.Component(source.body);
-    const id = vcard.getFirstPropertyValue('uid');
-    const fullName = vcard.getFirstPropertyValue('fn');
-    const name = vcard.getFirstPropertyValue('n');
-    const firstName = name ? name[1] : '';
-    const lastName = name ? name[0] : '';
-    const emails = getMultiValue(vcard, 'email').map(email => {
-      email.value = email.value.replace(/^mailto:/i, '');
-
-      return email;
-    });
-    const phones = (getMultiValue(vcard, 'tel') || []).map(phone => {
-      phone.value = phone.value.replace(/^tel:/i, '');
-
-      return phone;
-    });
+    const { id, fullName, firstName, lastName, emails, phones } = parseContact(source);
     const displayName = (fullName || `${firstName} ${lastName}`).trim();
     const emailAddresses = emails.map(email => new Model.EmailAddress({ value: email.value, type: email.type }));
     const phoneNumbers = phones.map(phone => new Model.PhoneNumber({ value: phone.value, type: phone.type }));
@@ -55,5 +40,32 @@ module.exports = dependencies => {
 
       return data;
     });
+  }
+
+  function parseContact(source) {
+    if (!source.body) {
+      const { fn: fullName, uid: id, tel: phones } = source;
+
+      return { ...source, fullName, id, phones };
+    }
+
+    const vcard = new ICAL.Component(source.body);
+    const id = vcard.getFirstPropertyValue('uid');
+    const fullName = vcard.getFirstPropertyValue('fn');
+    const name = vcard.getFirstPropertyValue('n');
+    const firstName = name ? name[1] : '';
+    const lastName = name ? name[0] : '';
+    const emails = getMultiValue(vcard, 'email').map(email => {
+      email.value = email.value.replace(/^mailto:/i, '');
+
+      return email;
+    });
+    const phones = (getMultiValue(vcard, 'tel') || []).map(phone => {
+      phone.value = phone.value.replace(/^tel:/i, '');
+
+      return phone;
+    });
+
+    return { id, fullName, firstName, lastName, emails, phones };
   }
 };

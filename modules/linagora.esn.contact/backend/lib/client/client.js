@@ -1,7 +1,6 @@
 const Q = require('q');
 const { SHARING_INVITE_STATUS } = require('../constants');
-const { parseAddressbookPath, parseContactPath } = require('../helper');
-const { ADDRESSBOOK_ROOT_PATH } = require('./constants');
+const { parseAddressbookPath } = require('../helper');
 
 module.exports = function(dependencies, options = {}) {
   const searchClient = require('../search')(dependencies);
@@ -82,24 +81,17 @@ module.exports = function(dependencies, options = {}) {
             return output;
           }
 
-          const paths = result.list.map(contact => `/${ADDRESSBOOK_ROOT_PATH}/${contact._source.bookId}/${contact._source.bookName}/${contact._id}.vcf`);
+          output.results = result.list.map(contact => {
+            const contactObject = { ...contact._source };
 
-          return addressbookHome().addressbook().getMultipleContactsFromPaths(paths)
-            .then(contacts => contacts.map(({ vcard, path }, index) => {
-              const { bookHome, bookName, contactId } = parseContactPath(path);
+            if (mappingSubscriptionsAndSources[`${contactObject.bookId}/${contactObject.bookName}`]) {
+              contactObject['openpaas:addressbook'] = mappingSubscriptionsAndSources[`${contactObject.bookId}/${contactObject.bookName}`];
+            }
 
-              output.results[index] = {
-                bookId: bookHome,
-                bookName,
-                contactId,
-                body: vcard
-              };
+            return contactObject;
+          });
 
-              if (mappingSubscriptionsAndSources[`${bookHome}/${bookName}`]) {
-                output.results[index]['openpaas:addressbook'] = mappingSubscriptionsAndSources[`${bookHome}/${bookName}`];
-              }
-            }))
-            .then(() => output);
+          return Promise.resolve(output);
         });
       });
   }
