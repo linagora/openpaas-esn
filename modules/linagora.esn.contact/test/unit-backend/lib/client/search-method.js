@@ -3,7 +3,6 @@ const mockery = require('mockery');
 const sinon = require('sinon');
 
 const { SHARING_INVITE_STATUS } = require('../../../../backend/lib/constants');
-const { ADDRESSBOOK_ROOT_PATH } = require('../../../../backend/lib/client/constants');
 
 describe('The contact client module #searchContacts method', function() {
   const CLIENT_OPTIONS = { davserver: 'davServerUrl', ESNToken: 'token' };
@@ -58,36 +57,6 @@ describe('The contact client module #searchContacts method', function() {
       }
     };
 
-    it('should reject if failed to list searchable address books', function(done) {
-      const listAddressBooksMock = sinon.stub().returns(Promise.reject(new Error('something wrong')));
-
-      addressbookHomeMock = sinon.spy(function() {
-        return {
-          addressbook: function() {
-            return {
-              list: listAddressBooksMock
-            };
-          }
-        };
-      });
-      mockery.registerMock('./addressbookHome', () => addressbookHomeMock);
-
-      getModule()(CLIENT_OPTIONS).searchContacts(options)
-        .then(() => done(new Error('should not resolve')))
-        .catch(err => {
-          expect(listAddressBooksMock).to.have.been.calledWith({
-            query: {
-              personal: true,
-              subscribed: true,
-              shared: true,
-              inviteStatus: SHARING_INVITE_STATUS.ACCEPTED
-            }
-          });
-          expect(err.message).to.equal('something wrong');
-          done();
-        });
-    });
-
     it('should reject if failed to search contacts', function(done) {
       addressbookHomeMock = sinon.spy(function() {
         return {
@@ -123,76 +92,21 @@ describe('The contact client module #searchContacts method', function() {
         });
     });
 
-    it('should reject if failed to fetch multiple contacts by paths from Sabre', function(done) {
-      const getMultipleContactsFromPathsMock = sinon.stub().returns(Promise.reject(new Error('something wrong')));
-
-      addressbookHomeMock = sinon.spy(function() {
-        return {
-          addressbook: function() {
-            return {
-              list: () => Promise.resolve(listAddressbooksResponse),
-              getMultipleContactsFromPaths: getMultipleContactsFromPathsMock
-            };
-          }
-        };
-      });
-      mockery.registerMock('./addressbookHome', () => addressbookHomeMock);
-
-      const contact = {
-        _source: {
-          bookId: addressbook.bookId,
-          bookName: addressbook.bookName
-        },
-        _id: 'contactId'
-      };
-
-      const searchContactsMock = function(searchOptions, callback) {
-        expect(searchOptions).to.deep.equal({
-          search: options.search,
-          limit: options.limit,
-          page: options.page,
-          addressbooks: [{ bookHome: addressbook.bookId, bookName: addressbook.bookName }],
-          excludeIds: options.excludeIds
-        });
-
-        return callback(null, {
-          list: [contact]
-        });
-      };
-
-      mockery.registerMock('../search', () => ({
-        searchContacts: searchContactsMock
-      }));
-
-      getModule()(CLIENT_OPTIONS).searchContacts(options)
-        .then(() => done(new Error('should not resolve')))
-        .catch(err => {
-          expect(getMultipleContactsFromPathsMock).to.have.been.calledWith([
-            `/${ADDRESSBOOK_ROOT_PATH}/${contact._source.bookId}/${contact._source.bookName}/${contact._id}.vcf`
-          ]);
-          expect(err.message).to.equal('something wrong');
-          done();
-        });
-    });
-
     it('should resolve if success to search contacts', function(done) {
       const contact = {
         _source: {
           bookId: addressbook.bookId,
-          bookName: addressbook.bookName
+          bookName: addressbook.bookName,
+          contactId: 'contactId'
         },
         _id: 'contactId'
       };
-      const vcard = { foo: 'bar' };
-      const contactPath = `/${ADDRESSBOOK_ROOT_PATH}/${contact._source.bookId}/${contact._source.bookName}/${contact._id}.vcf`;
-      const getMultipleContactsFromPathsMock = sinon.stub().returns(Promise.resolve([{ vcard, path: contactPath }]));
 
       addressbookHomeMock = sinon.spy(function() {
         return {
           addressbook: function() {
             return {
-              list: () => Promise.resolve(listAddressbooksResponse),
-              getMultipleContactsFromPaths: getMultipleContactsFromPathsMock
+              list: () => Promise.resolve(listAddressbooksResponse)
             };
           }
         };
@@ -227,11 +141,9 @@ describe('The contact client module #searchContacts method', function() {
             results: [{
               bookId: addressbook.bookId,
               bookName: addressbook.bookName,
-              contactId: contact._id,
-              body: vcard
+              contactId: contact._id
             }]
           });
-          expect(getMultipleContactsFromPathsMock).to.have.been.calledWith([contactPath]);
           done();
         })
         .catch(err => done(err || new Error('should resolve')));
@@ -262,20 +174,17 @@ describe('The contact client module #searchContacts method', function() {
       const contact = {
         _source: {
           bookId: sourceAddressbook.bookId,
-          bookName: sourceAddressbook.bookName
+          bookName: sourceAddressbook.bookName,
+          contactId: 'contactId'
         },
         _id: 'contactId'
       };
-      const vcard = { foo: 'bar' };
-      const contactPath = `/${ADDRESSBOOK_ROOT_PATH}/${sourceAddressbook.bookId}/${sourceAddressbook.bookName}/${contact._id}.vcf`;
-      const getMultipleContactsFromPathsMock = sinon.stub().returns(Promise.resolve([{ vcard, path: contactPath }]));
 
       addressbookHomeMock = sinon.spy(function() {
         return {
           addressbook: function() {
             return {
-              list: listAddressBooksMock,
-              getMultipleContactsFromPaths: getMultipleContactsFromPathsMock
+              list: listAddressBooksMock
             };
           }
         };
@@ -311,14 +220,12 @@ describe('The contact client module #searchContacts method', function() {
               bookId: sourceAddressbook.bookId,
               bookName: sourceAddressbook.bookName,
               contactId: contact._id,
-              body: vcard,
               'openpaas:addressbook': {
                 bookHome: addressbook.bookId,
                 bookName: addressbook.bookName
               }
             }]
           });
-          expect(getMultipleContactsFromPathsMock).to.have.been.calledWith([contactPath]);
           done();
         })
         .catch(err => done(err || new Error('should resolve')));
@@ -469,78 +376,15 @@ describe('The contact client module #searchContacts method', function() {
         });
     });
 
-    it('should reject if failed to fetch multiple contacts by paths from Sabre', function(done) {
-      const getMultipleContactsFromPathsMock = sinon.stub().returns(Promise.reject(new Error('something wrong')));
-
-      addressbookHomeMock = function(bookHome) {
-        return {
-          addressbook: function() {
-            return {
-              list: () => {
-                if (bookHome === addressbook.bookId) {
-                  return Promise.resolve(listAddressbooksResponse);
-                }
-
-                return Promise.resolve(listGroupAddressbooksResponse);
-              },
-              getMultipleContactsFromPaths: getMultipleContactsFromPathsMock
-            };
-          }
-        };
-      };
-      mockery.registerMock('./addressbookHome', () => addressbookHomeMock);
-
-      const contact = {
-        _source: {
-          bookId: addressbook.bookId,
-          bookName: addressbook.bookName
-        },
-        _id: 'contactId'
-      };
-
-      const searchContactsMock = function(searchOptions, callback) {
-        expect(searchOptions).to.deep.equal({
-          search: options.search,
-          limit: options.limit,
-          page: options.page,
-          addressbooks: [
-            { bookHome: addressbook.bookId, bookName: addressbook.bookName },
-            { bookHome: groupAddressbook.bookId, bookName: groupAddressbook.bookName }
-          ],
-          excludeIds: options.excludeIds
-        });
-
-        return callback(null, {
-          list: [contact]
-        });
-      };
-
-      mockery.registerMock('../search', () => ({
-        searchContacts: searchContactsMock
-      }));
-
-      getModule()(CLIENT_OPTIONS).searchContacts(options)
-        .then(() => done(new Error('should not resolve')))
-        .catch(err => {
-          expect(getMultipleContactsFromPathsMock).to.have.been.calledWith([
-            `/${ADDRESSBOOK_ROOT_PATH}/${contact._source.bookId}/${contact._source.bookName}/${contact._id}.vcf`
-          ]);
-          expect(err.message).to.equal('something wrong');
-          done();
-        });
-    });
-
     it('should resolve if success to search contacts', function(done) {
       const contact = {
         _source: {
           bookId: addressbook.bookId,
-          bookName: addressbook.bookName
+          bookName: addressbook.bookName,
+          contactId: 'contactId'
         },
         _id: 'contactId'
       };
-      const vcard = { foo: 'bar' };
-      const contactPath = `/${ADDRESSBOOK_ROOT_PATH}/${contact._source.bookId}/${contact._source.bookName}/${contact._id}.vcf`;
-      const getMultipleContactsFromPathsMock = sinon.stub().returns(Promise.resolve([{ vcard, path: contactPath }]));
 
       addressbookHomeMock = function(bookHome) {
         return {
@@ -552,8 +396,7 @@ describe('The contact client module #searchContacts method', function() {
                 }
 
                 return Promise.resolve(listGroupAddressbooksResponse);
-              },
-              getMultipleContactsFromPaths: getMultipleContactsFromPathsMock
+              }
             };
           }
         };
@@ -591,11 +434,9 @@ describe('The contact client module #searchContacts method', function() {
             results: [{
               bookId: addressbook.bookId,
               bookName: addressbook.bookName,
-              contactId: contact._id,
-              body: vcard
+              contactId: contact._id
             }]
           });
-          expect(getMultipleContactsFromPathsMock).to.have.been.calledWith([contactPath]);
           done();
         })
         .catch(err => done(err || new Error('should resolve')));
@@ -625,13 +466,11 @@ describe('The contact client module #searchContacts method', function() {
       const contact = {
         _source: {
           bookId: sourceAddressbook.bookId,
-          bookName: sourceAddressbook.bookName
+          bookName: sourceAddressbook.bookName,
+          contactId: 'contactId'
         },
         _id: 'contactId'
       };
-      const vcard = { foo: 'bar' };
-      const contactPath = `/${ADDRESSBOOK_ROOT_PATH}/${sourceAddressbook.bookId}/${sourceAddressbook.bookName}/${contact._id}.vcf`;
-      const getMultipleContactsFromPathsMock = sinon.stub().returns(Promise.resolve([{ vcard, path: contactPath }]));
 
       addressbookHomeMock = function(bookHome) {
         return {
@@ -643,8 +482,7 @@ describe('The contact client module #searchContacts method', function() {
                 }
 
                 return Promise.resolve(listGroupAddressbooksResponse);
-              },
-              getMultipleContactsFromPaths: getMultipleContactsFromPathsMock
+              }
             };
           }
         };
@@ -683,14 +521,12 @@ describe('The contact client module #searchContacts method', function() {
               bookId: sourceAddressbook.bookId,
               bookName: sourceAddressbook.bookName,
               contactId: contact._id,
-              body: vcard,
               'openpaas:addressbook': {
                 bookHome: addressbook.bookId,
                 bookName: addressbook.bookName
               }
             }]
           });
-          expect(getMultipleContactsFromPathsMock).to.have.been.calledWith([contactPath]);
           done();
         })
         .catch(err => done(err || new Error('should resolve')));
