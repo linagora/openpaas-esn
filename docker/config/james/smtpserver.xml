@@ -36,7 +36,10 @@
         <authRequired>false</authRequired>
         <authorizedAddresses>0.0.0.0/0</authorizedAddresses>
         <verifyIdentity>true</verifyIdentity>
-        <maxmessagesize>0</maxmessagesize>
+        <!--
+           Define maxmessagesize as 25MiB (expressed in Kib)
+        -->
+        <maxmessagesize>25600</maxmessagesize>
         <addressBracketsEnforcement>true</addressBracketsEnforcement>
         <smtpGreeting>JAMES Linagora's SMTP awesome Server</smtpGreeting>
         <handlerchain>
@@ -64,7 +67,10 @@
         <authorizedAddresses>0.0.0.0/0</authorizedAddresses>
         <!-- Trust authenticated users -->
         <verifyIdentity>false</verifyIdentity>
-        <maxmessagesize>0</maxmessagesize>
+        <!--
+           Define maxmessagesize as 25MiB (expressed in Kib)
+        -->
+        <maxmessagesize>25600</maxmessagesize>
         <addressBracketsEnforcement>true</addressBracketsEnforcement>
         <smtpGreeting>JAMES Linagora's SMTP awesome Server</smtpGreeting>
         <handlerchain>
@@ -92,7 +98,10 @@
         <authorizedAddresses>0.0.0.0/0</authorizedAddresses>
         <!-- Trust authenticated users -->
         <verifyIdentity>false</verifyIdentity>
-        <maxmessagesize>0</maxmessagesize>
+        <!--
+           Define maxmessagesize as 25MiB (expressed in Kib)
+        -->
+        <maxmessagesize>25600</maxmessagesize>
         <addressBracketsEnforcement>true</addressBracketsEnforcement>
         <smtpGreeting>JAMES Linagora's SMTP awesome Server</smtpGreeting>
         <handlerchain>
