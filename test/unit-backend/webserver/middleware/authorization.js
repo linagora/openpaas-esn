@@ -143,7 +143,8 @@ describe('The authorization middleware', function() {
       var req = {
         isAuthenticated: function() {
           return false;
-        }
+        },
+        originalUrl: '/'
       };
       const res = {};
       const next = sinon.spy();
@@ -153,7 +154,8 @@ describe('The authorization middleware', function() {
       expect(next).to.not.have.been.called;
       expect(authSpy).to.have.been.calledWith(strategies, {
         session: false,
-        failWithError: false
+        failWithError: false,
+        failureRedirect: '/'
       });
       expect(middlewareSpy).to.have.been.calledWith(req, res, next);
     });
@@ -220,7 +222,8 @@ describe('The authorization middleware', function() {
       var req = {
         isAuthenticated: function() {
           return false;
-        }
+        },
+        originalUrl: '/'
       };
       const res = {};
       const next = sinon.spy();
@@ -230,7 +233,8 @@ describe('The authorization middleware', function() {
       expect(next).to.not.have.been.called;
       expect(authSpy).to.have.been.calledWith(strategies, {
         session: false,
-        failWithError: true
+        failWithError: true,
+        failureRedirect: '/'
       });
       expect(middlewareSpy).to.have.been.calledWith(req, res, next);
     });

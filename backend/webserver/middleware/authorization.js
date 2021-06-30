@@ -46,22 +46,36 @@ function _requiresAPILoginAndFailWithError(failWithError = false) {
       return next();
     }
 
-    if (config.auth && config.auth.apiStrategies) {
-      try {
-        return passport.authenticate(config.auth.apiStrategies, { session: false, failWithError: failWithError })(req, res, next);
-      } catch (error) {
-        logger.error('failed to authenticate user with passport', error);
-      }
-    }
-
-    res.set('Content-Type', 'application/json; charset=utf-8');
-    res.status(401).json({
+    const errorResponse = {
       error: {
         code: 401,
         message: 'Login error',
         details: 'Please log in first'
       }
-    });
+    };
+
+    if (config.auth && config.auth.apiStrategies) {
+      return passport.authenticate(config.auth.apiStrategies, { session: false, failWithError: failWithError, failureRedirect: req.originalUrl }, (err, user, info) => {
+        const error = err || info && info.error;
+
+        if (error) {
+          logger.error('failed to authenticate user', error);
+
+          return next(error);
+        }
+
+        if (!user) {
+          return res.status(401).json(errorResponse);
+        }
+
+        req.user = user;
+
+        return next();
+      })(req, res, next);
+    }
+
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.status(401).json(errorResponse);
   };
 }
 
