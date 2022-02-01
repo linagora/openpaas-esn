@@ -266,6 +266,21 @@ describe('The ldap core module', function() {
       });
     });
 
+    it('should work when the LDAP admin admincredential is not provided', function(done) {
+      ldapConf = {
+        url: 'ldap://ldap:389',
+        searchBase: '',
+        searchFilter: ''
+      };
+
+      getModule().emailExists(user.mail, ldapConf, (err, foundUser) => {
+        expect(err).to.not.exist;
+        expect(foundUser).to.deep.equal(user);
+        expect(bindMock).to.have.been.calledWith('', '');
+        done();
+      });
+    });
+
     it('should return callback with error when failed to search ldap users', function(done) {
       ldapSearchingResultMock = Promise.reject(new Error('something wrong'));
 
@@ -636,6 +651,40 @@ describe('The ldap core module', function() {
     });
 
     it('should send back correct number of user limit by query.limit', function(done) {
+      const query = {search: 'abc', limit: 1};
+      const expectResult = {
+        total_count: 2,
+        list: [
+          {
+            _id: 'email1',
+            firstname: 'first1',
+            lastname: 'last1',
+            emails: ['email1'],
+            domains: [{ domain_id: '123456' }],
+            accounts: [
+              {
+                type: 'email',
+                hosted: true,
+                emails: ['email1']
+              }
+            ],
+            preferredEmail: 'email1'
+          }
+        ]
+      };
+
+      getModule().search(user, query).then(result => {
+        expect(result).to.deep.equal(expectResult);
+        expect(searchMock).to.have.been.calledOnce;
+
+        done();
+      });
+    });
+
+    it('should work when the LDAP admin admincredential is not provided ', function(done) {
+      ldapConfigsMock[0].configuration.adminDn = undefined;
+      ldapConfigsMock[0].configuration.adminPassword = undefined;
+
       const query = {search: 'abc', limit: 1};
       const expectResult = {
         total_count: 2,
