@@ -1,11 +1,16 @@
-'use strict';
-
 const _ = require('lodash');
+
+module.exports = {
+  aggregate,
+  buildSearchFilter,
+  getUniqueAttr,
+  sanitizeInput
+};
 
 function buildSearchFilter(mapping, search) {
   let searchFilter = '';
 
-  search = search ? `*${search}*` : '*';
+  search = search ? `*${sanitizeInput(search)}*` : '*';
 
   _.forEach(mapping, function(ldapAttr) {
     searchFilter += `(${ldapAttr}=${search})`;
@@ -57,8 +62,20 @@ function aggregate(sources, limit) {
   }
 }
 
-module.exports = {
-  aggregate,
-  buildSearchFilter,
-  getUniqueAttr
-};
+/**
+ * Sanitize LDAP special characters from input
+ *
+ * {@link https://tools.ietf.org/search/rfc4515#section-3}
+ *
+ * @param {string} input - String to sanitize
+ * @returns {string} Sanitized string
+ */
+function sanitizeInput(input) {
+  return input
+    .replace(/\*/g, '\\2a')
+    .replace(/\(/g, '\\28')
+    .replace(/\)/g, '\\29')
+    .replace(/\\/g, '\\5c')
+    .replace(/\0/g, '\\00')
+    .replace(/\//g, '\\2f');
+}
