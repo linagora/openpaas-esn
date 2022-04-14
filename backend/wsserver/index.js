@@ -69,7 +69,7 @@ function start(port, options, callback) {
   var userConnectionTopic = pubsub.topic('user:connection');
   var userDisconnectionTopic = pubsub.topic('user:disconnection');
   if (sio) {
-    sio.use(require('./auth/token'));
+    sio.use(require('./auth/jwt'));
 
     sio.on('connection', function(socket) {
       var user = socketioHelper.getUserId(socket);
