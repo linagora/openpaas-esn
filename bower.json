@@ -31,7 +31,7 @@
     "angular-clockpicker": "~1.2.0",
     "angular-component": "linagora/angular-component#0.1.4",
     "angular-feature-flags": "~1.0.0",
-    "angular-file-saver": "1.1.2",
+    "angular-file-saver": "linagora/angular-file-saver#1.1.4",
     "angular-file-upload": "danialfarid/angular-file-upload#~2.0.4",
     "angular-fullscreen": "~1.0.1",
     "angular-gist": "~0.1.3",
