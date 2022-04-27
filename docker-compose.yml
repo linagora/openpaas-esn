@@ -4,7 +4,7 @@ services:
 
   esn:
     container_name: esn
-    image: linagora/esn:1.6.5
+    image: linagora/esn:1.6.6
     ports:
      - "8080:8080"
     volumes:
