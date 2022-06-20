@@ -34,7 +34,7 @@ staticAssets(application, '/components', FRONTEND_PATH + '/components');
 application.use('/js', express.static(FRONTEND_PATH + '/js', { extensions: ['js']}));
 application.use('/core/js', express.static(FRONTEND_PATH + '/js/modules', { extensions: ['js']}));
 
-application.use(bodyParser.json());
+application.use(bodyParser.json({limit: '1mb'}));
 application.use(bodyParser.urlencoded({ extended: true }));
 
 application.use(startupBuffer);
