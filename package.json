@@ -16,7 +16,7 @@
     "async-eventemitter": "0.2.2",
     "awesome-module": "1.1.0",
     "awesome-module-manager": "1.2.0",
-    "axios": "0.19.2",
+    "axios": "1.6.0",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "1.19.0",
     "bower": "1.8.8",
