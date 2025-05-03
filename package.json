@@ -79,7 +79,7 @@
     "linagora.esn.unifiedinbox.twitter": "linagora/linagora.esn.unifiedinbox.twitter",
     "linagora.esn.videoconference": "linagora/linagora.esn.videoconference",
     "linagora.esn.videoconference.calendar": "linagora/linagora.esn.videoconference.calendar",
-    "lodash": "4.17.15",
+    "lodash": "4.17.21",
     "logrotate-stream": "0.2.5",
     "mailparser": "0.6.1",
     "moment-timezone": "0.5.17",
